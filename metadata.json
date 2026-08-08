@@ -1,0 +1,6 @@
+{
+  "name": "Smart Life Typing Services",
+  "description": "Trusted UAE visa, typing, attestation, and government documentation services provider in Sharjah, UAE.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

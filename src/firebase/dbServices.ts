@@ -1,0 +1,629 @@
+import { 
+  collection, 
+  getDocs, 
+  doc, 
+  setDoc, 
+  updateDoc, 
+  deleteDoc, 
+  addDoc,
+  query,
+  orderBy,
+  onSnapshot
+} from 'firebase/firestore';
+import { db, isFirebaseConfigured } from './config';
+import { ServiceItem, Branch, GoogleReview, FaqItem, InquiryItem } from '../types';
+import { BlogPost, BLOG_POSTS } from '../data/blogData';
+import { SERVICES_DATA } from '../data/servicesData';
+import { BRANCHES_DATA } from '../data/branchesData';
+import { FAQS_DATA } from '../data/faqsData';
+import { GOOGLE_REVIEWS_DATA } from '../data/googleReviewsData';
+
+// Initial Mock Inquiries for Admin Inbox fallback
+const INITIAL_MOCK_INQUIRIES: InquiryItem[] = [
+  {
+    id: 'inq-101',
+    clientName: 'Rashid Al-Nuaimi',
+    phone: '+971 50 123 4567',
+    email: 'rashid.n@example.ae',
+    serviceCategory: 'Visas & Immigration',
+    serviceTitle: 'Sharjah Family Visa Renewal',
+    message: 'Need urgent assistance renewing my wife and 2 children residency visas in Sharjah. EJARI is ready.',
+    source: 'contact_form',
+    status: 'new',
+    createdAt: new Date(Date.now() - 1000 * 60 * 30).toISOString(),
+    assignedBranch: 'Abu Shagara Main Branch'
+  },
+  {
+    id: 'inq-102',
+    clientName: 'Sanjay Varma',
+    phone: '+971 55 987 6543',
+    email: 'sanjay.varma@example.com',
+    serviceCategory: 'BLS Indian Consulate',
+    serviceTitle: 'Indian Passport Renewal',
+    message: 'Passport expiring in 2 months. Need Tatkaal appointment guidance and document pre-verification.',
+    source: 'visa_helper',
+    status: 'in_progress',
+    createdAt: new Date(Date.now() - 1000 * 60 * 180).toISOString(),
+    notes: 'Called client on WhatsApp. Requested copy of current Emirates ID.',
+    assignedBranch: 'Abu Shagara Main Branch'
+  },
+  {
+    id: 'inq-103',
+    clientName: 'Fatima Al-Mansoori',
+    phone: '+971 52 444 8899',
+    serviceCategory: 'Certificate Attestation',
+    serviceTitle: 'Degree Certificate MoFA Attestation',
+    message: 'Have UK Bachelor degree certificate. Need home country and MoFA UAE final attestation.',
+    source: 'document_checklist',
+    status: 'contacted',
+    createdAt: new Date(Date.now() - 1000 * 60 * 600).toISOString(),
+    notes: 'Documents collected via courier. In progress at MoFA.',
+    assignedBranch: 'Al Majaz 1 Branch'
+  }
+];
+
+// Helper to get local stored inquiries if offline/demo
+const getStoredLocalInquiries = (): InquiryItem[] => {
+  try {
+    const saved = localStorage.getItem('smartlife_inquiries');
+    if (saved) return JSON.parse(saved);
+  } catch {
+    // fallback
+  }
+  return INITIAL_MOCK_INQUIRIES;
+};
+
+const saveStoredLocalInquiries = (items: InquiryItem[]) => {
+  try {
+    localStorage.setItem('smartlife_inquiries', JSON.stringify(items));
+  } catch {
+    // ignore
+  }
+};
+
+// Local storage helpers for static data edits in demo/offline mode
+const getStoredLocal = <T>(key: string, defaultData: T): T => {
+  try {
+    const saved = localStorage.getItem(key);
+    if (saved) return JSON.parse(saved);
+  } catch {
+    // fallback
+  }
+  return defaultData;
+};
+
+const saveStoredLocal = <T>(key: string, data: T) => {
+  try {
+    localStorage.setItem(key, JSON.stringify(data));
+  } catch {
+    // ignore
+  }
+};
+
+// ==========================================
+// 1. SERVICES API (Real-Time Live & Dynamic Sort Order)
+// ==========================================
+export const fetchServices = async (): Promise<ServiceItem[]> => {
+  let list: ServiceItem[] = [];
+  if (isFirebaseConfigured() && db) {
+    try {
+      const querySnapshot = await getDocs(collection(db, 'services'));
+      if (!querySnapshot.empty) {
+        list = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as ServiceItem));
+      } else {
+        // Auto-seed empty Firestore database with initial services
+        await saveAllServices(SERVICES_DATA);
+        list = SERVICES_DATA;
+      }
+    } catch (e) {
+      console.warn('Firestore fetchServices fallback to local:', e);
+    }
+  }
+
+  if (!list.length) {
+    const rawLocal = localStorage.getItem('smartlife_services');
+    if (!rawLocal) {
+      list = SERVICES_DATA;
+    } else {
+      list = getStoredLocal('smartlife_services', SERVICES_DATA);
+    }
+  }
+
+  // Sort by sortOrder if available
+  return list.sort((a, b) => (a.sortOrder ?? 999) - (b.sortOrder ?? 999));
+};
+
+export const subscribeServices = (onData: (services: ServiceItem[]) => void): (() => void) => {
+  if (isFirebaseConfigured() && db) {
+    try {
+      const q = collection(db, 'services');
+      const unsubscribe = onSnapshot(q, (snapshot) => {
+        if (snapshot.empty) {
+          // Auto-seed empty Firestore database with initial services
+          saveAllServices(SERVICES_DATA);
+          onData(SERVICES_DATA);
+          return;
+        }
+        const liveList = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as ServiceItem));
+        const sorted = liveList.sort((a, b) => (a.sortOrder ?? 999) - (b.sortOrder ?? 999));
+        onData(sorted);
+      }, (err) => {
+        console.warn('Firestore services onSnapshot error:', err);
+        const local = getStoredLocal('smartlife_services', SERVICES_DATA);
+        onData(local.sort((a, b) => (a.sortOrder ?? 999) - (b.sortOrder ?? 999)));
+      });
+      return unsubscribe;
+    } catch (e) {
+      console.warn('Error setting up services listener:', e);
+    }
+  }
+
+  const handleUpdate = () => {
+    const local = getStoredLocal('smartlife_services', SERVICES_DATA);
+    onData(local.sort((a, b) => (a.sortOrder ?? 999) - (b.sortOrder ?? 999)));
+  };
+
+  handleUpdate();
+  window.addEventListener('smartlife_services_updated', handleUpdate);
+  window.addEventListener('storage', handleUpdate);
+
+  return () => {
+    window.removeEventListener('smartlife_services_updated', handleUpdate);
+    window.removeEventListener('storage', handleUpdate);
+  };
+};
+
+export const saveService = async (service: ServiceItem): Promise<boolean> => {
+  if (isFirebaseConfigured() && db) {
+    try {
+      await setDoc(doc(db, 'services', service.id), service);
+    } catch (e) {
+      console.error('Error saving service to Firestore:', e);
+    }
+  }
+  const current = getStoredLocal('smartlife_services', SERVICES_DATA);
+  const index = current.findIndex(s => s.id === service.id);
+  let updated: ServiceItem[];
+  if (index >= 0) {
+    updated = [...current];
+    updated[index] = service;
+  } else {
+    updated = [service, ...current];
+  }
+  saveStoredLocal('smartlife_services', updated);
+  window.dispatchEvent(new Event('smartlife_services_updated'));
+  return true;
+};
+
+export const saveAllServices = async (servicesList: ServiceItem[]): Promise<boolean> => {
+  const indexedList = servicesList.map((s, idx) => ({ ...s, sortOrder: idx + 1 }));
+  
+  if (isFirebaseConfigured() && db) {
+    try {
+      const batchPromises = indexedList.map(item => setDoc(doc(db, 'services', item.id), item));
+      await Promise.all(batchPromises);
+    } catch (e) {
+      console.error('Error saving all services to Firestore:', e);
+    }
+  }
+  
+  saveStoredLocal('smartlife_services', indexedList);
+  window.dispatchEvent(new Event('smartlife_services_updated'));
+  return true;
+};
+
+export const deleteService = async (serviceId: string): Promise<boolean> => {
+  if (isFirebaseConfigured() && db) {
+    try {
+      await deleteDoc(doc(db, 'services', serviceId));
+    } catch (e) {
+      console.error('Error deleting service from Firestore:', e);
+    }
+  }
+  const current = getStoredLocal('smartlife_services', SERVICES_DATA);
+  const updated = current.filter(s => s.id !== serviceId);
+  saveStoredLocal('smartlife_services', updated);
+  window.dispatchEvent(new Event('smartlife_services_updated'));
+  return true;
+};
+
+// ==========================================
+// 2. BLOGS API
+// ==========================================
+export const fetchBlogPosts = async (): Promise<BlogPost[]> => {
+  if (isFirebaseConfigured() && db) {
+    try {
+      const querySnapshot = await getDocs(collection(db, 'blogs'));
+      if (!querySnapshot.empty) {
+        return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as BlogPost));
+      } else {
+        // Auto-seed empty Firestore blogs
+        for (const post of BLOG_POSTS) {
+          await setDoc(doc(db, 'blogs', post.id), post);
+        }
+        return BLOG_POSTS;
+      }
+    } catch (e) {
+      console.warn('Firestore fetchBlogPosts fallback to local:', e);
+    }
+  }
+  return getStoredLocal('smartlife_blogs', BLOG_POSTS);
+};
+
+export const subscribeBlogPosts = (onData: (posts: BlogPost[]) => void): (() => void) => {
+  if (isFirebaseConfigured() && db) {
+    try {
+      const q = collection(db, 'blogs');
+      const unsubscribe = onSnapshot(q, (snapshot) => {
+        if (snapshot.empty) {
+          BLOG_POSTS.forEach(p => setDoc(doc(db, 'blogs', p.id), p));
+          onData(BLOG_POSTS);
+          return;
+        }
+        onData(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as BlogPost)));
+      }, () => {
+        onData(getStoredLocal('smartlife_blogs', BLOG_POSTS));
+      });
+      return unsubscribe;
+    } catch (e) {
+      console.warn('Error subscribing to blogs:', e);
+    }
+  }
+  onData(getStoredLocal('smartlife_blogs', BLOG_POSTS));
+  return () => {};
+};
+
+export const saveBlogPost = async (post: BlogPost): Promise<boolean> => {
+  if (isFirebaseConfigured() && db) {
+    try {
+      await setDoc(doc(db, 'blogs', post.id), post);
+      return true;
+    } catch (e) {
+      console.error('Error saving blog post to Firestore:', e);
+    }
+  }
+  const current = getStoredLocal('smartlife_blogs', BLOG_POSTS);
+  const index = current.findIndex(b => b.id === post.id);
+  let updated: BlogPost[];
+  if (index >= 0) {
+    updated = [...current];
+    updated[index] = post;
+  } else {
+    updated = [post, ...current];
+  }
+  saveStoredLocal('smartlife_blogs', updated);
+  return true;
+};
+
+export const deleteBlogPost = async (postId: string): Promise<boolean> => {
+  if (isFirebaseConfigured() && db) {
+    try {
+      await deleteDoc(doc(db, 'blogs', postId));
+      return true;
+    } catch (e) {
+      console.error('Error deleting blog post from Firestore:', e);
+    }
+  }
+  const current = getStoredLocal('smartlife_blogs', BLOG_POSTS);
+  const updated = current.filter(b => b.id !== postId);
+  saveStoredLocal('smartlife_blogs', updated);
+  return true;
+};
+
+// ==========================================
+// 3. BRANCHES API
+// ==========================================
+export const fetchBranches = async (): Promise<Branch[]> => {
+  if (isFirebaseConfigured() && db) {
+    try {
+      const querySnapshot = await getDocs(collection(db, 'branches'));
+      if (!querySnapshot.empty) {
+        return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Branch));
+      } else {
+        for (const branch of BRANCHES_DATA) {
+          await setDoc(doc(db, 'branches', branch.id), branch);
+        }
+        return BRANCHES_DATA;
+      }
+    } catch (e) {
+      console.warn('Firestore fetchBranches fallback to local:', e);
+    }
+  }
+  return getStoredLocal('smartlife_branches', BRANCHES_DATA);
+};
+
+export const saveBranch = async (branch: Branch): Promise<boolean> => {
+  if (isFirebaseConfigured() && db) {
+    try {
+      await setDoc(doc(db, 'branches', branch.id), branch);
+      return true;
+    } catch (e) {
+      console.error('Error saving branch to Firestore:', e);
+    }
+  }
+  const current = getStoredLocal('smartlife_branches', BRANCHES_DATA);
+  const index = current.findIndex(b => b.id === branch.id);
+  let updated: Branch[];
+  if (index >= 0) {
+    updated = [...current];
+    updated[index] = branch;
+  } else {
+    updated = [...current, branch];
+  }
+  saveStoredLocal('smartlife_branches', updated);
+  return true;
+};
+
+// ==========================================
+// 4. FAQS API
+// ==========================================
+export const fetchFaqs = async (): Promise<FaqItem[]> => {
+  if (isFirebaseConfigured() && db) {
+    try {
+      const querySnapshot = await getDocs(collection(db, 'faqs'));
+      if (!querySnapshot.empty) {
+        return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as unknown as FaqItem));
+      } else {
+        for (const faq of FAQS_DATA) {
+          await setDoc(doc(db, 'faqs', String(faq.id)), faq);
+        }
+        return FAQS_DATA;
+      }
+    } catch (e) {
+      console.warn('Firestore fetchFaqs fallback to local:', e);
+    }
+  }
+  return getStoredLocal('smartlife_faqs', FAQS_DATA);
+};
+
+export const saveFaq = async (faq: FaqItem): Promise<boolean> => {
+  if (isFirebaseConfigured() && db) {
+    try {
+      await setDoc(doc(db, 'faqs', String(faq.id)), faq);
+      return true;
+    } catch (e) {
+      console.error('Error saving FAQ to Firestore:', e);
+    }
+  }
+  const current = getStoredLocal('smartlife_faqs', FAQS_DATA);
+  const index = current.findIndex(f => f.id === faq.id);
+  let updated: FaqItem[];
+  if (index >= 0) {
+    updated = [...current];
+    updated[index] = faq;
+  } else {
+    updated = [...current, faq];
+  }
+  saveStoredLocal('smartlife_faqs', updated);
+  return true;
+};
+
+export const deleteFaq = async (faqId: number): Promise<boolean> => {
+  if (isFirebaseConfigured() && db) {
+    try {
+      await deleteDoc(doc(db, 'faqs', String(faqId)));
+      return true;
+    } catch (e) {
+      console.error('Error deleting FAQ from Firestore:', e);
+    }
+  }
+  const current = getStoredLocal('smartlife_faqs', FAQS_DATA);
+  const updated = current.filter(f => f.id !== faqId);
+  saveStoredLocal('smartlife_faqs', updated);
+  return true;
+};
+
+// ==========================================
+// 5. INQUIRIES CENTRALIZED BANK API
+// ==========================================
+export const fetchInquiries = async (): Promise<InquiryItem[]> => {
+  if (isFirebaseConfigured() && db) {
+    try {
+      const q = query(collection(db, 'inquiries'), orderBy('createdAt', 'desc'));
+      const querySnapshot = await getDocs(q);
+      if (!querySnapshot.empty) {
+        return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as InquiryItem));
+      }
+    } catch (e) {
+      console.warn('Firestore fetchInquiries fallback to local:', e);
+    }
+  }
+  return getStoredLocalInquiries();
+};
+
+export const submitNewInquiry = async (inquiry: Omit<InquiryItem, 'id' | 'createdAt' | 'status'>): Promise<InquiryItem> => {
+  const newItem: InquiryItem = {
+    ...inquiry,
+    id: 'inq-' + Date.now(),
+    createdAt: new Date().toISOString(),
+    status: 'new'
+  };
+
+  if (isFirebaseConfigured() && db) {
+    try {
+      const docRef = await addDoc(collection(db, 'inquiries'), {
+        ...inquiry,
+        createdAt: newItem.createdAt,
+        status: 'new'
+      });
+      newItem.id = docRef.id;
+      return newItem;
+    } catch (e) {
+      console.error('Error submitting inquiry to Firestore:', e);
+    }
+  }
+
+  const current = getStoredLocalInquiries();
+  const updated = [newItem, ...current];
+  saveStoredLocalInquiries(updated);
+  return newItem;
+};
+
+export const updateInquiryStatus = async (id: string, status: InquiryItem['status'], notes?: string): Promise<boolean> => {
+  if (isFirebaseConfigured() && db) {
+    try {
+      const docRef = doc(db, 'inquiries', id);
+      await updateDoc(docRef, { status, ...(notes !== undefined && { notes }) });
+      return true;
+    } catch (e) {
+      console.error('Error updating inquiry status in Firestore:', e);
+    }
+  }
+
+  const current = getStoredLocalInquiries();
+  const index = current.findIndex(item => item.id === id);
+  if (index >= 0) {
+    current[index].status = status;
+    if (notes !== undefined) current[index].notes = notes;
+    saveStoredLocalInquiries([...current]);
+  }
+  return true;
+};
+
+export const deleteInquiry = async (id: string): Promise<boolean> => {
+  if (isFirebaseConfigured() && db) {
+    try {
+      await deleteDoc(doc(db, 'inquiries', id));
+      return true;
+    } catch (e) {
+      console.error('Error deleting inquiry in Firestore:', e);
+    }
+  }
+
+  const current = getStoredLocalInquiries();
+  const updated = current.filter(item => item.id !== id);
+  saveStoredLocalInquiries(updated);
+  return true;
+};
+
+// ==========================================
+// 6. WHATSAPP CLICK ANALYTICS API (Real-Time Live Engine)
+// ==========================================
+import { WhatsAppClickEvent } from '../types';
+
+// Zero fake data: Only real click events captured on the website will be recorded!
+const INITIAL_MOCK_WA_CLICKS: WhatsAppClickEvent[] = [];
+
+export const fetchWhatsAppClicks = async (): Promise<WhatsAppClickEvent[]> => {
+  if (isFirebaseConfigured() && db) {
+    try {
+      const q = query(collection(db, 'whatsapp_clicks'), orderBy('timestamp', 'desc'));
+      const querySnapshot = await getDocs(q);
+      if (!querySnapshot.empty) {
+        return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as WhatsAppClickEvent));
+      }
+    } catch (e) {
+      console.warn('Firestore fetchWhatsAppClicks fallback to local:', e);
+    }
+  }
+  return getStoredLocal('smartlife_wa_clicks', INITIAL_MOCK_WA_CLICKS);
+};
+
+/**
+ * Real-Time Live Subscription for WhatsApp Clicks.
+ * Auto-updates the Admin Panel instantly whenever ANY WhatsApp button is clicked on the website.
+ */
+export const subscribeWhatsAppClicks = (onData: (clicks: WhatsAppClickEvent[]) => void): (() => void) => {
+  if (isFirebaseConfigured() && db) {
+    try {
+      const q = query(collection(db, 'whatsapp_clicks'), orderBy('timestamp', 'desc'));
+      const unsubscribe = onSnapshot(q, (snapshot) => {
+        const liveClicks = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as WhatsAppClickEvent));
+        onData(liveClicks);
+      }, (err) => {
+        console.warn('Firestore onSnapshot error, falling back to local storage listener:', err);
+        onData(getStoredLocal('smartlife_wa_clicks', INITIAL_MOCK_WA_CLICKS));
+      });
+      return unsubscribe;
+    } catch (e) {
+      console.warn('Error setting up Firestore listener:', e);
+    }
+  }
+
+  // Fallback Local Storage & Real-Time Browser Window Listener
+  const handleUpdate = () => {
+    onData(getStoredLocal('smartlife_wa_clicks', INITIAL_MOCK_WA_CLICKS));
+  };
+
+  handleUpdate();
+  window.addEventListener('smartlife_wa_click_added', handleUpdate);
+  window.addEventListener('storage', handleUpdate);
+
+  return () => {
+    window.removeEventListener('smartlife_wa_click_added', handleUpdate);
+    window.removeEventListener('storage', handleUpdate);
+  };
+};
+
+let lastClickFingerprint = '';
+let lastClickTime = 0;
+
+export const saveWhatsAppClick = async (event: Omit<WhatsAppClickEvent, 'id' | 'timestamp'>): Promise<WhatsAppClickEvent | null> => {
+  const now = Date.now();
+  const fingerprint = `${event.targetUrl}||${event.contextDetails}`;
+  
+  // Prevent duplicate logging within 1500ms (e.g. when component onClick and global listener both fire)
+  if ((now - lastClickTime < 1500) && (fingerprint === lastClickFingerprint || event.targetUrl === lastClickFingerprint.split('||')[0])) {
+    return null;
+  }
+
+  lastClickFingerprint = fingerprint;
+  lastClickTime = now;
+
+  const newClick: WhatsAppClickEvent = {
+    ...event,
+    id: 'wa-clk-' + Date.now(),
+    timestamp: new Date().toISOString()
+  };
+
+  // Synchronously write to local storage first for zero-latency local availability
+  const currentLocal = getStoredLocal('smartlife_wa_clicks', INITIAL_MOCK_WA_CLICKS);
+  const updatedLocal = [newClick, ...currentLocal];
+  saveStoredLocal('smartlife_wa_clicks', updatedLocal);
+
+  // Dispatch real-time live event so any open Admin tab updates instantly
+  window.dispatchEvent(new CustomEvent('smartlife_wa_click_added', { detail: newClick }));
+
+  if (isFirebaseConfigured() && db) {
+    try {
+      const docRef = await addDoc(collection(db, 'whatsapp_clicks'), newClick);
+      newClick.id = docRef.id;
+    } catch (e) {
+      console.error('Error saving WhatsApp click to Firestore:', e);
+    }
+  }
+
+  return newClick;
+};
+
+export const deleteWhatsAppClickEvent = async (id: string): Promise<boolean> => {
+  if (isFirebaseConfigured() && db) {
+    try {
+      await deleteDoc(doc(db, 'whatsapp_clicks', id));
+    } catch (e) {
+      console.error('Error deleting WhatsApp click event from Firestore:', e);
+    }
+  }
+  const current = getStoredLocal('smartlife_wa_clicks', INITIAL_MOCK_WA_CLICKS);
+  const updated = current.filter(c => c.id !== id);
+  saveStoredLocal('smartlife_wa_clicks', updated);
+  window.dispatchEvent(new Event('smartlife_wa_click_added'));
+  return true;
+};
+
+export const clearAllWhatsAppClicks = async (): Promise<boolean> => {
+  if (isFirebaseConfigured() && db) {
+    try {
+      const querySnapshot = await getDocs(collection(db, 'whatsapp_clicks'));
+      const batchDeletes = querySnapshot.docs.map(d => deleteDoc(doc(db, 'whatsapp_clicks', d.id)));
+      await Promise.all(batchDeletes);
+    } catch (e) {
+      console.error('Error clearing Firestore WhatsApp clicks:', e);
+    }
+  }
+  saveStoredLocal('smartlife_wa_clicks', []);
+  window.dispatchEvent(new Event('smartlife_wa_click_added'));
+  return true;
+};
+
+
