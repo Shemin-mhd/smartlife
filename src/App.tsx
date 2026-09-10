@@ -25,9 +25,10 @@ const AdminLogin = lazy(() => import('./admin/AdminLogin').then(m => ({ default:
 const AdminLayout = lazy(() => import('./admin/AdminLayout').then(m => ({ default: m.AdminLayout })));
 
 // SHA-256 One-Way Cryptographic Checksum of the Secret URL Hash.
-// The plaintext access string IS NOT stored in this code bundle.
-// Even if an attacker inspects this file in Chrome DevTools (F12), SHA-256 is mathematically non-invertible.
 const SECRET_HASH_CHECKSUM = 'cbca90c962d9e7d03ee249e062b628f3ea192e1250f9a1d700e39af2a75c9a21';
+
+// Custom Unique Admin Access Path Name
+export const UNIQUE_ADMIN_ROUTE = 'sl-gate';
 
 function AdminWrapper({ onExitAdmin }: { onExitAdmin: () => void }) {
   const { user, loading } = useAuth();
@@ -85,15 +86,28 @@ function MainContent() {
       const rawHash = window.location.hash.trim().replace(/^#/, '');
       const pathname = window.location.pathname.trim().replace(/^\//, '').toLowerCase();
 
-      // Support navigating to admin via #admin, /admin, #login, /login, #dashboard, /dashboard
-      if (
-        rawHash.toLowerCase() === 'admin' ||
-        rawHash.toLowerCase() === 'login' ||
-        rawHash.toLowerCase() === 'dashboard' ||
-        pathname === 'admin' ||
-        pathname === 'login' ||
-        pathname === 'dashboard'
-      ) {
+      // Unique secret route verification
+      const targetUniqueRoute = UNIQUE_ADMIN_ROUTE.toLowerCase();
+
+      const adminKeywords = [
+        targetUniqueRoute,
+        'sl',
+        'pro',
+        'go',
+        'sl-pro',
+        'sl7',
+        'sl-gate',
+        'admin', 'login', 'dashboard', 'portal', 'panel', 
+        'manage', 'management', 'control', 'backend', 'system', 
+        'smartlife-admin', 'admin-panel', 'admin-portal'
+      ];
+
+      const isAdminRoute = adminKeywords.some(k => 
+        pathname === k || pathname.includes(k) || 
+        rawHash.toLowerCase() === k || rawHash.toLowerCase().includes(k)
+      );
+
+      if (isAdminRoute) {
         setCurrentPage('admin');
         return;
       }

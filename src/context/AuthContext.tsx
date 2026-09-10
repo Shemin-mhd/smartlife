@@ -1,9 +1,9 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { 
-  signInWithEmailAndPassword, 
-  signOut as firebaseSignOut, 
+import {
+  signInWithEmailAndPassword,
+  signOut as firebaseSignOut,
   onAuthStateChanged,
-  User 
+  User
 } from 'firebase/auth';
 import { auth, isFirebaseConfigured } from '../firebase/config';
 import { AdminUser } from '../types';
@@ -17,9 +17,14 @@ interface AuthContextType {
   isDemoMode: boolean;
 }
 
-// SHA-256 checksums of authorized credentials (No plain text passwords exposed in client code!)
-const CREDENTIAL_HASH_1 = 'c3b7fcf438fc747f6cfbc41eac9dc478bf393ffa1d10b97269af11af28e9552e';
-const CREDENTIAL_HASH_2 = '16fb007ce80191dcd84cc8c9dc8bc5ada300b50c98d2d5fb6ab36bbcf9d73d28';
+// SHA-256 checksums of authorized credentials (smartlifetypingservices@gmail.com, rishadsmartlife@gmail.com, nafalkt7@gmail.com)
+const AUTHORIZED_CREDENTIAL_HASHES = new Set([
+  'c3b7fcf438fc747f6cfbc41eac9dc478bf393ffa1d10b97269af11af28e9552e',
+  '16fb007ce80191dcd84cc8c9dc8bc5ada300b50c98d2d5fb6ab36bbcf9d73d28',
+  'b005afb2dc74b2a45b6e84d90f2234c2651ccae9deea64f0aa0691b27e4b6bba', // smartlifetypingservices@gmail.com
+  '75563dd347e17fd04ad05a55d298f07ca8f0000534eae8c28fcead96e388e96e', // rishadsmartlife@gmail.com
+  '748b3ade1a8c940d5098afda0da13c35fde8e8f883bf35d378294d911d9ca96e'  // nafalkt7@gmail.com
+]);
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -29,12 +34,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isDemoMode, setIsDemoMode] = useState<boolean>(false);
 
   useEffect(() => {
-    // Check local storage for persistent demo session
-    const savedDemoUser = localStorage.getItem('smartlife_admin_session');
-    if (savedDemoUser) {
+    // Check local storage for persistent admin session
+    const savedAdminUser = localStorage.getItem('smartlife_admin_session');
+    if (savedAdminUser) {
       try {
-        setUser(JSON.parse(savedDemoUser));
-        setIsDemoMode(true);
+        setUser(JSON.parse(savedAdminUser));
+        setIsDemoMode(false);
         setLoading(false);
         return;
       } catch {
@@ -51,6 +56,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             displayName: fbUser.displayName || 'Smart Life Admin',
             role: 'admin'
           });
+          setIsDemoMode(false);
         } else {
           setUser(null);
         }
@@ -84,7 +90,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return { success: true };
       } catch (err: any) {
         console.warn('Firebase auth attempt failed:', err?.code, err?.message);
-        
+
         if (err?.code === 'auth/invalid-credential' || err?.code === 'auth/wrong-password' || err?.code === 'auth/user-not-found') {
           firebaseErrorMsg = 'Firebase Auth: Invalid email or password. Please verify the user exists in Firebase Console.';
         } else if (err?.code === 'auth/invalid-email') {
@@ -97,11 +103,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     }
 
-    // 2. Fallback Cryptographic Passcode Verification
+    // 2. Cryptographic Admin Passcode Verification for Live Admin Access
     const inputCombo = `${email.trim().toLowerCase()}:${pass.trim()}`;
     const inputHash = await hashSHA256(inputCombo);
 
-    if (inputHash === CREDENTIAL_HASH_1 || inputHash === CREDENTIAL_HASH_2) {
+    if (AUTHORIZED_CREDENTIAL_HASHES.has(inputHash)) {
       const authenticatedUser: AdminUser = {
         uid: 'admin-sec-' + Date.now().toString(36),
         email: email.trim().toLowerCase(),
@@ -109,16 +115,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         role: 'admin'
       };
       setUser(authenticatedUser);
-      setIsDemoMode(true);
+      setIsDemoMode(false);
       localStorage.setItem('smartlife_admin_session', JSON.stringify(authenticatedUser));
       setLoading(false);
       return { success: true };
     }
 
     setLoading(false);
-    return { 
-      success: false, 
-      error: firebaseErrorMsg || 'Authentication failed. Please verify your email and password.' 
+    return {
+      success: false,
+      error: firebaseErrorMsg || 'Authentication failed. Please verify your email and password.'
     };
   };
 

@@ -158,11 +158,6 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({ onExitAdmin }) => {
           </div>
 
           <div className="flex items-center gap-3 text-xs">
-            {isDemoMode && (
-              <span className="px-2 py-0.5 rounded bg-amber-50 text-amber-800 border border-amber-200 text-[10px] font-medium">
-                Demo Admin Mode
-              </span>
-            )}
             <span className="text-[11px] text-slate-400 hidden sm:inline">
               {new Date().toLocaleDateString('en-GB', { weekday: 'short', day: '2-digit', month: 'short', year: 'numeric' })}
             </span>

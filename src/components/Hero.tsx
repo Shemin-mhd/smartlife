@@ -1,25 +1,23 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { 
-  ShieldCheck, 
-  Search, 
-  MessageSquare, 
-  ArrowRight, 
-  CheckCircle2, 
-  FileCheck, 
-  MapPin, 
-  Building2,
+import {
+  ShieldCheck,
+  Search,
+  MessageSquare,
+  ChevronLeft,
+  ChevronRight,
+  FileCheck,
   FileText,
   BookOpen,
   HelpCircle,
   X,
-  ArrowUpRight
+  ArrowUpRight,
+  CheckCircle2
 } from 'lucide-react';
-import { BRANCHES_DATA } from '../data/branchesData';
 import { SERVICES_DATA } from '../data/servicesData';
 import { BLOG_POSTS } from '../data/blogData';
 import { FAQS_DATA } from '../data/faqsData';
 import { ServiceItem } from '../types';
-import { getWhatsAppLink, openCentralWhatsApp } from '../config/whatsapp';
+import { getWhatsAppLink } from '../config/whatsapp';
 import { trackAndOpenWhatsApp } from '../utils/whatsappTracker';
 
 interface HeroProps {
@@ -31,6 +29,31 @@ interface HeroProps {
   onSelectServiceDocs?: (service: ServiceItem) => void;
 }
 
+// 3 Featured Service Cards for 3D Cover Flow Deck Slider
+const SLIDING_CARDS = [
+  {
+    id: 'family-visa',
+    title: 'All Emirates Family Visa Services (New / Renewal)',
+    category: 'Visas & Immigration',
+    image: '/images/cards/card_family_visa.png',
+    whatsappMsg: 'Hi Smart Life Typing, I need information regarding All Emirates Family Visa Services.'
+  },
+  {
+    id: 'tourist-visa',
+    title: 'UAE Tourist Visa & Visit Visa Services',
+    category: 'Visas & Immigration',
+    image: '/images/cards/card_tourist_visa.png',
+    whatsappMsg: 'Hi Smart Life Typing, I need information regarding UAE Tourist Visa & Visit Visa Services.'
+  },
+  {
+    id: 'indian-passport',
+    title: 'Indian Passport Renewal Services (BLS Approved)',
+    category: 'BLS Indian Consulate',
+    image: '/images/cards/card_indian_passport.png',
+    whatsappMsg: 'Hi Smart Life Typing, I need information regarding Indian Passport Renewal Services.'
+  }
+];
+
 export const Hero: React.FC<HeroProps> = ({
   searchQuery,
   setSearchQuery,
@@ -39,9 +62,19 @@ export const Hero: React.FC<HeroProps> = ({
   onNavigate,
   onSelectServiceDocs,
 }) => {
-  const mainBranch = BRANCHES_DATA[0];
   const searchRef = useRef<HTMLDivElement>(null);
   const [isOpen, setIsOpen] = useState<boolean>(false);
+  const [activeCardIndex, setActiveCardIndex] = useState<number>(0);
+  const [isPaused, setIsPaused] = useState<boolean>(false);
+
+  // Auto-slide to the right every 3.5 seconds
+  useEffect(() => {
+    if (isPaused) return;
+    const interval = setInterval(() => {
+      setActiveCardIndex((prevIndex) => (prevIndex + 1) % SLIDING_CARDS.length);
+    }, 3500);
+    return () => clearInterval(interval);
+  }, [isPaused]);
 
   // Close dropdown on click outside
   useEffect(() => {
@@ -65,40 +98,40 @@ export const Hero: React.FC<HeroProps> = ({
   const hasQuery = query.length >= 1;
 
   const serviceResults = hasQuery
-    ? SERVICES_DATA.filter(s => 
-        s.title.toLowerCase().includes(query) ||
-        s.categoryLabel.toLowerCase().includes(query) ||
-        s.shortDesc.toLowerCase().includes(query) ||
-        s.keywords.some(k => k.toLowerCase().includes(query))
-      ).slice(0, 3)
+    ? SERVICES_DATA.filter(s =>
+      s.title.toLowerCase().includes(query) ||
+      s.categoryLabel.toLowerCase().includes(query) ||
+      s.shortDesc.toLowerCase().includes(query) ||
+      s.keywords.some(k => k.toLowerCase().includes(query))
+    ).slice(0, 3)
     : [];
 
   const docResults = hasQuery
-    ? SERVICES_DATA.filter(s => 
-        s.title.toLowerCase().includes(query) ||
-        s.requiredDocuments.some(doc => doc.toLowerCase().includes(query))
-      ).slice(0, 2)
+    ? SERVICES_DATA.filter(s =>
+      s.title.toLowerCase().includes(query) ||
+      s.requiredDocuments.some(doc => doc.toLowerCase().includes(query))
+    ).slice(0, 2)
     : [];
 
   const blogResults = hasQuery
-    ? BLOG_POSTS.filter(b => 
-        b.title.toLowerCase().includes(query) ||
-        b.summary.toLowerCase().includes(query) ||
-        b.category.toLowerCase().includes(query)
-      ).slice(0, 2)
+    ? BLOG_POSTS.filter(b =>
+      b.title.toLowerCase().includes(query) ||
+      b.summary.toLowerCase().includes(query) ||
+      b.category.toLowerCase().includes(query)
+    ).slice(0, 2)
     : [];
 
   const faqResults = hasQuery
-    ? FAQS_DATA.filter(f => 
-        f.question.toLowerCase().includes(query) ||
-        f.answer.toLowerCase().includes(query)
-      ).slice(0, 2)
+    ? FAQS_DATA.filter(f =>
+      f.question.toLowerCase().includes(query) ||
+      f.answer.toLowerCase().includes(query)
+    ).slice(0, 2)
     : [];
 
-  const totalResultsCount = 
-    serviceResults.length + 
-    docResults.length + 
-    blogResults.length + 
+  const totalResultsCount =
+    serviceResults.length +
+    docResults.length +
+    blogResults.length +
     faqResults.length;
 
   const handleSelectService = (service: ServiceItem) => {
@@ -138,15 +171,15 @@ export const Hero: React.FC<HeroProps> = ({
   };
 
   return (
-    <section className="bg-gradient-to-b from-slate-50 via-white to-white border-b border-slate-200/80 py-10 lg:py-14 px-4 sm:px-6 lg:px-8">
+    <section className="bg-gradient-to-b from-slate-50 via-blue-50/20 to-white border-b border-slate-200/80 py-8 sm:py-10 lg:py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
       <div className="max-w-7xl mx-auto">
-        <div className="grid lg:grid-cols-12 gap-10 items-center">
-          
-          {/* Main Hero Copy & Search */}
-          <div className="lg:col-span-7 space-y-6">
-            
+        <div className="grid lg:grid-cols-12 gap-8 lg:gap-10 items-center">
+
+          {/* Left Column: Copy & Search */}
+          <div className="lg:col-span-6 space-y-5">
+
             {/* Top Badge */}
-            <div className="inline-flex items-center gap-2 text-blue-700 text-xs sm:text-sm font-bold uppercase tracking-wider">
+            <div className="inline-flex items-center gap-2 text-blue-700 text-xs sm:text-sm font-bold uppercase tracking-wider bg-blue-50 px-3 py-1 rounded-full border border-blue-200/60 shadow-2xs">
               <ShieldCheck className="w-4 h-4 text-blue-600" />
               <span>Sharjah & All Emirates Visa & Government Typing Center</span>
             </div>
@@ -154,17 +187,17 @@ export const Hero: React.FC<HeroProps> = ({
             {/* Main Headline */}
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight">
               Smart Life Typing Services
-              <span className="block text-blue-700 font-bold text-2xl sm:text-3xl lg:text-4xl mt-2">
+              <span className="block text-blue-700 font-bold text-2xl sm:text-3xl lg:text-4xl mt-1.5">
                 Your Reliable Partner for UAE Visa, Typing & Government Services
               </span>
             </h1>
 
             {/* Description */}
-            <p className="text-slate-600 text-base sm:text-lg leading-relaxed max-w-2xl">
+            <p className="text-slate-600 text-sm sm:text-base leading-relaxed max-w-2xl font-medium">
               Trusted UAE-based typing, visa, and government services provider delivering fast, accurate, and professional solutions for individuals, families, and businesses across all 7 Emirates.
             </p>
 
-            {/* Quick Search Container with Realistic Live Auto-Suggestions */}
+            {/* Quick Search Container with Live Auto-Suggestions */}
             <div ref={searchRef} className="relative max-w-xl">
               <form onSubmit={handleSearchSubmit} className="relative flex items-center">
                 <Search className="absolute left-4 w-4 h-4 text-slate-400 pointer-events-none" />
@@ -197,16 +230,16 @@ export const Hero: React.FC<HeroProps> = ({
 
                 <button
                   type="submit"
-                  className="absolute right-1.5 bg-blue-700 hover:bg-blue-800 text-white text-xs font-semibold px-4 py-2.5 rounded-lg transition-colors cursor-pointer flex items-center gap-1.5"
+                  className="absolute right-1.5 bg-blue-700 hover:bg-blue-800 text-white text-xs font-bold px-4 py-2.5 rounded-lg transition-colors cursor-pointer flex items-center gap-1.5 shadow-2xs"
                 >
                   <span>Find Service</span>
                 </button>
               </form>
 
-              {/* Clean, Non-Boxy Auto-Suggestions Dropdown */}
+              {/* Clean Auto-Suggestions Dropdown */}
               {isOpen && hasQuery && (
                 <div className="absolute left-0 right-0 top-full mt-2 bg-white border border-slate-200/90 rounded-2xl shadow-xl z-50 overflow-hidden divide-y divide-slate-100 text-slate-900 max-h-[460px] overflow-y-auto">
-                  
+
                   {totalResultsCount === 0 ? (
                     <div className="p-4 text-center space-y-2.5">
                       <p className="text-xs font-medium text-slate-500">
@@ -231,7 +264,6 @@ export const Hero: React.FC<HeroProps> = ({
                     </div>
                   ) : (
                     <>
-                      {/* Section 1: Services */}
                       {serviceResults.length > 0 && (
                         <div>
                           <div className="px-3.5 py-1.5 bg-slate-50/80 border-b border-slate-100 text-[10px] font-extrabold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
@@ -258,26 +290,13 @@ export const Hero: React.FC<HeroProps> = ({
                                     {service.shortDesc}
                                   </p>
                                 </div>
-                                <div className="flex items-center gap-2 shrink-0">
-                                  <span
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      setSearchQuery(service.title);
-                                    }}
-                                    title="Auto-fill search box"
-                                    className="text-[10px] font-bold text-slate-400 hover:text-blue-700 bg-slate-100 hover:bg-blue-100 px-2 py-0.5 rounded transition-colors"
-                                  >
-                                    Fill
-                                  </span>
-                                  <ArrowUpRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-blue-600 transition-colors" />
-                                </div>
+                                <ArrowUpRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-blue-600 transition-colors" />
                               </div>
                             ))}
                           </div>
                         </div>
                       )}
 
-                      {/* Section 2: Required Documents */}
                       {docResults.length > 0 && (
                         <div>
                           <div className="px-3.5 py-1.5 bg-slate-50/80 border-b border-slate-100 text-[10px] font-extrabold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
@@ -291,44 +310,21 @@ export const Hero: React.FC<HeroProps> = ({
                                 onClick={() => handleSelectDoc(service)}
                                 className="px-3.5 py-2.5 hover:bg-emerald-50/50 transition-colors cursor-pointer flex items-center justify-between group"
                               >
-                                <div className="space-y-0.5 max-w-[82%]">
-                                  <div className="flex items-center gap-2">
-                                    <span className="text-xs font-bold text-slate-900 group-hover:text-emerald-700 transition-colors">
-                                      {service.title} Document List
-                                    </span>
-                                    <span className="text-[10px] font-semibold text-emerald-700">
-                                      • Checklist
-                                    </span>
-                                  </div>
-                                  <p className="text-[11px] text-slate-500 line-clamp-1">
-                                    Includes: {service.requiredDocuments.slice(0, 2).join(', ')}...
-                                  </p>
-                                </div>
-                                <div className="flex items-center gap-2 shrink-0">
-                                  <span
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      setSearchQuery(`${service.title} Documents`);
-                                    }}
-                                    title="Auto-fill search box"
-                                    className="text-[10px] font-bold text-slate-400 hover:text-emerald-700 bg-slate-100 hover:bg-emerald-100 px-2 py-0.5 rounded transition-colors"
-                                  >
-                                    Fill
-                                  </span>
-                                  <ArrowUpRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-emerald-600 transition-colors" />
-                                </div>
+                                <span className="text-xs font-bold text-slate-900 group-hover:text-emerald-700 transition-colors">
+                                  {service.title} Document List
+                                </span>
+                                <ArrowUpRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-emerald-600 transition-colors" />
                               </div>
                             ))}
                           </div>
                         </div>
                       )}
 
-                      {/* Section 3: Guides & Articles */}
                       {blogResults.length > 0 && (
                         <div>
                           <div className="px-3.5 py-1.5 bg-slate-50/80 border-b border-slate-100 text-[10px] font-extrabold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
                             <BookOpen className="w-3.5 h-3.5 text-amber-600" />
-                            <span>Typing & Visa Guides</span>
+                            <span>Guides & Articles</span>
                           </div>
                           <div className="divide-y divide-slate-50">
                             {blogResults.map((post) => (
@@ -337,44 +333,21 @@ export const Hero: React.FC<HeroProps> = ({
                                 onClick={() => handleSelectBlog(post.slug, post.title)}
                                 className="px-3.5 py-2.5 hover:bg-amber-50/50 transition-colors cursor-pointer flex items-center justify-between group"
                               >
-                                <div className="space-y-0.5 max-w-[82%]">
-                                  <div className="flex items-center gap-2">
-                                    <span className="text-xs font-bold text-slate-900 group-hover:text-amber-800 transition-colors">
-                                      {post.title}
-                                    </span>
-                                    <span className="text-[10px] font-semibold text-amber-800">
-                                      • {post.category}
-                                    </span>
-                                  </div>
-                                  <p className="text-[11px] text-slate-500 line-clamp-1">
-                                    {post.summary}
-                                  </p>
-                                </div>
-                                <div className="flex items-center gap-2 shrink-0">
-                                  <span
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      setSearchQuery(post.title);
-                                    }}
-                                    title="Auto-fill search box"
-                                    className="text-[10px] font-bold text-slate-400 hover:text-amber-800 bg-slate-100 hover:bg-amber-100 px-2 py-0.5 rounded transition-colors"
-                                  >
-                                    Fill
-                                  </span>
-                                  <ArrowUpRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-amber-600 transition-colors" />
-                                </div>
+                                <span className="text-xs font-bold text-slate-900 group-hover:text-amber-800 transition-colors">
+                                  {post.title}
+                                </span>
+                                <ArrowUpRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-amber-600 transition-colors" />
                               </div>
                             ))}
                           </div>
                         </div>
                       )}
 
-                      {/* Section 4: Help & FAQs */}
                       {faqResults.length > 0 && (
                         <div>
                           <div className="px-3.5 py-1.5 bg-slate-50/80 border-b border-slate-100 text-[10px] font-extrabold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
                             <HelpCircle className="w-3.5 h-3.5 text-indigo-600" />
-                            <span>Help & FAQs</span>
+                            <span>FAQs</span>
                           </div>
                           <div className="divide-y divide-slate-50">
                             {faqResults.map((faq) => (
@@ -383,27 +356,10 @@ export const Hero: React.FC<HeroProps> = ({
                                 onClick={() => handleSelectFaq(faq.question)}
                                 className="px-3.5 py-2.5 hover:bg-indigo-50/50 transition-colors cursor-pointer flex items-center justify-between group"
                               >
-                                <div className="space-y-0.5 max-w-[82%]">
-                                  <span className="text-xs font-bold text-slate-900 group-hover:text-indigo-700 transition-colors block">
-                                    {faq.question}
-                                  </span>
-                                  <p className="text-[11px] text-slate-500 line-clamp-1">
-                                    {faq.answer}
-                                  </p>
-                                </div>
-                                <div className="flex items-center gap-2 shrink-0">
-                                  <span
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      setSearchQuery(faq.question);
-                                    }}
-                                    title="Auto-fill search box"
-                                    className="text-[10px] font-bold text-slate-400 hover:text-indigo-700 bg-slate-100 hover:bg-indigo-100 px-2 py-0.5 rounded transition-colors"
-                                  >
-                                    Fill
-                                  </span>
-                                  <ArrowUpRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-indigo-600 transition-colors" />
-                                </div>
+                                <span className="text-xs font-bold text-slate-900 group-hover:text-indigo-700 transition-colors">
+                                  {faq.question}
+                                </span>
+                                <ArrowUpRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-indigo-600 transition-colors" />
                               </div>
                             ))}
                           </div>
@@ -427,7 +383,7 @@ export const Hero: React.FC<HeroProps> = ({
                 }}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-semibold px-4 py-2.5 rounded-lg transition-all shadow-2xs hover:shadow-xs"
+                className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-bold px-4 py-2.5 rounded-xl transition-all shadow-md shadow-emerald-600/20 hover:shadow-lg"
               >
                 <MessageSquare className="w-4 h-4 fill-current" />
                 <span>Instant WhatsApp Inquiry</span>
@@ -435,7 +391,7 @@ export const Hero: React.FC<HeroProps> = ({
 
               <button
                 onClick={onExploreServices}
-                className="inline-flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white text-xs sm:text-sm font-semibold px-4 py-2.5 rounded-lg transition-all cursor-pointer shadow-2xs"
+                className="inline-flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white text-xs sm:text-sm font-bold px-4 py-2.5 rounded-xl transition-all cursor-pointer shadow-sm"
               >
                 <FileText className="w-4 h-4 text-blue-400" />
                 <span>Browse Services Catalog</span>
@@ -443,98 +399,75 @@ export const Hero: React.FC<HeroProps> = ({
             </div>
 
             {/* Key Trust Highlights Grid */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-4 border-t border-slate-200 text-xs font-semibold text-slate-700">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-3 border-t border-slate-200/80 text-xs font-semibold text-slate-700">
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
                 <span>All 7 Emirates Covered</span>
               </div>
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                <span>100% Accurate Documentation</span>
+                <span>100% Accurate Typing</span>
               </div>
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                <span>Fast Approval Turnaround</span>
+                <span>Fast Turnaround</span>
               </div>
             </div>
 
           </div>
 
-          {/* Right Column: Office Branches Card Snapshot */}
-          <div className="lg:col-span-5 space-y-4">
-            
-            {/* Abu Shagara Card */}
-            <div 
-              onClick={() => onNavigate('branches')}
-              className="bg-white border border-slate-200 rounded-xl p-5 shadow-2xs hover:border-blue-500 hover:shadow-xs transition-all cursor-pointer group"
+          {/* Right Column: 3D COVER FLOW CARD DECK STACK SLIDER (Exact match to Reference Image) */}
+          <div className="lg:col-span-6 relative flex justify-center py-4">
+            <div
+              className="relative w-full max-w-[500px] h-[380px] sm:h-[420px] flex items-center justify-center perspective-1000"
+              onMouseEnter={() => setIsPaused(true)}
+              onMouseLeave={() => setIsPaused(false)}
             >
-              <div className="flex items-start justify-between mb-2">
-                <div>
-                  <span className="text-xs font-bold text-blue-700 uppercase tracking-wider">
-                    • MAIN BRANCH
-                  </span>
-                  <h3 className="font-bold text-slate-900 text-base mt-1 group-hover:text-blue-700 transition-colors">
-                    Abu Shagara, Sharjah
-                  </h3>
-                </div>
-                <Building2 className="w-5 h-5 text-slate-400 group-hover:text-blue-600 transition-colors" />
-              </div>
-              <p className="text-xs text-slate-600 mb-3">
-                Mirza Building, Shop No. 3, Next to Orient Exchange, Sharjah, UAE
-              </p>
-              <div className="flex items-center justify-between text-xs pt-3 border-t border-slate-100">
-                <span className="text-slate-500 font-medium">Sat – Thu: 8:00 AM – 10:00 PM</span>
-                <span className="font-bold text-blue-700 group-hover:underline flex items-center gap-1">
-                  <span>Contact Branch</span>
-                  <ArrowRight className="w-3 h-3" />
-                </span>
-              </div>
-            </div>
+              {SLIDING_CARDS.map((card, idx) => {
+                // Calculate position relative to activeCardIndex (0 = active, 1 = right, 2 = left)
+                const position = (idx - activeCardIndex + SLIDING_CARDS.length) % SLIDING_CARDS.length;
 
-            {/* Al Majaz 1 Card */}
-            <div 
-              onClick={() => onNavigate('branches')}
-              className="bg-white border border-slate-200 rounded-xl p-5 shadow-2xs hover:border-blue-500 hover:shadow-xs transition-all cursor-pointer group"
-            >
-              <div className="flex items-start justify-between mb-2">
-                <div>
-                  <span className="text-xs font-bold text-emerald-700 uppercase tracking-wider">
-                    • BRANCH 1
-                  </span>
-                  <h3 className="font-bold text-slate-900 text-base mt-1 group-hover:text-blue-700 transition-colors">
-                    Al Majaz 1, Sharjah
-                  </h3>
-                </div>
-                <Building2 className="w-5 h-5 text-slate-400 group-hover:text-blue-600 transition-colors" />
-              </div>
-              <p className="text-xs text-slate-600 mb-3">
-                Safeer Building, Shop No. 2, Al Majaz 1, Sharjah, UAE
-              </p>
-              <div className="flex items-center justify-between text-xs pt-3 border-t border-slate-100">
-                <span className="text-slate-500 font-medium">Sat – Thu: 8:00 AM – 10:00 PM</span>
-                <span className="font-bold text-blue-700 group-hover:underline flex items-center gap-1">
-                  <span>Contact Branch</span>
-                  <ArrowRight className="w-3 h-3" />
-                </span>
-              </div>
-            </div>
+                let styleClass = '';
+                let isCenter = false;
 
-            {/* Online Submission Banner */}
-            <div 
-              onClick={() => onNavigate('services')}
-              className="bg-blue-50/80 border border-blue-200 rounded-xl p-4 flex items-center justify-between hover:border-blue-500 hover:bg-blue-100/80 transition-all cursor-pointer group"
-            >
-              <div>
-                <p className="text-xs font-bold text-blue-800 uppercase tracking-wide">
-                  Online Services & Submissions
-                </p>
-                <p className="text-xs font-bold text-slate-900 mt-0.5">
-                  Browse all services & start processing online!
-                </p>
-              </div>
-              <ArrowRight className="w-4 h-4 text-blue-700 shrink-0 group-hover:translate-x-1 transition-transform" />
-            </div>
+                if (position === 0) {
+                  // Active Center Card
+                  isCenter = true;
+                  styleClass = 'translate-x-0 scale-100 z-30 opacity-100 shadow-2xl shadow-blue-900/25 cursor-pointer';
+                } else if (position === 1) {
+                  // Right Preview Card (Tilted & Receded)
+                  styleClass = 'translate-x-[24%] sm:translate-x-[28%] scale-[0.82] z-10 opacity-50 filter blur-[0.5px] shadow-lg cursor-pointer hover:opacity-80 hover:scale-85';
+                } else {
+                  // Left Preview Card (Tilted & Receded)
+                  styleClass = '-translate-x-[24%] sm:-translate-x-[28%] scale-[0.82] z-10 opacity-50 filter blur-[0.5px] shadow-lg cursor-pointer hover:opacity-80 hover:scale-85';
+                }
 
+                return (
+                  <div
+                    key={card.id}
+                    onClick={() => {
+                      if (!isCenter) {
+                        setActiveCardIndex(idx);
+                      } else {
+                        const matched = SERVICES_DATA.find(s => s.title.toLowerCase().includes(card.category.toLowerCase()) || card.title.toLowerCase().includes(s.title.toLowerCase()));
+                        if (matched && onSelectServiceDocs) {
+                          onSelectServiceDocs(matched);
+                        } else {
+                          onExploreServices();
+                        }
+                      }
+                    }}
+                    className={`absolute w-[290px] sm:w-[330px] rounded-2xl overflow-hidden transition-all duration-700 ease-out transform-gpu ${styleClass}`}
+                  >
+                    <img
+                      src={card.image}
+                      alt={card.title}
+                      className="w-full h-auto object-contain block rounded-2xl"
+                    />
+                  </div>
+                );
+              })}
+            </div>
           </div>
 
         </div>
@@ -542,4 +475,3 @@ export const Hero: React.FC<HeroProps> = ({
     </section>
   );
 };
-

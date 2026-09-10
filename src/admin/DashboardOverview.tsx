@@ -51,19 +51,16 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({ onNavigate
     <div className="space-y-4 font-['Plus_Jakarta_Sans',sans-serif]">
       {/* Top Banner Alert for New Inquiries */}
       {newInquiriesCount > 0 && (
-        <div className="bg-amber-50 border border-amber-200 p-3 rounded flex items-center justify-between text-xs text-amber-900">
+        <div 
+          onClick={() => onNavigateTab('inquiries')}
+          className="bg-amber-50 border border-amber-200 p-3 rounded flex items-center justify-between text-xs text-amber-900 cursor-pointer hover:bg-amber-100/80 transition"
+        >
           <div className="flex items-center gap-2">
             <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
             <span>
               <strong>{newInquiriesCount} new customer inquiry</strong> requiring PRO attention in your centralized bank.
             </span>
           </div>
-          <button
-            onClick={() => onNavigateTab('inquiries')}
-            className="px-2.5 py-1 bg-amber-600 text-white rounded text-[11px] font-medium hover:bg-amber-700 transition"
-          >
-            Open Inbox Inbox
-          </button>
         </div>
       )}
 
