@@ -32,14 +32,14 @@ export const BRANCHES_DATA: Branch[] = [
     emirate: 'Sharjah, UAE',
     landmark: 'Safeer Building, Near Majaz Waterfront Park, Al Majaz 1',
     poBox: '61168',
-    phoneDisplay: '+971 55 158 5570',
-    phoneRaw: '+971551585570',
-    whatsapp: '971551585570',
+    phoneDisplay: '+971 50 229 0133',
+    phoneRaw: '+971502290133',
+    whatsapp: '971502290133',
     googleMapUrl: 'https://maps.google.com/?q=Smart+Life+Typing+Al+Majaz+Sharjah',
     googleShareUrl: 'https://share.google/rIhEXUZKW3lbeGl2o',
     rating: 4.9,
     reviewCount: 92,
-    workingHours: '9:00 AM – 11:00 PM',
+    workingHours: '8:00 AM – 8:00 PM',
     workingDays: 'Saturday to Thursday',
     fridayHours: '4:00 PM – 11:00 PM'
   }

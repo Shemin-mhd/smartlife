@@ -27,10 +27,10 @@ export const COMPANY_STORY = {
     "Whether you are bringing your family to the UAE, setting up a new business, renewing your Emirates ID, or attesting educational certificates, Smart Life ensures a smooth, stress-free experience from start to final approval."
   ],
   stats: [
-    { label: "Applications Processed", value: "50,000+" },
+    { label: "Applications Processed", value: "10,000+" },
     { label: "Client Satisfaction", value: "99.4%" },
     { label: "Emirates Served", value: "All 7 Emirates" },
-    { label: "Years of Trust", value: "10+ Years" }
+    { label: "Years of Trust", value: "5+ Years" }
   ]
 };
 

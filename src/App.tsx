@@ -79,11 +79,24 @@ function MainContent() {
     updateDomMetadata(currentSeoConfig);
   }, [currentPage, activeArticleSlug, selectedServiceId]);
 
-  // Parse URL hash with SHA-256 one-way cryptographic verification
+  // Parse URL hash and pathname to route to Admin or internal pages
   useEffect(() => {
     const handleHashChange = async () => {
       const rawHash = window.location.hash.trim().replace(/^#/, '');
-      if (!rawHash) return;
+      const pathname = window.location.pathname.trim().replace(/^\//, '').toLowerCase();
+
+      // Support navigating to admin via #admin, /admin, #login, /login, #dashboard, /dashboard
+      if (
+        rawHash.toLowerCase() === 'admin' ||
+        rawHash.toLowerCase() === 'login' ||
+        rawHash.toLowerCase() === 'dashboard' ||
+        pathname === 'admin' ||
+        pathname === 'login' ||
+        pathname === 'dashboard'
+      ) {
+        setCurrentPage('admin');
+        return;
+      }
 
       if (rawHash.toLowerCase().startsWith('service/')) {
         const id = rawHash.replace(/service\//i, '');
@@ -103,20 +116,22 @@ function MainContent() {
         return;
       }
 
-      // Hash the entered URL string using SHA-256 and compare against non-invertible checksum
-      const computedHash = await hashSHA256(rawHash);
-      if (computedHash === SECRET_HASH_CHECKSUM) {
-        setCurrentPage('admin');
-      } else if (rawHash.toLowerCase() === 'admin' || rawHash.toLowerCase() === 'login' || rawHash.toLowerCase() === 'dashboard') {
-        // Block public #admin probes silently and wipe hash from URL
-        window.history.replaceState(null, document.title, window.location.pathname);
-        setCurrentPage('home');
+      if (rawHash) {
+        // Hash the entered URL string using SHA-256 and compare against non-invertible checksum
+        const computedHash = await hashSHA256(rawHash);
+        if (computedHash === SECRET_HASH_CHECKSUM) {
+          setCurrentPage('admin');
+        }
       }
     };
 
     handleHashChange();
     window.addEventListener('hashchange', handleHashChange);
-    return () => window.removeEventListener('hashchange', handleHashChange);
+    window.addEventListener('popstate', handleHashChange);
+    return () => {
+      window.removeEventListener('hashchange', handleHashChange);
+      window.removeEventListener('popstate', handleHashChange);
+    };
   }, []);
 
   const handleNavigate = (page: string, slugOrId?: string) => {

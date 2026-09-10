@@ -9,9 +9,9 @@ export const SERVICES_DATA: ServiceItem[] = [
     shortDesc: 'Comprehensive family residence visa application, entry permit, medical fitness typing, and Emirates ID processing across all 7 Emirates.',
     fullDesc: 'We assist sponsors in bringing their spouse, children, or parents to the UAE. We handle the complete procedure across Dubai, Sharjah, Abu Dhabi, Ajman, RAK, Fujairah, and Umm Al Quwain, including file opening, salary certificate validation, lease agreement (Ejari/Moulqad), medical typing, and Emirates ID.',
     requiredDocuments: [
-      'Sponsor Passport Copy, Residence Visa Copy & Original Emirates ID',
-      'Sponsor Salary Certificate / Labor Contract (Minimum salary AED 4,000 or AED 3,000 + accommodation)',
-      'Registered Tenancy Contract (Ejari / Tawtheeq / Municipal Registered Lease)',
+      'Sponsor Passport Copy, Residence Visa Copy & Original Emirates ID Copy',
+      'Sponsor Salary Certificate / Labor Contract (Minimum salary AED 4,000 )',
+      'Registered Tenancy Contract (Tenancy / Ejari / Municipal Registered Lease)',
       'Sponsor Electricity/Water Bill (SEWA / DEWA / FEWA)',
       'Dependents Passport Copies (valid at least 6 months) & Passport Photographs (white background)',
       'Attested Marriage Certificate (for Spouse) & Attested Birth Certificates (for Children)',
@@ -75,7 +75,9 @@ export const SERVICES_DATA: ServiceItem[] = [
       'Original Emirates ID Card',
       '51mm x 51mm White Background Photographs',
       'Address Proof (Aadhaar / Utility Bill / Indian Election Card for address changes)',
-      'Spouse Passport Copy (for spouse name endorsement)'
+      'Spouse Passport Copy (for spouse name endorsement)',
+      'UAE Mobile Number and Delivery Address',
+      'UAE Emergency Contact (Family Member of Friend'
     ],
     processingTime: '3 - 7 Working Days',
     isPopular: false,
@@ -92,8 +94,8 @@ export const SERVICES_DATA: ServiceItem[] = [
     fullDesc: 'Legal attestation services for educational and personal documents required for UAE residence visas, job promotions, and university admissions. We coordinate home country Ministry attestation, UAE Embassy stamping, and MoFA UAE final verification.',
     requiredDocuments: [
       'Original Certificate / Degree / Diploma / Marksheets',
-      'Passport Copy of Document Owner',
-      'Emirates ID Copy',
+      'Passport Copy of Document Owner (If Required)',
+      'Emirates ID Copy (If Required)',
       'Authorization Letter (if applicable)'
     ],
     processingTime: '5 - 10 Working Days',

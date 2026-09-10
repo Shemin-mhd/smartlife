@@ -218,7 +218,7 @@ export function generateXmlSitemap(dynamicServices?: ServiceItem[], dynamicBlogs
   const currentDate = new Date().toISOString().split('T')[0];
   const servicesList = dynamicServices && dynamicServices.length > 0 ? dynamicServices : SERVICES_DATA;
   const blogsList = dynamicBlogs && dynamicBlogs.length > 0 ? dynamicBlogs : BLOG_POSTS;
-  
+
   let xml = `<?xml version="1.0" encoding="UTF-8"?>\n`;
   xml += `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"\n`;
   xml += `        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n`;
