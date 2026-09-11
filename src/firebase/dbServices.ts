@@ -568,16 +568,27 @@ export const submitNewInquiry = async (inquiry: Omit<InquiryItem, 'id' | 'create
     }
   } catch {}
 
-  const devPorts = ['3000', '3001', '3002', '3003'];
-  devPorts.forEach(port => {
-    try {
-      fetch(`http://localhost:${port}/api/track-inquiry`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newItem)
-      }).catch(() => {});
-    } catch {}
-  });
+  try {
+    fetch('/api/track-inquiry', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newItem)
+    }).catch(() => {});
+  } catch {}
+
+  if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
+    ['3000', '3001', '3002', '3003'].forEach(port => {
+      if (window.location.port !== port) {
+        try {
+          fetch(`http://localhost:${port}/api/track-inquiry`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(newItem)
+          }).catch(() => {});
+        } catch {}
+      }
+    });
+  }
 
   if (isFirebaseConfigured() && db) {
     try {
@@ -852,16 +863,27 @@ export const saveWhatsAppClick = async (event: Omit<WhatsAppClickEvent, 'id' | '
     }
   } catch {}
 
-  const devPorts = ['3000', '3001', '3002', '3003'];
-  devPorts.forEach(port => {
-    try {
-      fetch(`http://localhost:${port}/api/track-wa-click`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newClick)
-      }).catch(() => {});
-    } catch {}
-  });
+  try {
+    fetch('/api/track-wa-click', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newClick)
+    }).catch(() => {});
+  } catch {}
+
+  if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
+    ['3000', '3001', '3002', '3003'].forEach(port => {
+      if (window.location.port !== port) {
+        try {
+          fetch(`http://localhost:${port}/api/track-wa-click`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(newClick)
+          }).catch(() => {});
+        } catch {}
+      }
+    });
+  }
 
   if (isFirebaseConfigured() && db) {
     try {
