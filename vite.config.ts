@@ -7,6 +7,8 @@ import nodemailer from 'nodemailer';
 
 // In-memory OTP store for dev server
 const otpStore = new Map<string, { otp: string; expiresAt: number }>();
+// In-memory WA clicks store for dev server cross-port sync
+const serverWaClicks: any[] = [];
 
 // Vite plugin to provide zero-backend OTP email API
 function brevoOtpPlugin(): Plugin {
@@ -145,6 +147,35 @@ function brevoOtpPlugin(): Plugin {
               res.end(JSON.stringify({ success: false, message: 'Verification error' }));
             }
           });
+          return;
+        }
+
+        if (req.url === '/api/track-wa-click' && req.method === 'POST') {
+          let body = '';
+          req.on('data', chunk => { body += chunk; });
+          req.on('end', () => {
+            try {
+              const clickData = JSON.parse(body || '{}');
+              if (clickData.id) {
+                const exists = serverWaClicks.some(c => c.id === clickData.id);
+                if (!exists) serverWaClicks.unshift(clickData);
+              }
+              res.statusCode = 200;
+              res.setHeader('Content-Type', 'application/json');
+              res.end(JSON.stringify({ success: true, count: serverWaClicks.length }));
+            } catch (err: any) {
+              res.statusCode = 500;
+              res.setHeader('Content-Type', 'application/json');
+              res.end(JSON.stringify({ success: false }));
+            }
+          });
+          return;
+        }
+
+        if (req.url === '/api/get-wa-clicks' && req.method === 'GET') {
+          res.statusCode = 200;
+          res.setHeader('Content-Type', 'application/json');
+          res.end(JSON.stringify({ success: true, clicks: serverWaClicks }));
           return;
         }
 
