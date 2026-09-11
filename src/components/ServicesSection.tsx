@@ -224,8 +224,14 @@ export const ServicesSection: React.FC<ServicesSectionProps> = ({
                   {/* Direct WhatsApp Inquiry */}
                   <a
                     href={getWhatsAppLink({ serviceTitle: service.title })}
-                    data-wa-location="Homepage Service Card"
-                    data-wa-context={`Service: ${service.title}`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      trackAndOpenWhatsApp({
+                        buttonLocation: 'Services Catalog Card',
+                        serviceTitle: service.title,
+                        contextDetails: `Service: ${service.title}`
+                      });
+                    }}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="w-full flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold py-2 px-3 rounded-lg transition-colors"

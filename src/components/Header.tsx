@@ -297,7 +297,8 @@ export const Header: React.FC<HeaderProps> = ({ currentPage, onNavigate }) => {
         <div className="hidden sm:flex items-center gap-3 shrink-0">
           <a
             href={getWhatsAppLink({ message: 'Hello Smart Life Typing Services, I need assistance with UAE visa / typing services.' })}
-            onClick={() => {
+            onClick={(e) => {
+              e.stopPropagation();
               trackAndOpenWhatsApp({
                 buttonLocation: 'Header Top Bar CTA',
                 contextDetails: 'Header - WhatsApp Consultation'

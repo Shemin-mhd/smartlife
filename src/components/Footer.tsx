@@ -118,7 +118,8 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
             {/* WhatsApp Contact */}
             <a
               href={getWhatsAppLink({ message: 'Hi Smart Life Typing, I need urgent document typing assistance.' })}
-              onClick={() => {
+              onClick={(e) => {
+                e.stopPropagation();
                 trackAndOpenWhatsApp({
                   buttonLocation: 'Footer Instant WhatsApp Support',
                   contextDetails: 'Footer - Instant WhatsApp Support'

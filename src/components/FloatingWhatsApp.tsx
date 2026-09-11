@@ -31,7 +31,8 @@ export const FloatingWhatsApp: React.FC = () => {
               <a
                 key={branch.id}
                 href={getWhatsAppLink({ branchName: branch.area })}
-                onClick={() => {
+                onClick={(e) => {
+                  e.stopPropagation();
                   trackAndOpenWhatsApp({
                     buttonLocation: 'Global Floating Widget',
                     branchName: branch.area,

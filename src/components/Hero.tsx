@@ -375,7 +375,8 @@ export const Hero: React.FC<HeroProps> = ({
             <div className="flex flex-wrap items-center gap-3 pt-1">
               <a
                 href={getWhatsAppLink({ message: 'Hi Smart Life Typing Services, I need help with UAE visa & government documentation.' })}
-                onClick={() => {
+                onClick={(e) => {
+                  e.stopPropagation();
                   trackAndOpenWhatsApp({
                     buttonLocation: 'Hero Primary CTA',
                     contextDetails: 'Hero - Instant WhatsApp Inquiry'
