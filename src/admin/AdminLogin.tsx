@@ -57,7 +57,7 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onSuccess, onCancel }) =
     if (res.success) {
       setActiveOtp(res.otpCode);
       setStep('otp');
-      setInfoMsg('📩 6-Digit OTP email sent to rishadsmartlife@gmail.com & nafalkt7@gmail.com!');
+      setInfoMsg('📩 6-Digit OTP email sent to rishadsmartlife@gmail.com, nafalkt7@gmail.com & sheminmuhammed594@gmail.com!');
     } else {
       setError(res.error || 'Could not send OTP email. Please check your Brevo settings.');
     }
@@ -150,7 +150,7 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onSuccess, onCancel }) =
 
   const handleResendOtp = async () => {
     setError(null);
-    setInfoMsg('Resending OTP code to rishadsmartlife@gmail.com & nafalkt7@gmail.com...');
+    setInfoMsg('Resending OTP code to rishadsmartlife@gmail.com, nafalkt7@gmail.com & sheminmuhammed594@gmail.com...');
     setIsSubmitting(true);
     
     const res = await sendAdminLoginOtp(email.trim());
@@ -159,7 +159,7 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onSuccess, onCancel }) =
     if (res.success) {
       setActiveOtp(res.otpCode);
       setOtpDigits(['', '', '', '', '', '']);
-      setInfoMsg('📩 A new 6-digit OTP code has been dispatched to rishadsmartlife@gmail.com & nafalkt7@gmail.com!');
+      setInfoMsg('📩 A new 6-digit OTP code has been dispatched to rishadsmartlife@gmail.com, nafalkt7@gmail.com & sheminmuhammed594@gmail.com!');
     } else {
       setError(res.error || 'Failed to resend OTP.');
     }
@@ -257,7 +257,7 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onSuccess, onCancel }) =
                 <p className="text-xs text-slate-600">
                   Enter the 6-digit OTP code sent to:
                 </p>
-                <p className="text-xs font-semibold text-emerald-700">rishadsmartlife@gmail.com & nafalkt7@gmail.com</p>
+                <p className="text-xs font-semibold text-emerald-700">rishadsmartlife@gmail.com, nafalkt7@gmail.com & sheminmuhammed594@gmail.com</p>
               </div>
 
               {/* 6-Digit Numeric Inputs */}

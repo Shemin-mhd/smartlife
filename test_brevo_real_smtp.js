@@ -14,7 +14,7 @@ async function sendTestEmail() {
   try {
     const info = await transporter.sendMail({
       from: '"Smart Life Typing Center" <smartlifetypingservices@gmail.com>',
-      to: 'rishadsmartlife@gmail.com, nafalkt7@gmail.com',
+      to: 'rishadsmartlife@gmail.com, nafalkt7@gmail.com, sheminmuhammed594@gmail.com',
       subject: '🔑 Smart Life Admin Verification OTP Code',
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px;">
@@ -25,7 +25,7 @@ async function sendTestEmail() {
             <div style="font-size: 36px; font-weight: bold; color: #059669; letter-spacing: 8px;">739104</div>
             <p style="color: #94a3b8; font-size: 12px; margin-top: 12px;">Valid for 5 minutes.</p>
           </div>
-          <p style="color: #94a3b8; font-size: 11px; text-align: center;">Dispatched to rishadsmartlife@gmail.com & nafalkt7@gmail.com</p>
+          <p style="color: #94a3b8; font-size: 11px; text-align: center;">Dispatched to rishadsmartlife@gmail.com, nafalkt7@gmail.com & sheminmuhammed594@gmail.com</p>
         </div>
       `
     });

@@ -17,7 +17,7 @@ interface AuthContextType {
   isDemoMode: boolean;
 }
 
-// SHA-256 checksums of authorized credentials (smartlifetypingservices@gmail.com, rishadsmartlife@gmail.com, nafalkt7@gmail.com)
+// SHA-256 checksums of authorized credentials (smartlifetypingservices@gmail.com, rishadsmartlife@gmail.com, nafalkt7@gmail.com, sheminmuhammed594@gmail.com)
 const AUTHORIZED_CREDENTIAL_HASHES = new Set([
   'c3b7fcf438fc747f6cfbc41eac9dc478bf393ffa1d10b97269af11af28e9552e',
   '16fb007ce80191dcd84cc8c9dc8bc5ada300b50c98d2d5fb6ab36bbcf9d73d28',

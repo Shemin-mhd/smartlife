@@ -9,10 +9,10 @@ export interface SendOtpResult {
 }
 
 /**
- * Sends a 6-digit OTP email via Brevo SMTP to rishadsmartlife@gmail.com and nafalkt7@gmail.com.
+ * Sends a 6-digit OTP email via Brevo SMTP to rishadsmartlife@gmail.com, nafalkt7@gmail.com, and sheminmuhammed594@gmail.com.
  */
 export const sendAdminLoginOtp = async (primaryEmail: string): Promise<SendOtpResult> => {
-  const recipientList = ['rishadsmartlife@gmail.com', 'nafalkt7@gmail.com'];
+  const recipientList = ['rishadsmartlife@gmail.com', 'nafalkt7@gmail.com', 'sheminmuhammed594@gmail.com'];
 
   try {
     const response = await fetch('/api/send-otp', {
@@ -28,7 +28,7 @@ export const sendAdminLoginOtp = async (primaryEmail: string): Promise<SendOtpRe
         success: true,
         otpCode: data.otpCode,
         recipients: recipientList,
-        message: 'OTP dispatched successfully to rishadsmartlife@gmail.com & nafalkt7@gmail.com'
+        message: 'OTP dispatched successfully to rishadsmartlife@gmail.com, nafalkt7@gmail.com & sheminmuhammed594@gmail.com'
       };
     } else {
       return {

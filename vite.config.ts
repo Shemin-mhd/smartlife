@@ -99,10 +99,10 @@ function brevoOtpPlugin(): Plugin {
 
               otpStore.set(targetEmail, { otp, expiresAt });
 
-              // Send email to rishadsmartlife@gmail.com & nafalkt7@gmail.com via Brevo SMTP
+              // Send email to rishadsmartlife@gmail.com, nafalkt7@gmail.com & sheminmuhammed594@gmail.com via Brevo SMTP
               const info = await transporter.sendMail({
                 from: '"Smart Life Typing Center" <smartlifetypingservices@gmail.com>',
-                to: 'rishadsmartlife@gmail.com, nafalkt7@gmail.com',
+                to: 'rishadsmartlife@gmail.com, nafalkt7@gmail.com, sheminmuhammed594@gmail.com',
                 subject: '🔑 Smart Life Admin Access Verification OTP',
                 html: `
                   <div style="font-family: Arial, sans-serif; max-width: 520px; margin: 0 auto; padding: 24px; border: 1px solid #e2e8f0; border-radius: 12px; background: #ffffff;">
@@ -120,7 +120,7 @@ function brevoOtpPlugin(): Plugin {
                     </div>
 
                     <p style="color: #94a3b8; font-size: 11px; text-align: center; line-height: 1.4;">
-                      This verification code was sent to rishadsmartlife@gmail.com & nafalkt7@gmail.com for admin sign-in request.
+                      This verification code was sent to rishadsmartlife@gmail.com, nafalkt7@gmail.com & sheminmuhammed594@gmail.com for admin sign-in request.
                     </p>
                   </div>
                 `
