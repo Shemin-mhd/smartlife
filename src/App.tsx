@@ -27,8 +27,8 @@ const AdminLayout = lazy(() => import('./admin/AdminLayout').then(m => ({ defaul
 // SHA-256 One-Way Cryptographic Checksum of the Secret URL Hash.
 const SECRET_HASH_CHECKSUM = 'cbca90c962d9e7d03ee249e062b628f3ea192e1250f9a1d700e39af2a75c9a21';
 
-// Custom Unique Admin Access Path Name
-export const UNIQUE_ADMIN_ROUTE = 'sl-gate';
+// Custom Unique Admin Access Path Name (configurable via VITE_ADMIN_SECRET_ROUTE in .env)
+export const UNIQUE_ADMIN_ROUTE = (import.meta.env.VITE_ADMIN_SECRET_ROUTE || 'sl-gate-2026').toLowerCase();
 
 function AdminWrapper({ onExitAdmin }: { onExitAdmin: () => void }) {
   const { user, loading } = useAuth();
@@ -89,25 +89,13 @@ function MainContent() {
       // Unique secret route verification
       const targetUniqueRoute = UNIQUE_ADMIN_ROUTE.toLowerCase();
 
-      const adminKeywords = [
-        targetUniqueRoute,
-        'sl',
-        'pro',
-        'go',
-        'sl-pro',
-        'sl7',
-        'sl-gate',
-        'admin', 'login', 'dashboard', 'portal', 'panel', 
-        'manage', 'management', 'control', 'backend', 'system', 
-        'smartlife-admin', 'admin-panel', 'admin-portal'
-      ];
-
-      const isAdminRoute = adminKeywords.some(k => 
-        pathname === k || pathname.includes(k) || 
-        rawHash.toLowerCase() === k || rawHash.toLowerCase().includes(k)
+      // Secret path matching: only allow exact match of secret route (e.g. /sl-gate-2026 or #sl-gate-2026)
+      const isExactUniqueRoute = (
+        pathname === targetUniqueRoute || 
+        rawHash.toLowerCase() === targetUniqueRoute
       );
 
-      if (isAdminRoute) {
+      if (isExactUniqueRoute) {
         setCurrentPage('admin');
         return;
       }

@@ -456,14 +456,6 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
           <p>© {new Date().getFullYear()} Smart Life Typing Services. All Rights Reserved. Sharjah, UAE.</p>
           <div className="flex items-center gap-4 text-[11px] text-slate-500">
             <span>Government Document Typing & Passport Services Center</span>
-            <span>•</span>
-            <button
-              onClick={() => handleLinkClick('admin')}
-              className="text-slate-400 hover:text-emerald-400 font-semibold transition-colors cursor-pointer flex items-center gap-1"
-            >
-              <ShieldCheck className="w-3 h-3 text-emerald-500" />
-              <span>Admin Portal</span>
-            </button>
           </div>
         </div>
 
