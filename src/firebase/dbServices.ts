@@ -497,13 +497,13 @@ export const subscribeInquiries = (onData: (inquiries: InquiryItem[]) => void): 
       const res = await fetch('/api/get-inquiries');
       if (res.ok) {
         const data = await res.json();
-        if (data.success && Array.isArray(data.inquiries) && data.inquiries.length > 0) {
+        if (data.success && Array.isArray(data.inquiries)) {
           const currentLocal = getStoredLocalInquiries();
           const mergedMap = new Map<string, InquiryItem>();
           currentLocal.forEach(i => mergedMap.set(i.id, i));
           data.inquiries.forEach((i: InquiryItem) => mergedMap.set(i.id, i));
           const mergedList = Array.from(mergedMap.values()).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-          const newFingerprint = `${mergedList.length}-${mergedList[0]?.id}`;
+          const newFingerprint = mergedList.map(i => `${i.id}_${i.status || ''}_${i.createdAt || ''}`).join('|');
           if (newFingerprint !== lastInqFingerprint) {
             lastInqFingerprint = newFingerprint;
             saveStoredLocalInquiries(mergedList);
@@ -778,13 +778,13 @@ export const subscribeWhatsAppClicks = (onData: (clicks: WhatsAppClickEvent[]) =
       const res = await fetch('/api/get-wa-clicks');
       if (res.ok) {
         const data = await res.json();
-        if (data.success && Array.isArray(data.clicks) && data.clicks.length > 0) {
+        if (data.success && Array.isArray(data.clicks)) {
           const currentLocal = getStoredLocal('smartlife_wa_clicks', INITIAL_MOCK_WA_CLICKS);
           const mergedMap = new Map<string, WhatsAppClickEvent>();
           currentLocal.forEach(c => mergedMap.set(c.id, c));
           data.clicks.forEach((c: WhatsAppClickEvent) => mergedMap.set(c.id, c));
           const mergedList = Array.from(mergedMap.values()).sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
-          const newFingerprint = `${mergedList.length}-${mergedList[0]?.id}`;
+          const newFingerprint = mergedList.map(c => `${c.id}_${c.timestamp || ''}`).join('|');
           if (newFingerprint !== lastFingerprint) {
             lastFingerprint = newFingerprint;
             saveStoredLocal('smartlife_wa_clicks', mergedList);
