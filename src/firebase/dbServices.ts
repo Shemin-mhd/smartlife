@@ -435,6 +435,10 @@ export const fetchInquiries = async (): Promise<InquiryItem[]> => {
  * Real-Time Live Subscription for Inquiries.
  * Auto-updates the Admin Panel instantly whenever ANY customer submits a form or inquiry.
  */
+/**
+ * Real-Time Live Subscription for Inquiries.
+ * Auto-updates the Admin Panel instantly whenever ANY customer submits a form or inquiry.
+ */
 export const subscribeInquiries = (onData: (inquiries: InquiryItem[]) => void): (() => void) => {
   const handleUpdate = () => {
     onData(getStoredLocalInquiries());
@@ -459,7 +463,58 @@ export const subscribeInquiries = (onData: (inquiries: InquiryItem[]) => void): 
     }
   } catch {}
 
-  // 2. Firestore Stream
+  // 2. Dev Server SSE EventSource Stream (Instant Push)
+  let eventSource: EventSource | null = null;
+  try {
+    if (typeof window !== 'undefined' && 'EventSource' in window) {
+      eventSource = new EventSource('/api/live-events');
+      eventSource.onmessage = (e) => {
+        try {
+          const data = JSON.parse(e.data || '{}');
+          if (data.type === 'INQUIRY_ADDED' && data.payload) {
+            const currentLocal = getStoredLocalInquiries();
+            const mergedMap = new Map<string, InquiryItem>();
+            currentLocal.forEach(i => mergedMap.set(i.id, i));
+            mergedMap.set(data.payload.id, data.payload);
+            const merged = Array.from(mergedMap.values()).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+            saveStoredLocalInquiries(merged);
+            onData(merged);
+          } else if (data.type === 'INQUIRY_DELETED' && data.payload?.id) {
+            const currentLocal = getStoredLocalInquiries();
+            const filtered = currentLocal.filter(i => i.id !== data.payload.id);
+            saveStoredLocalInquiries(filtered);
+            onData(filtered);
+          }
+        } catch {}
+      };
+    }
+  } catch {}
+
+  // 3. Dev Server API Polling for Cross-Port Sync
+  let lastInqFingerprint = '';
+  const pollInterval = setInterval(async () => {
+    try {
+      const res = await fetch('/api/get-inquiries');
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success && Array.isArray(data.inquiries) && data.inquiries.length > 0) {
+          const currentLocal = getStoredLocalInquiries();
+          const mergedMap = new Map<string, InquiryItem>();
+          currentLocal.forEach(i => mergedMap.set(i.id, i));
+          data.inquiries.forEach((i: InquiryItem) => mergedMap.set(i.id, i));
+          const mergedList = Array.from(mergedMap.values()).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+          const newFingerprint = `${mergedList.length}-${mergedList[0]?.id}`;
+          if (newFingerprint !== lastInqFingerprint) {
+            lastInqFingerprint = newFingerprint;
+            saveStoredLocalInquiries(mergedList);
+            onData(mergedList);
+          }
+        }
+      }
+    } catch {}
+  }, 400);
+
+  // 4. Firestore Stream
   let fsUnsubscribe: (() => void) | null = null;
   if (isFirebaseConfigured() && db) {
     try {
@@ -487,6 +542,8 @@ export const subscribeInquiries = (onData: (inquiries: InquiryItem[]) => void): 
     window.removeEventListener('smartlife_inquiry_added', handleUpdate);
     window.removeEventListener('storage', handleUpdate);
     channel?.close();
+    eventSource?.close();
+    clearInterval(pollInterval);
     if (fsUnsubscribe) fsUnsubscribe();
   };
 };
@@ -510,6 +567,14 @@ export const submitNewInquiry = async (inquiry: Omit<InquiryItem, 'id' | 'create
       bc.postMessage({ type: 'NEW_INQUIRY', payload: newItem });
       bc.close();
     }
+  } catch {}
+
+  try {
+    fetch('/api/track-inquiry', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newItem)
+    }).catch(() => {});
   } catch {}
 
   if (isFirebaseConfigured() && db) {
@@ -565,6 +630,14 @@ export const deleteInquiry = async (id: string): Promise<boolean> => {
   saveStoredLocalInquiries(updated);
 
   window.dispatchEvent(new CustomEvent('smartlife_inquiry_added'));
+
+  try {
+    fetch('/api/delete-inquiry', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id })
+    }).catch(() => {});
+  } catch {}
 
   if (isFirebaseConfigured() && db) {
     try {
@@ -655,7 +728,38 @@ export const subscribeWhatsAppClicks = (onData: (clicks: WhatsAppClickEvent[]) =
     }
   } catch {}
 
+  // Dev Server SSE EventSource Stream (Instant Sub-Second Push)
+  let eventSource: EventSource | null = null;
+  try {
+    if (typeof window !== 'undefined' && 'EventSource' in window) {
+      eventSource = new EventSource('/api/live-events');
+      eventSource.onmessage = (e) => {
+        try {
+          const data = JSON.parse(e.data || '{}');
+          if (data.type === 'WA_CLICK' && data.payload) {
+            const currentLocal = getStoredLocal('smartlife_wa_clicks', INITIAL_MOCK_WA_CLICKS);
+            const mergedMap = new Map<string, WhatsAppClickEvent>();
+            currentLocal.forEach(c => mergedMap.set(c.id, c));
+            mergedMap.set(data.payload.id, data.payload);
+            const merged = Array.from(mergedMap.values()).sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+            saveStoredLocal('smartlife_wa_clicks', merged);
+            onData(merged);
+          } else if (data.type === 'WA_DELETE' && data.payload?.id) {
+            const currentLocal = getStoredLocal('smartlife_wa_clicks', INITIAL_MOCK_WA_CLICKS);
+            const filtered = currentLocal.filter(c => c.id !== data.payload.id);
+            saveStoredLocal('smartlife_wa_clicks', filtered);
+            onData(filtered);
+          } else if (data.type === 'WA_CLEAR') {
+            saveStoredLocal('smartlife_wa_clicks', []);
+            onData([]);
+          }
+        } catch {}
+      };
+    }
+  } catch {}
+
   // Dev Server API Polling for Cross-Port Live Sync (e.g. 3001 vs 3000)
+  let lastFingerprint = '';
   const pollInterval = setInterval(async () => {
     try {
       const res = await fetch('/api/get-wa-clicks');
@@ -667,14 +771,16 @@ export const subscribeWhatsAppClicks = (onData: (clicks: WhatsAppClickEvent[]) =
           currentLocal.forEach(c => mergedMap.set(c.id, c));
           data.clicks.forEach((c: WhatsAppClickEvent) => mergedMap.set(c.id, c));
           const mergedList = Array.from(mergedMap.values()).sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
-          if (mergedList.length !== currentLocal.length) {
+          const newFingerprint = `${mergedList.length}-${mergedList[0]?.id}`;
+          if (newFingerprint !== lastFingerprint) {
+            lastFingerprint = newFingerprint;
             saveStoredLocal('smartlife_wa_clicks', mergedList);
             onData(mergedList);
           }
         }
       }
     } catch {}
-  }, 2000);
+  }, 400);
 
   // Firestore Cloud Database Listener
   let fsUnsubscribe: (() => void) | null = null;
@@ -704,6 +810,7 @@ export const subscribeWhatsAppClicks = (onData: (clicks: WhatsAppClickEvent[]) =
     window.removeEventListener('smartlife_wa_click_added', handleUpdate);
     window.removeEventListener('storage', handleUpdate);
     channel?.close();
+    eventSource?.close();
     clearInterval(pollInterval);
     if (fsUnsubscribe) fsUnsubscribe();
   };
@@ -768,6 +875,14 @@ export const deleteWhatsAppClickEvent = async (id: string): Promise<boolean> => 
   saveStoredLocal('smartlife_wa_clicks', updated);
   window.dispatchEvent(new Event('smartlife_wa_click_added'));
 
+  try {
+    fetch('/api/delete-wa-click', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id })
+    }).catch(() => {});
+  } catch {}
+
   if (isFirebaseConfigured() && db) {
     try {
       await deleteDoc(doc(db, 'whatsapp_clicks', id));
@@ -781,6 +896,12 @@ export const deleteWhatsAppClickEvent = async (id: string): Promise<boolean> => 
 export const clearAllWhatsAppClicks = async (): Promise<boolean> => {
   saveStoredLocal('smartlife_wa_clicks', []);
   window.dispatchEvent(new Event('smartlife_wa_click_added'));
+
+  try {
+    fetch('/api/clear-wa-clicks', {
+      method: 'POST'
+    }).catch(() => {});
+  } catch {}
 
   if (isFirebaseConfigured() && db) {
     try {

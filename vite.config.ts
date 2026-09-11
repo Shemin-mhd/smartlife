@@ -7,15 +7,46 @@ import nodemailer from 'nodemailer';
 
 // In-memory OTP store for dev server
 const otpStore = new Map<string, { otp: string; expiresAt: number }>();
-// In-memory WA clicks store for dev server cross-port sync
+// In-memory stores for dev server cross-port sync
 const serverWaClicks: any[] = [];
+const serverInquiries: any[] = [];
+// Active SSE client connections
+const sseClients = new Set<any>();
 
-// Vite plugin to provide zero-backend OTP email API
+function broadcastSseEvent(eventType: string, payload?: any) {
+  const data = JSON.stringify({ type: eventType, payload, timestamp: new Date().toISOString() });
+  sseClients.forEach(res => {
+    try {
+      res.write(`data: ${data}\n\n`);
+    } catch {
+      sseClients.delete(res);
+    }
+  });
+}
+
+// Vite plugin to provide zero-backend OTP email & instant real-time SSE event bridge
 function brevoOtpPlugin(): Plugin {
   return {
     name: 'vite-plugin-brevo-otp',
     configureServer(server) {
       server.middlewares.use(async (req, res, next) => {
+        // SSE Real-Time Event Stream Endpoint
+        if (req.url === '/api/live-events' && req.method === 'GET') {
+          res.writeHead(200, {
+            'Content-Type': 'text/event-stream',
+            'Cache-Control': 'no-cache',
+            'Connection': 'keep-alive',
+            'Access-Control-Allow-Origin': '*'
+          });
+          res.write(`data: ${JSON.stringify({ type: 'CONNECTED', timestamp: new Date().toISOString() })}\n\n`);
+          sseClients.add(res);
+
+          req.on('close', () => {
+            sseClients.delete(res);
+          });
+          return;
+        }
+
         if (req.url === '/api/send-otp' && req.method === 'POST') {
           let body = '';
           req.on('data', chunk => { body += chunk; });
@@ -150,6 +181,7 @@ function brevoOtpPlugin(): Plugin {
           return;
         }
 
+        // WhatsApp Clicks API Endpoints
         if (req.url === '/api/track-wa-click' && req.method === 'POST') {
           let body = '';
           req.on('data', chunk => { body += chunk; });
@@ -158,7 +190,10 @@ function brevoOtpPlugin(): Plugin {
               const clickData = JSON.parse(body || '{}');
               if (clickData.id) {
                 const exists = serverWaClicks.some(c => c.id === clickData.id);
-                if (!exists) serverWaClicks.unshift(clickData);
+                if (!exists) {
+                  serverWaClicks.unshift(clickData);
+                  broadcastSseEvent('WA_CLICK', clickData);
+                }
               }
               res.statusCode = 200;
               res.setHeader('Content-Type', 'application/json');
@@ -176,6 +211,93 @@ function brevoOtpPlugin(): Plugin {
           res.statusCode = 200;
           res.setHeader('Content-Type', 'application/json');
           res.end(JSON.stringify({ success: true, clicks: serverWaClicks }));
+          return;
+        }
+
+        if (req.url === '/api/delete-wa-click' && req.method === 'POST') {
+          let body = '';
+          req.on('data', chunk => { body += chunk; });
+          req.on('end', () => {
+            try {
+              const { id } = JSON.parse(body || '{}');
+              if (id) {
+                const idx = serverWaClicks.findIndex(c => c.id === id);
+                if (idx >= 0) serverWaClicks.splice(idx, 1);
+                broadcastSseEvent('WA_DELETE', { id });
+              }
+              res.statusCode = 200;
+              res.setHeader('Content-Type', 'application/json');
+              res.end(JSON.stringify({ success: true }));
+            } catch {
+              res.statusCode = 500;
+              res.setHeader('Content-Type', 'application/json');
+              res.end(JSON.stringify({ success: false }));
+            }
+          });
+          return;
+        }
+
+        if (req.url === '/api/clear-wa-clicks' && req.method === 'POST') {
+          serverWaClicks.length = 0;
+          broadcastSseEvent('WA_CLEAR');
+          res.statusCode = 200;
+          res.setHeader('Content-Type', 'application/json');
+          res.end(JSON.stringify({ success: true }));
+          return;
+        }
+
+        // Customer Inquiries API Endpoints
+        if (req.url === '/api/track-inquiry' && req.method === 'POST') {
+          let body = '';
+          req.on('data', chunk => { body += chunk; });
+          req.on('end', () => {
+            try {
+              const inqData = JSON.parse(body || '{}');
+              if (inqData.id) {
+                const idx = serverInquiries.findIndex(i => i.id === inqData.id);
+                if (idx >= 0) serverInquiries[idx] = inqData;
+                else serverInquiries.unshift(inqData);
+                broadcastSseEvent('INQUIRY_ADDED', inqData);
+              }
+              res.statusCode = 200;
+              res.setHeader('Content-Type', 'application/json');
+              res.end(JSON.stringify({ success: true, count: serverInquiries.length }));
+            } catch (err: any) {
+              res.statusCode = 500;
+              res.setHeader('Content-Type', 'application/json');
+              res.end(JSON.stringify({ success: false }));
+            }
+          });
+          return;
+        }
+
+        if (req.url === '/api/get-inquiries' && req.method === 'GET') {
+          res.statusCode = 200;
+          res.setHeader('Content-Type', 'application/json');
+          res.end(JSON.stringify({ success: true, inquiries: serverInquiries }));
+          return;
+        }
+
+        if (req.url === '/api/delete-inquiry' && req.method === 'POST') {
+          let body = '';
+          req.on('data', chunk => { body += chunk; });
+          req.on('end', () => {
+            try {
+              const { id } = JSON.parse(body || '{}');
+              if (id) {
+                const idx = serverInquiries.findIndex(i => i.id === id);
+                if (idx >= 0) serverInquiries.splice(idx, 1);
+                broadcastSseEvent('INQUIRY_DELETED', { id });
+              }
+              res.statusCode = 200;
+              res.setHeader('Content-Type', 'application/json');
+              res.end(JSON.stringify({ success: true }));
+            } catch {
+              res.statusCode = 500;
+              res.setHeader('Content-Type', 'application/json');
+              res.end(JSON.stringify({ success: false }));
+            }
+          });
           return;
         }
 

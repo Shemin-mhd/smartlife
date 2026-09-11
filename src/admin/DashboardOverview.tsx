@@ -12,7 +12,7 @@ import {
   AlertCircle
 } from 'lucide-react';
 import { InquiryItem, ServiceItem } from '../types';
-import { fetchInquiries, fetchServices, fetchBlogPosts, fetchBranches, fetchWhatsAppClicks } from '../firebase/dbServices';
+import { fetchInquiries, fetchServices, fetchBlogPosts, fetchBranches, fetchWhatsAppClicks, subscribeInquiries, subscribeWhatsAppClicks } from '../firebase/dbServices';
 import { isFirebaseConfigured } from '../firebase/config';
 
 interface DashboardOverviewProps {
@@ -27,22 +27,23 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({ onNavigate
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    const loadOverviewData = async () => {
-      setLoading(true);
-      const [inqData, srvData, blogData, waData] = await Promise.all([
-        fetchInquiries(),
-        fetchServices(),
-        fetchBlogPosts(),
-        fetchWhatsAppClicks()
-      ]);
-      setInquiries(inqData);
-      setServicesCount(srvData.length);
-      setBlogsCount(blogData.length);
-      setWaClicksCount(waData.length);
-      setLoading(false);
-    };
+    setLoading(true);
+    fetchServices().then(srv => setServicesCount(srv.length));
+    fetchBlogPosts().then(b => setBlogsCount(b.length));
 
-    loadOverviewData();
+    const unsubInq = subscribeInquiries((liveInq) => {
+      setInquiries(Array.isArray(liveInq) ? liveInq : []);
+      setLoading(false);
+    });
+
+    const unsubWa = subscribeWhatsAppClicks((liveWa) => {
+      setWaClicksCount(Array.isArray(liveWa) ? liveWa.length : 0);
+    });
+
+    return () => {
+      unsubInq();
+      unsubWa();
+    };
   }, []);
 
   const newInquiriesCount = inquiries.filter(i => i.status === 'new').length;
