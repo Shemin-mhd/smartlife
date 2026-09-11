@@ -414,7 +414,7 @@ export const deleteFaq = async (faqId: number): Promise<boolean> => {
 };
 
 // ==========================================
-// 5. INQUIRIES CENTRALIZED BANK API
+// 5. INQUIRIES CENTRALIZED BANK API (Real-Time Live Engine)
 // ==========================================
 export const fetchInquiries = async (): Promise<InquiryItem[]> => {
   if (isFirebaseConfigured() && db) {
@@ -431,6 +431,57 @@ export const fetchInquiries = async (): Promise<InquiryItem[]> => {
   return getStoredLocalInquiries();
 };
 
+/**
+ * Real-Time Live Subscription for Inquiries.
+ * Auto-updates the Admin Panel instantly whenever ANY customer submits a form or inquiry.
+ */
+export const subscribeInquiries = (onData: (inquiries: InquiryItem[]) => void): (() => void) => {
+  if (isFirebaseConfigured() && db) {
+    try {
+      const q = query(collection(db, 'inquiries'), orderBy('createdAt', 'desc'));
+      const unsubscribe = onSnapshot(q, (snapshot) => {
+        const liveList = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as InquiryItem));
+        onData(liveList);
+      }, (err) => {
+        console.warn('Firestore inquiries onSnapshot error:', err);
+        onData(getStoredLocalInquiries());
+      });
+      return unsubscribe;
+    } catch (e) {
+      console.warn('Error setting up inquiries listener:', e);
+    }
+  }
+
+  // Fallback Local Storage & Real-Time Browser Broadcast Listener
+  const handleUpdate = () => {
+    onData(getStoredLocalInquiries());
+  };
+
+  handleUpdate();
+  window.addEventListener('smartlife_inquiry_added', handleUpdate);
+  window.addEventListener('storage', handleUpdate);
+
+  let channel: BroadcastChannel | null = null;
+  try {
+    if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
+      channel = new BroadcastChannel('smartlife_live_events');
+      channel.onmessage = (e) => {
+        if (e.data?.type === 'NEW_INQUIRY' || e.data?.type === 'INQUIRY_UPDATED') {
+          handleUpdate();
+        }
+      };
+    }
+  } catch {
+    // ignore broadcast error
+  }
+
+  return () => {
+    window.removeEventListener('smartlife_inquiry_added', handleUpdate);
+    window.removeEventListener('storage', handleUpdate);
+    channel?.close();
+  };
+};
+
 export const submitNewInquiry = async (inquiry: Omit<InquiryItem, 'id' | 'createdAt' | 'status'>): Promise<InquiryItem> => {
   const newItem: InquiryItem = {
     ...inquiry,
@@ -438,6 +489,20 @@ export const submitNewInquiry = async (inquiry: Omit<InquiryItem, 'id' | 'create
     createdAt: new Date().toISOString(),
     status: 'new'
   };
+
+  const current = getStoredLocalInquiries();
+  const updated = [newItem, ...current];
+  saveStoredLocalInquiries(updated);
+
+  // Dispatch real-time live events to all open admin tabs
+  window.dispatchEvent(new CustomEvent('smartlife_inquiry_added', { detail: newItem }));
+  try {
+    if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
+      const bc = new BroadcastChannel('smartlife_live_events');
+      bc.postMessage({ type: 'NEW_INQUIRY', payload: newItem });
+      bc.close();
+    }
+  } catch {}
 
   if (isFirebaseConfigured() && db) {
     try {
@@ -447,19 +512,32 @@ export const submitNewInquiry = async (inquiry: Omit<InquiryItem, 'id' | 'create
         status: 'new'
       });
       newItem.id = docRef.id;
-      return newItem;
     } catch (e) {
       console.error('Error submitting inquiry to Firestore:', e);
     }
   }
 
-  const current = getStoredLocalInquiries();
-  const updated = [newItem, ...current];
-  saveStoredLocalInquiries(updated);
   return newItem;
 };
 
 export const updateInquiryStatus = async (id: string, status: InquiryItem['status'], notes?: string): Promise<boolean> => {
+  const current = getStoredLocalInquiries();
+  const index = current.findIndex(item => item.id === id);
+  if (index >= 0) {
+    current[index].status = status;
+    if (notes !== undefined) current[index].notes = notes;
+    saveStoredLocalInquiries([...current]);
+  }
+
+  window.dispatchEvent(new CustomEvent('smartlife_inquiry_added'));
+  try {
+    if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
+      const bc = new BroadcastChannel('smartlife_live_events');
+      bc.postMessage({ type: 'INQUIRY_UPDATED' });
+      bc.close();
+    }
+  } catch {}
+
   if (isFirebaseConfigured() && db) {
     try {
       const docRef = doc(db, 'inquiries', id);
@@ -470,13 +548,6 @@ export const updateInquiryStatus = async (id: string, status: InquiryItem['statu
     }
   }
 
-  const current = getStoredLocalInquiries();
-  const index = current.findIndex(item => item.id === id);
-  if (index >= 0) {
-    current[index].status = status;
-    if (notes !== undefined) current[index].notes = notes;
-    saveStoredLocalInquiries([...current]);
-  }
   return true;
 };
 
@@ -549,9 +620,22 @@ export const subscribeWhatsAppClicks = (onData: (clicks: WhatsAppClickEvent[]) =
   window.addEventListener('smartlife_wa_click_added', handleUpdate);
   window.addEventListener('storage', handleUpdate);
 
+  let channel: BroadcastChannel | null = null;
+  try {
+    if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
+      channel = new BroadcastChannel('smartlife_live_events');
+      channel.onmessage = (e) => {
+        if (e.data?.type === 'WA_CLICK') {
+          handleUpdate();
+        }
+      };
+    }
+  } catch {}
+
   return () => {
     window.removeEventListener('smartlife_wa_click_added', handleUpdate);
     window.removeEventListener('storage', handleUpdate);
+    channel?.close();
   };
 };
 
@@ -583,6 +667,13 @@ export const saveWhatsAppClick = async (event: Omit<WhatsAppClickEvent, 'id' | '
 
   // Dispatch real-time live event so any open Admin tab updates instantly
   window.dispatchEvent(new CustomEvent('smartlife_wa_click_added', { detail: newClick }));
+  try {
+    if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
+      const bc = new BroadcastChannel('smartlife_live_events');
+      bc.postMessage({ type: 'WA_CLICK', payload: newClick });
+      bc.close();
+    }
+  } catch {}
 
   if (isFirebaseConfigured() && db) {
     try {

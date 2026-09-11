@@ -15,7 +15,7 @@ import {
   RefreshCw
 } from 'lucide-react';
 import { InquiryItem, InquiryStatus } from '../types';
-import { fetchInquiries, updateInquiryStatus, deleteInquiry } from '../firebase/dbServices';
+import { subscribeInquiries, updateInquiryStatus, deleteInquiry } from '../firebase/dbServices';
 
 export const InquiriesInbox: React.FC = () => {
   const [inquiries, setInquiries] = useState<InquiryItem[]>([]);
@@ -25,15 +25,13 @@ export const InquiriesInbox: React.FC = () => {
   const [selectedInquiry, setSelectedInquiry] = useState<InquiryItem | null>(null);
   const [editingNotes, setEditingNotes] = useState<string>('');
 
-  const loadInquiries = async () => {
-    setLoading(true);
-    const data = await fetchInquiries();
-    setInquiries(data);
-    setLoading(false);
-  };
-
   useEffect(() => {
-    loadInquiries();
+    setLoading(true);
+    const unsubscribe = subscribeInquiries((liveData) => {
+      setInquiries(liveData);
+      setLoading(false);
+    });
+    return () => unsubscribe();
   }, []);
 
   const handleStatusChange = async (id: string, newStatus: InquiryStatus) => {
