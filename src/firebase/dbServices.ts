@@ -568,13 +568,27 @@ export const submitNewInquiry = async (inquiry: Omit<InquiryItem, 'id' | 'create
     }
   } catch {}
 
+  const inquiryJson = JSON.stringify(newItem);
   try {
+    if (typeof navigator !== 'undefined' && typeof navigator.sendBeacon === 'function') {
+      const blob = new Blob([inquiryJson], { type: 'application/json' });
+      navigator.sendBeacon('/api/track-inquiry', blob);
+    } else {
+      fetch('/api/track-inquiry', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: inquiryJson,
+        keepalive: true
+      }).catch(() => {});
+    }
+  } catch {
     fetch('/api/track-inquiry', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(newItem)
+      body: inquiryJson,
+      keepalive: true
     }).catch(() => {});
-  } catch {}
+  }
 
   if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
     ['3000', '3001', '3002', '3003'].forEach(port => {
@@ -583,7 +597,8 @@ export const submitNewInquiry = async (inquiry: Omit<InquiryItem, 'id' | 'create
           fetch(`http://localhost:${port}/api/track-inquiry`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(newItem)
+            body: inquiryJson,
+            keepalive: true
           }).catch(() => {});
         } catch {}
       }
@@ -863,13 +878,27 @@ export const saveWhatsAppClick = async (event: Omit<WhatsAppClickEvent, 'id' | '
     }
   } catch {}
 
+  const waJson = JSON.stringify(newClick);
   try {
+    if (typeof navigator !== 'undefined' && typeof navigator.sendBeacon === 'function') {
+      const blob = new Blob([waJson], { type: 'application/json' });
+      navigator.sendBeacon('/api/track-wa-click', blob);
+    } else {
+      fetch('/api/track-wa-click', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: waJson,
+        keepalive: true
+      }).catch(() => {});
+    }
+  } catch {
     fetch('/api/track-wa-click', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(newClick)
+      body: waJson,
+      keepalive: true
     }).catch(() => {});
-  } catch {}
+  }
 
   if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
     ['3000', '3001', '3002', '3003'].forEach(port => {
@@ -878,7 +907,8 @@ export const saveWhatsAppClick = async (event: Omit<WhatsAppClickEvent, 'id' | '
           fetch(`http://localhost:${port}/api/track-wa-click`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(newClick)
+            body: waJson,
+            keepalive: true
           }).catch(() => {});
         } catch {}
       }
