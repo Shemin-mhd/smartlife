@@ -16,6 +16,10 @@ export interface TrackClickOptions extends WhatsAppLinkOptions {
  * Explicit helper to record click events and return target URL
  */
 export const trackAndOpenWhatsApp = (options: TrackClickOptions): string => {
+  try {
+    (window as any).__lastWaTrackTime = Date.now();
+  } catch {}
+
   const targetUrl = options.customUrl || getWhatsAppLink(options);
   const pagePath = options.pagePath || (window.location.pathname + window.location.hash) || '/';
   const deviceType = isMobileDevice() ? 'Mobile' : 'Desktop';
@@ -51,6 +55,11 @@ export const trackAndOpenWhatsApp = (options: TrackClickOptions): string => {
 export const initGlobalWhatsAppTracker = (): (() => void) => {
   const handleGlobalClick = (e: MouseEvent) => {
     try {
+      // Prevent duplicate logging if click was already recorded by explicit onClick handler
+      if (Date.now() - ((window as any).__lastWaTrackTime || 0) < 2000) {
+        return;
+      }
+
       const targetElement = (e.target as HTMLElement)?.closest('a[href*="wa.me"], a[href*="whatsapp.com"], [data-wa-location]');
       if (!targetElement) return;
 

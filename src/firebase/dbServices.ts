@@ -821,13 +821,13 @@ let lastClickTime = 0;
 
 export const saveWhatsAppClick = async (event: Omit<WhatsAppClickEvent, 'id' | 'timestamp'>): Promise<WhatsAppClickEvent | null> => {
   const now = Date.now();
-  const fingerprint = `${event.targetUrl}||${event.contextDetails}`;
 
-  if ((now - lastClickTime < 1500) && (fingerprint === lastClickFingerprint || event.targetUrl === lastClickFingerprint.split('||')[0])) {
+  // Strict 2.5 second debouncing window: ignore duplicate triggers within 2500ms
+  if (now - lastClickTime < 2500) {
     return null;
   }
 
-  lastClickFingerprint = fingerprint;
+  lastClickFingerprint = `${event.targetUrl}||${event.contextDetails}`;
   lastClickTime = now;
 
   const newClick: WhatsAppClickEvent = {
