@@ -24,18 +24,10 @@ export const WhatsAppAnalytics: React.FC = () => {
   const [deviceFilter, setDeviceFilter] = useState<string>('all');
 
   useEffect(() => {
-    // Instant synchronous initial render
-    const initial = fetchWhatsAppClicks();
-    if (initial instanceof Promise) {
-      initial.then(data => {
-        setClicks(data);
-        setLoading(false);
-      });
-    }
-
+    setLoading(true);
     // Subscribe to real-time live updates
     const unsubscribe = subscribeWhatsAppClicks((liveData) => {
-      setClicks(liveData);
+      setClicks(Array.isArray(liveData) ? liveData : []);
       setLoading(false);
     });
 
@@ -54,39 +46,45 @@ export const WhatsAppAnalytics: React.FC = () => {
     }
   };
 
+  const safeClicks = Array.isArray(clicks) ? clicks.filter(Boolean) : [];
+
   // KPI Computations
-  const totalClicks = clicks.length;
+  const totalClicks = safeClicks.length;
 
   const todayStr = new Date().toISOString().split('T')[0];
-  const todayClicks = clicks.filter(c => c.timestamp.startsWith(todayStr)).length;
+  const todayClicks = safeClicks.filter(c => c && c.timestamp && typeof c.timestamp === 'string' && c.timestamp.startsWith(todayStr)).length;
 
   // Find Top Clicked Button Location
   const locationCounts: Record<string, number> = {};
-  clicks.forEach(c => {
-    locationCounts[c.buttonLocation] = (locationCounts[c.buttonLocation] || 0) + 1;
+  safeClicks.forEach(c => {
+    const loc = c.buttonLocation || 'Global WhatsApp Link';
+    locationCounts[loc] = (locationCounts[loc] || 0) + 1;
   });
   const topLocationEntry = Object.entries(locationCounts).sort((a, b) => b[1] - a[1])[0];
   const topLocation = topLocationEntry ? topLocationEntry[0] : 'N/A';
 
   // Find Top Page Path
   const pageCounts: Record<string, number> = {};
-  clicks.forEach(c => {
-    const cleanPath = c.pagePath.split('#')[0] || '/';
+  safeClicks.forEach(c => {
+    const rawPath = c.pagePath || '/';
+    const cleanPath = typeof rawPath === 'string' ? (rawPath.split('#')[0] || '/') : '/';
     pageCounts[cleanPath] = (pageCounts[cleanPath] || 0) + 1;
   });
   const topPageEntry = Object.entries(pageCounts).sort((a, b) => b[1] - a[1])[0];
   const topPage = topPageEntry ? topPageEntry[0] : '/';
 
   // Unique Button Location List for dropdown filter
-  const uniqueLocations = Array.from(new Set(clicks.map(c => c.buttonLocation)));
+  const uniqueLocations = Array.from(new Set(safeClicks.map(c => c.buttonLocation || 'Global WhatsApp Link')));
 
-  const filteredClicks = clicks.filter(c => {
-    const matchesSearch = 
-      c.buttonLocation.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      c.pagePath.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (c.contextDetails && c.contextDetails.toLowerCase().includes(searchQuery.toLowerCase()));
-    
-    const matchesLocation = locationFilter === 'all' || c.buttonLocation === locationFilter;
+  const filteredClicks = safeClicks.filter(c => {
+    const loc = (c.buttonLocation || '').toLowerCase();
+    const pathStr = (c.pagePath || '').toLowerCase();
+    const ctx = (c.contextDetails || '').toLowerCase();
+    const nameStr = (c.customerName || '').toLowerCase();
+    const queryStr = (searchQuery || '').toLowerCase();
+
+    const matchesSearch = loc.includes(queryStr) || pathStr.includes(queryStr) || ctx.includes(queryStr) || nameStr.includes(queryStr);
+    const matchesLocation = locationFilter === 'all' || (c.buttonLocation || 'Global WhatsApp Link') === locationFilter;
     const matchesDevice = deviceFilter === 'all' || c.deviceType === deviceFilter;
 
     return matchesSearch && matchesLocation && matchesDevice;
