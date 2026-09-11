@@ -24,7 +24,15 @@ export const WhatsAppAnalytics: React.FC = () => {
   const [deviceFilter, setDeviceFilter] = useState<string>('all');
 
   useEffect(() => {
-    setLoading(true);
+    // Instant synchronous initial render
+    const initial = fetchWhatsAppClicks();
+    if (initial instanceof Promise) {
+      initial.then(data => {
+        setClicks(data);
+        setLoading(false);
+      });
+    }
+
     // Subscribe to real-time live updates
     const unsubscribe = subscribeWhatsAppClicks((liveData) => {
       setClicks(liveData);

@@ -583,7 +583,30 @@ export const deleteInquiry = async (id: string): Promise<boolean> => {
 // ==========================================
 import { WhatsAppClickEvent } from '../types';
 
-const INITIAL_MOCK_WA_CLICKS: WhatsAppClickEvent[] = [];
+const INITIAL_MOCK_WA_CLICKS: WhatsAppClickEvent[] = [
+  {
+    id: 'wa-clk-101',
+    customerName: 'Mohammed Rashid',
+    customerPhone: '+971 50 882 1199',
+    buttonLocation: 'Header Instant WhatsApp',
+    pagePath: '/',
+    contextDetails: 'Service: Sharjah Family Visa Renewal Assistance',
+    deviceType: 'Mobile',
+    targetUrl: 'https://wa.me/971551585570?text=Hi%20Smart%20Life...',
+    timestamp: new Date(Date.now() - 1000 * 60 * 15).toISOString()
+  },
+  {
+    id: 'wa-clk-102',
+    customerName: 'Sujith Kumar',
+    customerPhone: '+971 55 441 3322',
+    buttonLocation: 'Services Catalog Card',
+    pagePath: '/#services',
+    contextDetails: 'Service: Indian Passport Renewal Tatkaal',
+    deviceType: 'Desktop',
+    targetUrl: 'https://wa.me/971551585570?text=Hi...',
+    timestamp: new Date(Date.now() - 1000 * 60 * 45).toISOString()
+  }
+];
 
 export const fetchWhatsAppClicks = async (): Promise<WhatsAppClickEvent[]> => {
   const localClicks = getStoredLocal('smartlife_wa_clicks', INITIAL_MOCK_WA_CLICKS);
