@@ -639,10 +639,33 @@ export const subscribeWhatsAppClicks = (onData: (clicks: WhatsAppClickEvent[]) =
     }
   }
 
+  // 3. Dev Server API Polling for Cross-Port Live Sync (e.g. 3001 vs 3000)
+  const pollInterval = setInterval(async () => {
+    try {
+      const res = await fetch('/api/get-wa-clicks');
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success && Array.isArray(data.clicks) && data.clicks.length > 0) {
+          const currentLocal = getStoredLocal('smartlife_wa_clicks', INITIAL_MOCK_WA_CLICKS);
+          // Merge server clicks into local storage
+          const mergedMap = new Map<string, WhatsAppClickEvent>();
+          currentLocal.forEach(c => mergedMap.set(c.id, c));
+          data.clicks.forEach((c: WhatsAppClickEvent) => mergedMap.set(c.id, c));
+          const mergedList = Array.from(mergedMap.values()).sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+          if (mergedList.length !== currentLocal.length) {
+            saveStoredLocal('smartlife_wa_clicks', mergedList);
+            onData(mergedList);
+          }
+        }
+      }
+    } catch {}
+  }, 2000);
+
   return () => {
     window.removeEventListener('smartlife_wa_click_added', handleUpdate);
     window.removeEventListener('storage', handleUpdate);
     channel?.close();
+    clearInterval(pollInterval);
     if (fsUnsubscribe) fsUnsubscribe();
   };
 };
@@ -681,6 +704,15 @@ export const saveWhatsAppClick = async (event: Omit<WhatsAppClickEvent, 'id' | '
       bc.postMessage({ type: 'WA_CLICK', payload: newClick });
       bc.close();
     }
+  } catch {}
+
+  // Post to backend dev server API for cross-port tracking
+  try {
+    fetch('/api/track-wa-click', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newClick)
+    }).catch(() => {});
   } catch {}
 
   if (isFirebaseConfigured() && db) {
