@@ -1,6 +1,18 @@
 const CLOUD_BIN_ID = 'ff808181a067127101a09034df4975cd';
 const CLOUD_URL = `https://api.restful-api.dev/objects/${CLOUD_BIN_ID}`;
 
+function parseRequestBody(req) {
+  if (!req.body) return {};
+  if (typeof req.body === 'object' && !Buffer.isBuffer(req.body)) return req.body;
+  if (typeof req.body === 'string') {
+    try { return JSON.parse(req.body); } catch { return {}; }
+  }
+  if (Buffer.isBuffer(req.body)) {
+    try { return JSON.parse(req.body.toString('utf-8')); } catch { return {}; }
+  }
+  return {};
+}
+
 let memoryInquiries = global.__serverInquiries || [];
 
 export default async function handler(req, res) {
@@ -14,8 +26,8 @@ export default async function handler(req, res) {
 
   if (req.method === 'POST') {
     try {
-      const inqData = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : (req.body || {});
-      if (inqData.id) {
+      const inqData = parseRequestBody(req);
+      if (inqData && inqData.id) {
         let currentInquiries = [];
         try {
           const cloudRes = await fetch(CLOUD_URL);
