@@ -1,10 +1,10 @@
-import { 
-  collection, 
-  getDocs, 
-  doc, 
-  setDoc, 
-  updateDoc, 
-  deleteDoc, 
+import {
+  collection,
+  getDocs,
+  doc,
+  setDoc,
+  updateDoc,
+  deleteDoc,
   addDoc,
   query,
   orderBy,
@@ -197,7 +197,7 @@ export const saveService = async (service: ServiceItem): Promise<boolean> => {
 
 export const saveAllServices = async (servicesList: ServiceItem[]): Promise<boolean> => {
   const indexedList = servicesList.map((s, idx) => ({ ...s, sortOrder: idx + 1 }));
-  
+
   if (isFirebaseConfigured() && db) {
     try {
       const batchPromises = indexedList.map(item => setDoc(doc(db, 'services', item.id), item));
@@ -206,7 +206,7 @@ export const saveAllServices = async (servicesList: ServiceItem[]): Promise<bool
       console.error('Error saving all services to Firestore:', e);
     }
   }
-  
+
   saveStoredLocal('smartlife_services', indexedList);
   window.dispatchEvent(new Event('smartlife_services_updated'));
   return true;
@@ -270,7 +270,7 @@ export const subscribeBlogPosts = (onData: (posts: BlogPost[]) => void): (() => 
     }
   }
   onData(getStoredLocal('smartlife_blogs', BLOG_POSTS));
-  return () => {};
+  return () => { };
 };
 
 export const saveBlogPost = async (post: BlogPost): Promise<boolean> => {
@@ -414,7 +414,7 @@ export const deleteFaq = async (faqId: number): Promise<boolean> => {
 };
 
 // ==========================================
-// 5. INQUIRIES CENTRALIZED BANK API (Real-Time Live Engine)
+// 5. INQUIRIES CENTRALIZED BANK API
 // ==========================================
 export const fetchInquiries = async (): Promise<InquiryItem[]> => {
   if (isFirebaseConfigured() && db) {
@@ -440,10 +440,10 @@ export const subscribeInquiries = (onData: (inquiries: InquiryItem[]) => void): 
     onData(getStoredLocalInquiries());
   };
 
-  // Initial load for zero latency
+  // Initial load
   handleUpdate();
 
-  // 1. Local Browser & Cross-Tab Live Event Listeners
+  // 1. Local & Cross-Tab Listeners
   window.addEventListener('smartlife_inquiry_added', handleUpdate);
   window.addEventListener('storage', handleUpdate);
 
@@ -459,7 +459,7 @@ export const subscribeInquiries = (onData: (inquiries: InquiryItem[]) => void): 
     }
   } catch {}
 
-  // 2. Firestore Cloud Database Listener (if available)
+  // 2. Firestore Stream
   let fsUnsubscribe: (() => void) | null = null;
   if (isFirebaseConfigured() && db) {
     try {
@@ -467,7 +467,13 @@ export const subscribeInquiries = (onData: (inquiries: InquiryItem[]) => void): 
       fsUnsubscribe = onSnapshot(q, (snapshot) => {
         if (!snapshot.empty) {
           const liveList = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as InquiryItem));
-          onData(liveList);
+          const currentLocal = getStoredLocalInquiries();
+          const mergedMap = new Map<string, InquiryItem>();
+          currentLocal.forEach(i => mergedMap.set(i.id, i));
+          liveList.forEach(i => mergedMap.set(i.id, i));
+          const merged = Array.from(mergedMap.values()).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+          saveStoredLocalInquiries(merged);
+          onData(merged);
         }
       }, (err) => {
         console.warn('Firestore inquiries onSnapshot error:', err);
@@ -497,7 +503,6 @@ export const submitNewInquiry = async (inquiry: Omit<InquiryItem, 'id' | 'create
   const updated = [newItem, ...current];
   saveStoredLocalInquiries(updated);
 
-  // Dispatch real-time live events to all open admin tabs
   window.dispatchEvent(new CustomEvent('smartlife_inquiry_added', { detail: newItem }));
   try {
     if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
@@ -555,6 +560,12 @@ export const updateInquiryStatus = async (id: string, status: InquiryItem['statu
 };
 
 export const deleteInquiry = async (id: string): Promise<boolean> => {
+  const current = getStoredLocalInquiries();
+  const updated = current.filter(item => item.id !== id);
+  saveStoredLocalInquiries(updated);
+
+  window.dispatchEvent(new CustomEvent('smartlife_inquiry_added'));
+
   if (isFirebaseConfigured() && db) {
     try {
       await deleteDoc(doc(db, 'inquiries', id));
@@ -564,9 +575,6 @@ export const deleteInquiry = async (id: string): Promise<boolean> => {
     }
   }
 
-  const current = getStoredLocalInquiries();
-  const updated = current.filter(item => item.id !== id);
-  saveStoredLocalInquiries(updated);
   return true;
 };
 
@@ -575,22 +583,28 @@ export const deleteInquiry = async (id: string): Promise<boolean> => {
 // ==========================================
 import { WhatsAppClickEvent } from '../types';
 
-// Zero fake data: Only real click events captured on the website will be recorded!
 const INITIAL_MOCK_WA_CLICKS: WhatsAppClickEvent[] = [];
 
 export const fetchWhatsAppClicks = async (): Promise<WhatsAppClickEvent[]> => {
+  const localClicks = getStoredLocal('smartlife_wa_clicks', INITIAL_MOCK_WA_CLICKS);
   if (isFirebaseConfigured() && db) {
     try {
       const q = query(collection(db, 'whatsapp_clicks'), orderBy('timestamp', 'desc'));
       const querySnapshot = await getDocs(q);
       if (!querySnapshot.empty) {
-        return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as WhatsAppClickEvent));
+        const cloudClicks = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as WhatsAppClickEvent));
+        const mergedMap = new Map<string, WhatsAppClickEvent>();
+        localClicks.forEach(c => mergedMap.set(c.id, c));
+        cloudClicks.forEach(c => mergedMap.set(c.id, c));
+        const merged = Array.from(mergedMap.values()).sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+        saveStoredLocal('smartlife_wa_clicks', merged);
+        return merged;
       }
     } catch (e) {
       console.warn('Firestore fetchWhatsAppClicks fallback to local:', e);
     }
   }
-  return getStoredLocal('smartlife_wa_clicks', INITIAL_MOCK_WA_CLICKS);
+  return localClicks;
 };
 
 /**
@@ -602,10 +616,7 @@ export const subscribeWhatsAppClicks = (onData: (clicks: WhatsAppClickEvent[]) =
     onData(getStoredLocal('smartlife_wa_clicks', INITIAL_MOCK_WA_CLICKS));
   };
 
-  // Initial load
   handleUpdate();
-
-  // 1. Local Browser & Cross-Tab Live Event Listeners
   window.addEventListener('smartlife_wa_click_added', handleUpdate);
   window.addEventListener('storage', handleUpdate);
 
@@ -621,25 +632,7 @@ export const subscribeWhatsAppClicks = (onData: (clicks: WhatsAppClickEvent[]) =
     }
   } catch {}
 
-  // 2. Firestore Cloud Database Listener (if available)
-  let fsUnsubscribe: (() => void) | null = null;
-  if (isFirebaseConfigured() && db) {
-    try {
-      const q = query(collection(db, 'whatsapp_clicks'), orderBy('timestamp', 'desc'));
-      fsUnsubscribe = onSnapshot(q, (snapshot) => {
-        if (!snapshot.empty) {
-          const liveClicks = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as WhatsAppClickEvent));
-          onData(liveClicks);
-        }
-      }, (err) => {
-        console.warn('Firestore onSnapshot error:', err);
-      });
-    } catch (e) {
-      console.warn('Error setting up Firestore listener:', e);
-    }
-  }
-
-  // 3. Dev Server API Polling for Cross-Port Live Sync (e.g. 3001 vs 3000)
+  // Dev Server API Polling for Cross-Port Live Sync (e.g. 3001 vs 3000)
   const pollInterval = setInterval(async () => {
     try {
       const res = await fetch('/api/get-wa-clicks');
@@ -647,7 +640,6 @@ export const subscribeWhatsAppClicks = (onData: (clicks: WhatsAppClickEvent[]) =
         const data = await res.json();
         if (data.success && Array.isArray(data.clicks) && data.clicks.length > 0) {
           const currentLocal = getStoredLocal('smartlife_wa_clicks', INITIAL_MOCK_WA_CLICKS);
-          // Merge server clicks into local storage
           const mergedMap = new Map<string, WhatsAppClickEvent>();
           currentLocal.forEach(c => mergedMap.set(c.id, c));
           data.clicks.forEach((c: WhatsAppClickEvent) => mergedMap.set(c.id, c));
@@ -660,6 +652,30 @@ export const subscribeWhatsAppClicks = (onData: (clicks: WhatsAppClickEvent[]) =
       }
     } catch {}
   }, 2000);
+
+  // Firestore Cloud Database Listener
+  let fsUnsubscribe: (() => void) | null = null;
+  if (isFirebaseConfigured() && db) {
+    try {
+      const q = query(collection(db, 'whatsapp_clicks'), orderBy('timestamp', 'desc'));
+      fsUnsubscribe = onSnapshot(q, (snapshot) => {
+        if (!snapshot.empty) {
+          const cloudClicks = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as WhatsAppClickEvent));
+          const currentLocal = getStoredLocal('smartlife_wa_clicks', INITIAL_MOCK_WA_CLICKS);
+          const mergedMap = new Map<string, WhatsAppClickEvent>();
+          currentLocal.forEach(c => mergedMap.set(c.id, c));
+          cloudClicks.forEach(c => mergedMap.set(c.id, c));
+          const mergedList = Array.from(mergedMap.values()).sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+          saveStoredLocal('smartlife_wa_clicks', mergedList);
+          onData(mergedList);
+        }
+      }, (err) => {
+        console.warn('Firestore onSnapshot error:', err);
+      });
+    } catch (e) {
+      console.warn('Error setting up Firestore listener:', e);
+    }
+  }
 
   return () => {
     window.removeEventListener('smartlife_wa_click_added', handleUpdate);
@@ -676,8 +692,7 @@ let lastClickTime = 0;
 export const saveWhatsAppClick = async (event: Omit<WhatsAppClickEvent, 'id' | 'timestamp'>): Promise<WhatsAppClickEvent | null> => {
   const now = Date.now();
   const fingerprint = `${event.targetUrl}||${event.contextDetails}`;
-  
-  // Prevent duplicate logging within 1500ms (e.g. when component onClick and global listener both fire)
+
   if ((now - lastClickTime < 1500) && (fingerprint === lastClickFingerprint || event.targetUrl === lastClickFingerprint.split('||')[0])) {
     return null;
   }
@@ -691,12 +706,10 @@ export const saveWhatsAppClick = async (event: Omit<WhatsAppClickEvent, 'id' | '
     timestamp: new Date().toISOString()
   };
 
-  // Synchronously write to local storage first for zero-latency local availability
   const currentLocal = getStoredLocal('smartlife_wa_clicks', INITIAL_MOCK_WA_CLICKS);
   const updatedLocal = [newClick, ...currentLocal];
   saveStoredLocal('smartlife_wa_clicks', updatedLocal);
 
-  // Dispatch real-time live event so any open Admin tab updates instantly
   window.dispatchEvent(new CustomEvent('smartlife_wa_click_added', { detail: newClick }));
   try {
     if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
@@ -706,7 +719,6 @@ export const saveWhatsAppClick = async (event: Omit<WhatsAppClickEvent, 'id' | '
     }
   } catch {}
 
-  // Post to backend dev server API for cross-port tracking
   try {
     fetch('/api/track-wa-click', {
       method: 'POST',
@@ -728,6 +740,11 @@ export const saveWhatsAppClick = async (event: Omit<WhatsAppClickEvent, 'id' | '
 };
 
 export const deleteWhatsAppClickEvent = async (id: string): Promise<boolean> => {
+  const current = getStoredLocal('smartlife_wa_clicks', INITIAL_MOCK_WA_CLICKS);
+  const updated = current.filter(c => c.id !== id);
+  saveStoredLocal('smartlife_wa_clicks', updated);
+  window.dispatchEvent(new Event('smartlife_wa_click_added'));
+
   if (isFirebaseConfigured() && db) {
     try {
       await deleteDoc(doc(db, 'whatsapp_clicks', id));
@@ -735,14 +752,13 @@ export const deleteWhatsAppClickEvent = async (id: string): Promise<boolean> => 
       console.error('Error deleting WhatsApp click event from Firestore:', e);
     }
   }
-  const current = getStoredLocal('smartlife_wa_clicks', INITIAL_MOCK_WA_CLICKS);
-  const updated = current.filter(c => c.id !== id);
-  saveStoredLocal('smartlife_wa_clicks', updated);
-  window.dispatchEvent(new Event('smartlife_wa_click_added'));
   return true;
 };
 
 export const clearAllWhatsAppClicks = async (): Promise<boolean> => {
+  saveStoredLocal('smartlife_wa_clicks', []);
+  window.dispatchEvent(new Event('smartlife_wa_click_added'));
+
   if (isFirebaseConfigured() && db) {
     try {
       const querySnapshot = await getDocs(collection(db, 'whatsapp_clicks'));
@@ -752,8 +768,6 @@ export const clearAllWhatsAppClicks = async (): Promise<boolean> => {
       console.error('Error clearing Firestore WhatsApp clicks:', e);
     }
   }
-  saveStoredLocal('smartlife_wa_clicks', []);
-  window.dispatchEvent(new Event('smartlife_wa_click_added'));
   return true;
 };
 

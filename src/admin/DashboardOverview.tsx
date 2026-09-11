@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Inbox, 
-  FileText, 
-  BookOpen, 
-  Building2, 
-  ShieldCheck, 
+import {
+  Inbox,
+  FileText,
+  BookOpen,
+  Building2,
+  ShieldCheck,
   ArrowRight,
   Clock,
   MessageSquare,
@@ -12,7 +12,7 @@ import {
   AlertCircle
 } from 'lucide-react';
 import { InquiryItem, ServiceItem } from '../types';
-import { fetchServices, fetchBlogPosts, subscribeInquiries, subscribeWhatsAppClicks } from '../firebase/dbServices';
+import { fetchInquiries, fetchServices, fetchBlogPosts, fetchBranches, fetchWhatsAppClicks } from '../firebase/dbServices';
 import { isFirebaseConfigured } from '../firebase/config';
 
 interface DashboardOverviewProps {
@@ -27,33 +27,22 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({ onNavigate
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    setLoading(true);
-
-    // Live Real-Time Subscriptions for Inquiries & WhatsApp Leads
-    const unsubInquiries = subscribeInquiries((liveInquiries) => {
-      setInquiries(liveInquiries);
-      setLoading(false);
-    });
-
-    const unsubWaClicks = subscribeWhatsAppClicks((liveClicks) => {
-      setWaClicksCount(liveClicks.length);
-    });
-
-    const loadOtherCounts = async () => {
-      const [srvData, blogData] = await Promise.all([
+    const loadOverviewData = async () => {
+      setLoading(true);
+      const [inqData, srvData, blogData, waData] = await Promise.all([
+        fetchInquiries(),
         fetchServices(),
-        fetchBlogPosts()
+        fetchBlogPosts(),
+        fetchWhatsAppClicks()
       ]);
+      setInquiries(inqData);
       setServicesCount(srvData.length);
       setBlogsCount(blogData.length);
+      setWaClicksCount(waData.length);
+      setLoading(false);
     };
 
-    loadOtherCounts();
-
-    return () => {
-      unsubInquiries();
-      unsubWaClicks();
-    };
+    loadOverviewData();
   }, []);
 
   const newInquiriesCount = inquiries.filter(i => i.status === 'new').length;
@@ -62,7 +51,7 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({ onNavigate
     <div className="space-y-4 font-['Plus_Jakarta_Sans',sans-serif]">
       {/* Top Banner Alert for New Inquiries */}
       {newInquiriesCount > 0 && (
-        <div 
+        <div
           onClick={() => onNavigateTab('inquiries')}
           className="bg-amber-50 border border-amber-200 p-3 rounded flex items-center justify-between text-xs text-amber-900 cursor-pointer hover:bg-amber-100/80 transition"
         >
@@ -78,7 +67,7 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({ onNavigate
       {/* Metrics Row - Clean, Compact, Professional */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {/* Metric 1 */}
-        <div 
+        <div
           onClick={() => onNavigateTab('inquiries')}
           className="bg-white p-3.5 rounded border border-slate-200 hover:border-slate-300 transition cursor-pointer shadow-2xs"
         >
@@ -98,7 +87,7 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({ onNavigate
         </div>
 
         {/* Metric 2 */}
-        <div 
+        <div
           onClick={() => onNavigateTab('services')}
           className="bg-white p-3.5 rounded border border-slate-200 hover:border-slate-300 transition cursor-pointer shadow-2xs"
         >
@@ -114,7 +103,7 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({ onNavigate
         </div>
 
         {/* Metric 3 */}
-        <div 
+        <div
           onClick={() => onNavigateTab('blogs')}
           className="bg-white p-3.5 rounded border border-slate-200 hover:border-slate-300 transition cursor-pointer shadow-2xs"
         >
@@ -130,7 +119,7 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({ onNavigate
         </div>
 
         {/* Metric 4 */}
-        <div 
+        <div
           onClick={() => onNavigateTab('whatsapp_analytics')}
           className="bg-white p-3.5 rounded border border-slate-200 hover:border-slate-300 transition cursor-pointer shadow-2xs"
         >

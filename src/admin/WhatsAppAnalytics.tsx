@@ -247,9 +247,10 @@ export const WhatsAppAnalytics: React.FC = () => {
             <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold uppercase text-[10px] tracking-wider">
               <tr>
                 <th className="px-4 py-2.5">Date & Time</th>
-                <th className="px-4 py-2.5">Button Trigger Location</th>
+                <th className="px-4 py-2.5">Customer & Lead</th>
+                <th className="px-4 py-2.5">Trigger Location</th>
                 <th className="px-4 py-2.5">Page Path</th>
-                <th className="px-4 py-2.5">Context & Details</th>
+                <th className="px-4 py-2.5">Context & Service Details</th>
                 <th className="px-4 py-2.5">Device</th>
                 <th className="px-4 py-2.5 text-right">Actions</th>
               </tr>
@@ -257,14 +258,14 @@ export const WhatsAppAnalytics: React.FC = () => {
             <tbody className="divide-y divide-slate-100">
               {loading ? (
                 <tr>
-                  <td colSpan={6} className="px-4 py-8 text-center text-slate-400 text-xs">
+                  <td colSpan={7} className="px-4 py-8 text-center text-slate-400 text-xs">
                     Loading WhatsApp click analytics feed...
                   </td>
                 </tr>
               ) : filteredClicks.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-4 py-8 text-center text-slate-400 text-xs">
-                    No WhatsApp click events match your filters.
+                  <td colSpan={7} className="px-4 py-8 text-center text-slate-400 text-xs">
+                    No WhatsApp click events recorded yet.
                   </td>
                 </tr>
               ) : (
@@ -274,6 +275,12 @@ export const WhatsAppAnalytics: React.FC = () => {
                       {new Date(click.timestamp).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
                     </td>
                     <td className="px-4 py-3 font-semibold text-slate-900 whitespace-nowrap">
+                      {click.customerName || 'Website Visitor'}
+                      {click.customerPhone && (
+                        <div className="text-[10px] text-emerald-700 font-medium font-mono">{click.customerPhone}</div>
+                      )}
+                    </td>
+                    <td className="px-4 py-3 font-semibold text-slate-800 whitespace-nowrap">
                       {click.buttonLocation}
                     </td>
                     <td className="px-4 py-3 text-blue-700 font-mono text-[11px] whitespace-nowrap">

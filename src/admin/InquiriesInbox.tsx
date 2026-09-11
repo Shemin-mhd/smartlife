@@ -1,21 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Inbox, 
-  Search, 
-  Filter, 
-  MessageSquare, 
-  Phone, 
-  Mail, 
-  CheckCircle2, 
-  Clock, 
-  AlertCircle, 
-  Trash2, 
+import {
+  Inbox,
+  Search,
+  Filter,
+  MessageSquare,
+  Phone,
+  Mail,
+  CheckCircle2,
+  Clock,
+  AlertCircle,
+  Trash2,
   ExternalLink,
   Edit3,
   RefreshCw
 } from 'lucide-react';
 import { InquiryItem, InquiryStatus } from '../types';
-import { fetchInquiries, subscribeInquiries, updateInquiryStatus, deleteInquiry } from '../firebase/dbServices';
+import { fetchInquiries, updateInquiryStatus, deleteInquiry } from '../firebase/dbServices';
 
 export const InquiriesInbox: React.FC = () => {
   const [inquiries, setInquiries] = useState<InquiryItem[]>([]);
@@ -33,12 +33,7 @@ export const InquiriesInbox: React.FC = () => {
   };
 
   useEffect(() => {
-    setLoading(true);
-    const unsubscribe = subscribeInquiries((liveData) => {
-      setInquiries(liveData);
-      setLoading(false);
-    });
-    return () => unsubscribe();
+    loadInquiries();
   }, []);
 
   const handleStatusChange = async (id: string, newStatus: InquiryStatus) => {
@@ -73,12 +68,12 @@ export const InquiriesInbox: React.FC = () => {
   };
 
   const filteredInquiries = inquiries.filter(item => {
-    const matchesSearch = 
+    const matchesSearch =
       item.clientName.toLowerCase().includes(searchQuery.toLowerCase()) ||
       item.phone.includes(searchQuery) ||
       (item.serviceTitle && item.serviceTitle.toLowerCase().includes(searchQuery.toLowerCase())) ||
       item.message.toLowerCase().includes(searchQuery.toLowerCase());
-    
+
     const matchesStatus = statusFilter === 'all' || item.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
@@ -112,8 +107,8 @@ export const InquiriesInbox: React.FC = () => {
 
         <div className="flex items-center gap-2">
           {/* Refresh Button */}
-          <button 
-            onClick={loadInquiries} 
+          <button
+            onClick={loadInquiries}
             disabled={loading}
             className="p-1.5 text-xs text-slate-600 hover:text-slate-900 border border-slate-200 rounded hover:bg-slate-50 transition flex items-center gap-1"
             title="Refresh Database"
@@ -125,7 +120,7 @@ export const InquiriesInbox: React.FC = () => {
           {/* Search Box */}
           <div className="relative">
             <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400" />
-            <input 
+            <input
               type="text"
               placeholder="Search name, phone, message..."
               value={searchQuery}
@@ -135,7 +130,7 @@ export const InquiriesInbox: React.FC = () => {
           </div>
 
           {/* Status Filter */}
-          <select 
+          <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
             className="px-2.5 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded focus:outline-none focus:border-slate-400 text-slate-700"
@@ -198,7 +193,7 @@ export const InquiriesInbox: React.FC = () => {
                     </td>
                     <td className="px-4 py-3 text-right whitespace-nowrap space-x-1">
                       {/* WhatsApp Direct Action Button */}
-                      <a 
+                      <a
                         href={getWhatsAppLinkForClient(inquiry)}
                         target="_blank"
                         rel="noopener noreferrer"
@@ -210,7 +205,7 @@ export const InquiriesInbox: React.FC = () => {
                       </a>
 
                       {/* View / Edit Notes */}
-                      <button 
+                      <button
                         onClick={() => {
                           setSelectedInquiry(inquiry);
                           setEditingNotes(inquiry.notes || '');
@@ -221,7 +216,7 @@ export const InquiriesInbox: React.FC = () => {
                       </button>
 
                       {/* Delete */}
-                      <button 
+                      <button
                         onClick={() => handleDelete(inquiry.id)}
                         className="p-1 text-slate-400 hover:text-red-600 transition"
                         title="Delete record"
@@ -285,11 +280,10 @@ export const InquiriesInbox: React.FC = () => {
                       key={st}
                       type="button"
                       onClick={() => handleStatusChange(selectedInquiry.id, st)}
-                      className={`px-2.5 py-1 rounded text-xs capitalize border font-medium transition ${
-                        selectedInquiry.status === st 
-                          ? 'bg-slate-900 text-white border-slate-900' 
+                      className={`px-2.5 py-1 rounded text-xs capitalize border font-medium transition ${selectedInquiry.status === st
+                          ? 'bg-slate-900 text-white border-slate-900'
                           : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
-                      }`}
+                        }`}
                     >
                       {st.replace('_', ' ')}
                     </button>
@@ -300,7 +294,7 @@ export const InquiriesInbox: React.FC = () => {
               {/* Internal Notes Editor */}
               <div>
                 <label className="text-[10px] text-slate-400 uppercase font-semibold block mb-1">Staff Internal Notes</label>
-                <textarea 
+                <textarea
                   rows={3}
                   value={editingNotes}
                   onChange={(e) => setEditingNotes(e.target.value)}
@@ -310,7 +304,7 @@ export const InquiriesInbox: React.FC = () => {
               </div>
 
               <div className="flex items-center justify-between pt-2 border-t border-slate-100">
-                <a 
+                <a
                   href={getWhatsAppLinkForClient(selectedInquiry)}
                   target="_blank"
                   rel="noopener noreferrer"
@@ -321,13 +315,13 @@ export const InquiriesInbox: React.FC = () => {
                 </a>
 
                 <div className="flex gap-2">
-                  <button 
+                  <button
                     onClick={() => setSelectedInquiry(null)}
                     className="px-3 py-1.5 border border-slate-300 text-slate-700 rounded text-xs font-medium hover:bg-slate-50"
                   >
                     Close
                   </button>
-                  <button 
+                  <button
                     onClick={handleSaveNotes}
                     className="px-3 py-1.5 bg-slate-900 text-white rounded text-xs font-medium hover:bg-slate-800"
                   >

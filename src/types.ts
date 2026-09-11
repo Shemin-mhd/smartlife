@@ -109,6 +109,8 @@ export interface WhatsAppClickEvent {
   contextDetails?: string;
   deviceType: 'Mobile' | 'Desktop';
   targetUrl?: string;
+  customerName?: string;
+  customerPhone?: string;
 }
 
 
