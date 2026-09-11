@@ -12,22 +12,25 @@ function brevoOtpPlugin(): Plugin {
   return {
     name: 'vite-plugin-brevo-otp',
     configureServer(server) {
-      const env = loadEnv(server.config.mode, process.cwd(), '');
-      const transporter = nodemailer.createTransport({
-        host: 'smtp-relay.brevo.com',
-        port: 587,
-        secure: false,
-        auth: {
-          user: env.VITE_BREVO_SMTP_LOGIN || 'b8b99b001@smtp-brevo.com',
-          pass: env.VITE_BREVO_API_KEY || ''
-        }
-      });
       server.middlewares.use(async (req, res, next) => {
         if (req.url === '/api/send-otp' && req.method === 'POST') {
           let body = '';
           req.on('data', chunk => { body += chunk; });
           req.on('end', async () => {
             try {
+              const env = loadEnv(server.config.mode || 'development', process.cwd(), '');
+              const smtpUser = (env.VITE_BREVO_SMTP_LOGIN || process.env.VITE_BREVO_SMTP_LOGIN || 'b8b99b001@smtp-brevo.com').replace(/^["']|["']$/g, '').trim();
+              const smtpPass = (env.VITE_BREVO_API_KEY || process.env.VITE_BREVO_API_KEY || '').replace(/^["']|["']$/g, '').trim();
+
+              const transporter = nodemailer.createTransport({
+                host: 'smtp-relay.brevo.com',
+                port: 587,
+                secure: false,
+                auth: {
+                  user: smtpUser,
+                  pass: smtpPass
+                }
+              });
               const { email } = JSON.parse(body || '{}');
               const targetEmail = (email || 'smartlifetypingservices@gmail.com').trim().toLowerCase();
 
