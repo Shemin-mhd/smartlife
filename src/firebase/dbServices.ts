@@ -436,28 +436,14 @@ export const fetchInquiries = async (): Promise<InquiryItem[]> => {
  * Auto-updates the Admin Panel instantly whenever ANY customer submits a form or inquiry.
  */
 export const subscribeInquiries = (onData: (inquiries: InquiryItem[]) => void): (() => void) => {
-  if (isFirebaseConfigured() && db) {
-    try {
-      const q = query(collection(db, 'inquiries'), orderBy('createdAt', 'desc'));
-      const unsubscribe = onSnapshot(q, (snapshot) => {
-        const liveList = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as InquiryItem));
-        onData(liveList);
-      }, (err) => {
-        console.warn('Firestore inquiries onSnapshot error:', err);
-        onData(getStoredLocalInquiries());
-      });
-      return unsubscribe;
-    } catch (e) {
-      console.warn('Error setting up inquiries listener:', e);
-    }
-  }
-
-  // Fallback Local Storage & Real-Time Browser Broadcast Listener
   const handleUpdate = () => {
     onData(getStoredLocalInquiries());
   };
 
+  // Initial load for zero latency
   handleUpdate();
+
+  // 1. Local Browser & Cross-Tab Live Event Listeners
   window.addEventListener('smartlife_inquiry_added', handleUpdate);
   window.addEventListener('storage', handleUpdate);
 
@@ -471,14 +457,31 @@ export const subscribeInquiries = (onData: (inquiries: InquiryItem[]) => void): 
         }
       };
     }
-  } catch {
-    // ignore broadcast error
+  } catch {}
+
+  // 2. Firestore Cloud Database Listener (if available)
+  let fsUnsubscribe: (() => void) | null = null;
+  if (isFirebaseConfigured() && db) {
+    try {
+      const q = query(collection(db, 'inquiries'), orderBy('createdAt', 'desc'));
+      fsUnsubscribe = onSnapshot(q, (snapshot) => {
+        if (!snapshot.empty) {
+          const liveList = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as InquiryItem));
+          onData(liveList);
+        }
+      }, (err) => {
+        console.warn('Firestore inquiries onSnapshot error:', err);
+      });
+    } catch (e) {
+      console.warn('Error setting up inquiries listener:', e);
+    }
   }
 
   return () => {
     window.removeEventListener('smartlife_inquiry_added', handleUpdate);
     window.removeEventListener('storage', handleUpdate);
     channel?.close();
+    if (fsUnsubscribe) fsUnsubscribe();
   };
 };
 
@@ -595,28 +598,14 @@ export const fetchWhatsAppClicks = async (): Promise<WhatsAppClickEvent[]> => {
  * Auto-updates the Admin Panel instantly whenever ANY WhatsApp button is clicked on the website.
  */
 export const subscribeWhatsAppClicks = (onData: (clicks: WhatsAppClickEvent[]) => void): (() => void) => {
-  if (isFirebaseConfigured() && db) {
-    try {
-      const q = query(collection(db, 'whatsapp_clicks'), orderBy('timestamp', 'desc'));
-      const unsubscribe = onSnapshot(q, (snapshot) => {
-        const liveClicks = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as WhatsAppClickEvent));
-        onData(liveClicks);
-      }, (err) => {
-        console.warn('Firestore onSnapshot error, falling back to local storage listener:', err);
-        onData(getStoredLocal('smartlife_wa_clicks', INITIAL_MOCK_WA_CLICKS));
-      });
-      return unsubscribe;
-    } catch (e) {
-      console.warn('Error setting up Firestore listener:', e);
-    }
-  }
-
-  // Fallback Local Storage & Real-Time Browser Window Listener
   const handleUpdate = () => {
     onData(getStoredLocal('smartlife_wa_clicks', INITIAL_MOCK_WA_CLICKS));
   };
 
+  // Initial load
   handleUpdate();
+
+  // 1. Local Browser & Cross-Tab Live Event Listeners
   window.addEventListener('smartlife_wa_click_added', handleUpdate);
   window.addEventListener('storage', handleUpdate);
 
@@ -632,10 +621,29 @@ export const subscribeWhatsAppClicks = (onData: (clicks: WhatsAppClickEvent[]) =
     }
   } catch {}
 
+  // 2. Firestore Cloud Database Listener (if available)
+  let fsUnsubscribe: (() => void) | null = null;
+  if (isFirebaseConfigured() && db) {
+    try {
+      const q = query(collection(db, 'whatsapp_clicks'), orderBy('timestamp', 'desc'));
+      fsUnsubscribe = onSnapshot(q, (snapshot) => {
+        if (!snapshot.empty) {
+          const liveClicks = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as WhatsAppClickEvent));
+          onData(liveClicks);
+        }
+      }, (err) => {
+        console.warn('Firestore onSnapshot error:', err);
+      });
+    } catch (e) {
+      console.warn('Error setting up Firestore listener:', e);
+    }
+  }
+
   return () => {
     window.removeEventListener('smartlife_wa_click_added', handleUpdate);
     window.removeEventListener('storage', handleUpdate);
     channel?.close();
+    if (fsUnsubscribe) fsUnsubscribe();
   };
 };
 
