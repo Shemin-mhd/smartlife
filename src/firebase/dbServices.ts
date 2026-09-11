@@ -520,18 +520,17 @@ export const subscribeInquiries = (onData: (inquiries: InquiryItem[]) => void): 
     try {
       const q = query(collection(db, 'inquiries'), orderBy('createdAt', 'desc'));
       fsUnsubscribe = onSnapshot(q, (snapshot) => {
-        if (!snapshot.empty) {
-          const liveList = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as InquiryItem));
-          const currentLocal = getStoredLocalInquiries();
-          const mergedMap = new Map<string, InquiryItem>();
-          currentLocal.forEach(i => mergedMap.set(i.id, i));
-          liveList.forEach(i => mergedMap.set(i.id, i));
-          const merged = Array.from(mergedMap.values()).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-          saveStoredLocalInquiries(merged);
-          onData(merged);
-        }
+        const liveList = snapshot.empty ? [] : snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as InquiryItem));
+        const currentLocal = getStoredLocalInquiries();
+        const mergedMap = new Map<string, InquiryItem>();
+        currentLocal.forEach(i => mergedMap.set(i.id, i));
+        liveList.forEach(i => mergedMap.set(i.id, i));
+        const merged = Array.from(mergedMap.values()).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        saveStoredLocalInquiries(merged);
+        onData(merged);
       }, (err) => {
         console.warn('Firestore inquiries onSnapshot error:', err);
+        onData(getStoredLocalInquiries());
       });
     } catch (e) {
       console.warn('Error setting up inquiries listener:', e);
@@ -569,13 +568,16 @@ export const submitNewInquiry = async (inquiry: Omit<InquiryItem, 'id' | 'create
     }
   } catch {}
 
-  try {
-    fetch('/api/track-inquiry', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(newItem)
-    }).catch(() => {});
-  } catch {}
+  const devPorts = ['3000', '3001', '3002', '3003'];
+  devPorts.forEach(port => {
+    try {
+      fetch(`http://localhost:${port}/api/track-inquiry`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newItem)
+      }).catch(() => {});
+    } catch {}
+  });
 
   if (isFirebaseConfigured() && db) {
     try {
@@ -788,18 +790,17 @@ export const subscribeWhatsAppClicks = (onData: (clicks: WhatsAppClickEvent[]) =
     try {
       const q = query(collection(db, 'whatsapp_clicks'), orderBy('timestamp', 'desc'));
       fsUnsubscribe = onSnapshot(q, (snapshot) => {
-        if (!snapshot.empty) {
-          const cloudClicks = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as WhatsAppClickEvent));
-          const currentLocal = getStoredLocal('smartlife_wa_clicks', INITIAL_MOCK_WA_CLICKS);
-          const mergedMap = new Map<string, WhatsAppClickEvent>();
-          currentLocal.forEach(c => mergedMap.set(c.id, c));
-          cloudClicks.forEach(c => mergedMap.set(c.id, c));
-          const mergedList = Array.from(mergedMap.values()).sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
-          saveStoredLocal('smartlife_wa_clicks', mergedList);
-          onData(mergedList);
-        }
+        const cloudClicks = snapshot.empty ? [] : snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as WhatsAppClickEvent));
+        const currentLocal = getStoredLocal('smartlife_wa_clicks', INITIAL_MOCK_WA_CLICKS);
+        const mergedMap = new Map<string, WhatsAppClickEvent>();
+        currentLocal.forEach(c => mergedMap.set(c.id, c));
+        cloudClicks.forEach(c => mergedMap.set(c.id, c));
+        const mergedList = Array.from(mergedMap.values()).sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+        saveStoredLocal('smartlife_wa_clicks', mergedList);
+        onData(mergedList);
       }, (err) => {
         console.warn('Firestore onSnapshot error:', err);
+        onData(getStoredLocal('smartlife_wa_clicks', INITIAL_MOCK_WA_CLICKS));
       });
     } catch (e) {
       console.warn('Error setting up Firestore listener:', e);
@@ -821,14 +822,15 @@ let lastClickTime = 0;
 
 export const saveWhatsAppClick = async (event: Omit<WhatsAppClickEvent, 'id' | 'timestamp'>): Promise<WhatsAppClickEvent | null> => {
   const now = Date.now();
+  const fingerprint = `${event.targetUrl}||${event.buttonLocation}||${event.contextDetails}`;
 
-  // Strict 3.5 second debouncing window: ignore duplicate triggers within 3500ms
-  if (now - lastClickTime < 3500) {
-    console.warn('⚠️ Blocked duplicate WhatsApp click trigger within 3.5s window');
+  // 500ms debouncing window for identical click events to prevent rapid accidental double-clicks
+  if (fingerprint === lastClickFingerprint && now - lastClickTime < 500) {
+    console.warn('⚠️ Blocked duplicate WhatsApp click trigger within 500ms window');
     return null;
   }
 
-  lastClickFingerprint = `${event.targetUrl}||${event.contextDetails}`;
+  lastClickFingerprint = fingerprint;
   lastClickTime = now;
 
   const newClick: WhatsAppClickEvent = {
@@ -850,13 +852,16 @@ export const saveWhatsAppClick = async (event: Omit<WhatsAppClickEvent, 'id' | '
     }
   } catch {}
 
-  try {
-    fetch('/api/track-wa-click', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(newClick)
-    }).catch(() => {});
-  } catch {}
+  const devPorts = ['3000', '3001', '3002', '3003'];
+  devPorts.forEach(port => {
+    try {
+      fetch(`http://localhost:${port}/api/track-wa-click`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newClick)
+      }).catch(() => {});
+    } catch {}
+  });
 
   if (isFirebaseConfigured() && db) {
     try {

@@ -181,8 +181,15 @@ function brevoOtpPlugin(): Plugin {
           return;
         }
 
-        // WhatsApp Clicks API Endpoints
-        if (req.url === '/api/track-wa-click' && req.method === 'POST') {
+        if (req.url === '/api/track-wa-click' && (req.method === 'POST' || req.method === 'OPTIONS')) {
+          if (req.method === 'OPTIONS') {
+            res.writeHead(204, {
+              'Access-Control-Allow-Origin': '*',
+              'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+              'Access-Control-Allow-Headers': 'Content-Type'
+            });
+            return res.end();
+          }
           let body = '';
           req.on('data', chunk => { body += chunk; });
           req.on('end', () => {
@@ -197,10 +204,12 @@ function brevoOtpPlugin(): Plugin {
               }
               res.statusCode = 200;
               res.setHeader('Content-Type', 'application/json');
+              res.setHeader('Access-Control-Allow-Origin', '*');
               res.end(JSON.stringify({ success: true, count: serverWaClicks.length }));
             } catch (err: any) {
               res.statusCode = 500;
               res.setHeader('Content-Type', 'application/json');
+              res.setHeader('Access-Control-Allow-Origin', '*');
               res.end(JSON.stringify({ success: false }));
             }
           });
@@ -247,7 +256,15 @@ function brevoOtpPlugin(): Plugin {
         }
 
         // Customer Inquiries API Endpoints
-        if (req.url === '/api/track-inquiry' && req.method === 'POST') {
+        if (req.url === '/api/track-inquiry' && (req.method === 'POST' || req.method === 'OPTIONS')) {
+          if (req.method === 'OPTIONS') {
+            res.writeHead(204, {
+              'Access-Control-Allow-Origin': '*',
+              'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+              'Access-Control-Allow-Headers': 'Content-Type'
+            });
+            return res.end();
+          }
           let body = '';
           req.on('data', chunk => { body += chunk; });
           req.on('end', () => {
@@ -261,10 +278,12 @@ function brevoOtpPlugin(): Plugin {
               }
               res.statusCode = 200;
               res.setHeader('Content-Type', 'application/json');
+              res.setHeader('Access-Control-Allow-Origin', '*');
               res.end(JSON.stringify({ success: true, count: serverInquiries.length }));
             } catch (err: any) {
               res.statusCode = 500;
               res.setHeader('Content-Type', 'application/json');
+              res.setHeader('Access-Control-Allow-Origin', '*');
               res.end(JSON.stringify({ success: false }));
             }
           });

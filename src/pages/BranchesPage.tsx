@@ -16,6 +16,8 @@ import {
   ExternalLink
 } from 'lucide-react';
 
+import { submitNewInquiry } from '../firebase/dbServices';
+
 export const BranchesPage: React.FC = () => {
   const [selectedBranchId, setSelectedBranchId] = useState<string>(BRANCHES_DATA[0].id);
   const [formSubmitted, setFormSubmitted] = useState(false);
@@ -29,8 +31,17 @@ export const BranchesPage: React.FC = () => {
 
   const selectedBranch = BRANCHES_DATA.find(b => b.id === selectedBranchId) || BRANCHES_DATA[0];
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    await submitNewInquiry({
+      clientName: formData.name,
+      phone: formData.phone,
+      serviceCategory: formData.serviceNeeded,
+      serviceTitle: formData.serviceNeeded,
+      message: formData.message || `Direct inquiry from website Branches page`,
+      source: 'contact_form',
+      assignedBranch: formData.preferredBranch
+    });
     setFormSubmitted(true);
     setTimeout(() => {
       setFormSubmitted(false);
