@@ -56,7 +56,7 @@ export const initGlobalWhatsAppTracker = (): (() => void) => {
   const handleGlobalClick = (e: MouseEvent) => {
     try {
       // Prevent duplicate logging if click was already recorded by explicit onClick handler
-      if (Date.now() - ((window as any).__lastWaTrackTime || 0) < 2000) {
+      if (Date.now() - ((window as any).__lastWaTrackTime || 0) < 3000) {
         return;
       }
 
@@ -137,6 +137,7 @@ export const initGlobalWhatsAppTracker = (): (() => void) => {
     }
   };
 
-  window.addEventListener('click', handleGlobalClick, true);
-  return () => window.removeEventListener('click', handleGlobalClick, true);
+  // Use bubbling phase (false) so explicit React onClick handlers fire FIRST
+  window.addEventListener('click', handleGlobalClick, false);
+  return () => window.removeEventListener('click', handleGlobalClick, false);
 };

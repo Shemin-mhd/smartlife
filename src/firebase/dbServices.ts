@@ -822,8 +822,8 @@ let lastClickTime = 0;
 export const saveWhatsAppClick = async (event: Omit<WhatsAppClickEvent, 'id' | 'timestamp'>): Promise<WhatsAppClickEvent | null> => {
   const now = Date.now();
 
-  // Strict 2.5 second debouncing window: ignore duplicate triggers within 2500ms
-  if (now - lastClickTime < 2500) {
+  // Strict 3 second debouncing window: ignore duplicate triggers within 3000ms
+  if (now - lastClickTime < 3000) {
     return null;
   }
 
