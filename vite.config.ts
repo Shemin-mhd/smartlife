@@ -1,6 +1,7 @@
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
+import fs from 'fs';
 import { defineConfig, loadEnv, Plugin } from 'vite';
 import nodemailer from 'nodemailer';
 
@@ -19,8 +20,28 @@ function brevoOtpPlugin(): Plugin {
           req.on('end', async () => {
             try {
               const env = loadEnv(server.config.mode || 'development', process.cwd(), '');
-              const smtpUser = (env.VITE_BREVO_SMTP_LOGIN || process.env.VITE_BREVO_SMTP_LOGIN || 'b8b99b001@smtp-brevo.com').replace(/^["']|["']$/g, '').trim();
-              const smtpPass = (env.VITE_BREVO_API_KEY || process.env.VITE_BREVO_API_KEY || '').replace(/^["']|["']$/g, '').trim();
+              let smtpUser = (env.VITE_BREVO_SMTP_LOGIN || process.env.VITE_BREVO_SMTP_LOGIN || 'b8b99b001@smtp-brevo.com').replace(/^["']|["']$/g, '').trim();
+              let smtpPass = (env.VITE_BREVO_API_KEY || process.env.VITE_BREVO_API_KEY || '').replace(/^["']|["']$/g, '').trim();
+
+              // Fail-safe direct disk reader for .env file
+              if (!smtpPass || smtpPass.length === 0) {
+                try {
+                  const envPath = path.resolve(process.cwd(), '.env');
+                  if (fs.existsSync(envPath)) {
+                    const envContent = fs.readFileSync(envPath, 'utf-8');
+                    const matchKey = envContent.match(/VITE_BREVO_API_KEY\s*=\s*["']?([^"'\r\n]+)["']?/);
+                    if (matchKey && matchKey[1]) {
+                      smtpPass = matchKey[1].trim();
+                    }
+                    const matchUser = envContent.match(/VITE_BREVO_SMTP_LOGIN\s*=\s*["']?([^"'\r\n]+)["']?/);
+                    if (matchUser && matchUser[1]) {
+                      smtpUser = matchUser[1].trim();
+                    }
+                  }
+                } catch (e) {
+                  console.error('Direct .env read error:', e);
+                }
+              }
 
               const transporter = nodemailer.createTransport({
                 host: 'smtp-relay.brevo.com',
