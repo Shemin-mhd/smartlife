@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Building2, Edit2, Phone, MapPin, Clock, ExternalLink, RefreshCw } from 'lucide-react';
 import { Branch } from '../types';
-import { fetchBranches, saveBranch } from '../firebase/dbServices';
+import { fetchBranches, saveBranch, subscribeBranches } from '../firebase/dbServices';
 
 export const BranchesManager: React.FC = () => {
   const [branches, setBranches] = useState<Branch[]>([]);
@@ -16,7 +16,12 @@ export const BranchesManager: React.FC = () => {
   };
 
   useEffect(() => {
-    loadBranchesData();
+    setLoading(true);
+    const unsub = subscribeBranches((liveBranches) => {
+      setBranches(liveBranches);
+      setLoading(false);
+    });
+    return () => unsub();
   }, []);
 
   const handleSaveBranch = async (e: React.FormEvent) => {

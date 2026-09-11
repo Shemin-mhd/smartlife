@@ -354,6 +354,29 @@ export const saveBranch = async (branch: Branch): Promise<boolean> => {
   return true;
 };
 
+export const subscribeBranches = (onData: (branches: Branch[]) => void): (() => void) => {
+  if (isFirebaseConfigured() && db) {
+    try {
+      const q = collection(db, 'branches');
+      const unsubscribe = onSnapshot(q, (snapshot) => {
+        if (snapshot.empty) {
+          BRANCHES_DATA.forEach(b => setDoc(doc(db, 'branches', b.id), b));
+          onData(BRANCHES_DATA);
+          return;
+        }
+        onData(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Branch)));
+      }, () => {
+        onData(getStoredLocal('smartlife_branches', BRANCHES_DATA));
+      });
+      return unsubscribe;
+    } catch (e) {
+      console.warn('Error subscribing to branches:', e);
+    }
+  }
+  onData(getStoredLocal('smartlife_branches', BRANCHES_DATA));
+  return () => { };
+};
+
 // ==========================================
 // 4. FAQS API
 // ==========================================
@@ -374,6 +397,29 @@ export const fetchFaqs = async (): Promise<FaqItem[]> => {
     }
   }
   return getStoredLocal('smartlife_faqs', FAQS_DATA);
+};
+
+export const subscribeFaqs = (onData: (faqs: FaqItem[]) => void): (() => void) => {
+  if (isFirebaseConfigured() && db) {
+    try {
+      const q = collection(db, 'faqs');
+      const unsubscribe = onSnapshot(q, (snapshot) => {
+        if (snapshot.empty) {
+          FAQS_DATA.forEach(f => setDoc(doc(db, 'faqs', String(f.id)), f));
+          onData(FAQS_DATA);
+          return;
+        }
+        onData(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as unknown as FaqItem)));
+      }, () => {
+        onData(getStoredLocal('smartlife_faqs', FAQS_DATA));
+      });
+      return unsubscribe;
+    } catch (e) {
+      console.warn('Error subscribing to FAQs:', e);
+    }
+  }
+  onData(getStoredLocal('smartlife_faqs', FAQS_DATA));
+  return () => { };
 };
 
 export const saveFaq = async (faq: FaqItem): Promise<boolean> => {

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { HelpCircle, Plus, Edit2, Trash2, RefreshCw } from 'lucide-react';
 import { FaqItem } from '../types';
-import { fetchFaqs, saveFaq, deleteFaq } from '../firebase/dbServices';
+import { fetchFaqs, saveFaq, deleteFaq, subscribeFaqs } from '../firebase/dbServices';
 
 export const FaqsManager: React.FC = () => {
   const [faqs, setFaqs] = useState<FaqItem[]>([]);
@@ -17,7 +17,12 @@ export const FaqsManager: React.FC = () => {
   };
 
   useEffect(() => {
-    loadFaqsData();
+    setLoading(true);
+    const unsub = subscribeFaqs((liveFaqs) => {
+      setFaqs(liveFaqs);
+      setLoading(false);
+    });
+    return () => unsub();
   }, []);
 
   const handleDelete = async (id: number) => {
