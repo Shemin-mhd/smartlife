@@ -35,7 +35,16 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({
   const [activeCategory, setActiveCategory] = useState<ServiceCategory>('all');
   const [servicesList, setServicesList] = useState<ServiceItem[]>(SERVICES_DATA);
   const [categoriesList, setCategoriesList] = useState<CategoryItem[]>(DEFAULT_CATEGORIES);
+  const [expandedServices, setExpandedServices] = useState<Record<string, boolean>>({});
   const mainBranch = BRANCHES_DATA[0];
+
+  const toggleExpandService = (serviceId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setExpandedServices((prev) => ({
+      ...prev,
+      [serviceId]: !prev[serviceId]
+    }));
+  };
 
   useEffect(() => {
     const unsubServices = subscribeServices((liveServices) => {
@@ -165,61 +174,77 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({
         </div>
       ) : (
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredServices.map((service) => (
-            <div
-              key={service.id}
-              className="bg-white border border-slate-200 rounded-2xl p-6 shadow-2xs hover:border-blue-300 hover:shadow-xs transition-all flex flex-col justify-between"
-            >
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-blue-700 uppercase tracking-wider">
-                    • {service.categoryLabel}
-                  </span>
-                  {(service.isPopular || service.badgeTag) && (
-                    <span className="text-[11px] font-extrabold text-amber-700 uppercase tracking-wider flex items-center gap-1 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200 shadow-2xs">
-                      <Sparkles className="w-3 h-3 text-amber-600 shrink-0" />
-                      {service.badgeTag ? service.badgeTag.toUpperCase() : 'POPULAR'}
+          {filteredServices.map((service) => {
+            const isExpanded = !!expandedServices[service.id];
+            const visibleDocs = isExpanded
+              ? service.requiredDocuments
+              : service.requiredDocuments.slice(0, 3);
+
+            return (
+              <div
+                key={service.id}
+                className="bg-white border border-slate-200 rounded-2xl p-6 shadow-2xs hover:border-blue-300 hover:shadow-xs transition-all flex flex-col justify-between"
+              >
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-blue-700 uppercase tracking-wider">
+                      • {service.categoryLabel}
                     </span>
-                  )}
-                </div>
-
-                <h3 
-                  onClick={() => onNavigate && onNavigate('service-detail', service.id)}
-                  className="text-base font-bold text-slate-900 leading-snug cursor-pointer hover:text-blue-700 transition-colors"
-                >
-                  {service.title}
-                </h3>
-
-                <p className="text-slate-600 text-xs leading-relaxed">
-                  {service.shortDesc}
-                </p>
-
-                {/* Turnaround Time */}
-                <div className="flex items-center gap-2 text-xs font-medium text-slate-600 bg-slate-50 p-2.5 rounded-lg border border-slate-100">
-                  <Clock className="w-3.5 h-3.5 text-blue-600 shrink-0" />
-                  <span>Processing Time: <strong className="text-slate-800">{service.processingTime}</strong></span>
-                </div>
-
-                {/* Required Documents Highlight Preview */}
-                <div className="space-y-1 pt-1">
-                  <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
-                    Key Required Documents:
-                  </p>
-                  <ul className="space-y-1 text-xs text-slate-700">
-                    {service.requiredDocuments.slice(0, 3).map((doc, i) => (
-                      <li key={i} className="flex items-center gap-1.5">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                        <span className="truncate">{doc}</span>
-                      </li>
-                    ))}
-                    {service.requiredDocuments.length > 3 && (
-                      <li className="text-[11px] text-blue-700 font-semibold pl-5">
-                        +{service.requiredDocuments.length - 3} more items in checklist
-                      </li>
+                    {(service.isPopular || service.badgeTag) && (
+                      <span className="text-[11px] font-extrabold text-amber-700 uppercase tracking-wider flex items-center gap-1 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200 shadow-2xs">
+                        <Sparkles className="w-3 h-3 text-amber-600 shrink-0" />
+                        {service.badgeTag ? service.badgeTag.toUpperCase() : 'POPULAR'}
+                      </span>
                     )}
-                  </ul>
+                  </div>
+
+                  <h3 
+                    onClick={() => onNavigate && onNavigate('service-detail', service.id)}
+                    className="text-base font-bold text-slate-900 leading-snug cursor-pointer hover:text-blue-700 transition-colors"
+                  >
+                    {service.title}
+                  </h3>
+
+                  <p className="text-slate-600 text-xs leading-relaxed">
+                    {service.shortDesc}
+                  </p>
+
+                  {/* Turnaround Time */}
+                  <div className="flex items-center gap-2 text-xs font-medium text-slate-600 bg-slate-50 p-2.5 rounded-lg border border-slate-100">
+                    <Clock className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                    <span>Processing Time: <strong className="text-slate-800">{service.processingTime}</strong></span>
+                  </div>
+
+                  {/* Required Documents Highlight Preview */}
+                  <div className="space-y-1 pt-1">
+                    <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                      Key Required Documents ({service.requiredDocuments.length}):
+                    </p>
+                    <ul className="space-y-1.5 text-xs text-slate-700">
+                      {visibleDocs.map((doc, i) => (
+                        <li key={i} className="flex items-start gap-1.5">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
+                          <span className={isExpanded ? 'leading-relaxed text-slate-800 font-medium' : 'truncate'}>
+                            {doc}
+                          </span>
+                        </li>
+                      ))}
+                      {service.requiredDocuments.length > 3 && (
+                        <li className="pl-5 pt-1">
+                          <button
+                            type="button"
+                            onClick={(e) => toggleExpandService(service.id, e)}
+                            className="text-[11px] text-blue-700 hover:text-blue-900 font-bold hover:underline cursor-pointer inline-flex items-center gap-1 bg-blue-50 hover:bg-blue-100 px-2.5 py-1 rounded-md transition-colors"
+                          >
+                            {isExpanded
+                              ? '− Show fewer items'
+                              : `+${service.requiredDocuments.length - 3} more items in checklist`}
+                          </button>
+                        </li>
+                      )}
+                    </ul>
+                  </div>
                 </div>
-              </div>
 
               {/* Action Buttons */}
               <div className="pt-4 mt-4 border-t border-slate-100 space-y-2">
@@ -258,7 +283,8 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({
                 )}
               </div>
             </div>
-          ))}
+          );
+        })}
         </div>
       )}
     </div>

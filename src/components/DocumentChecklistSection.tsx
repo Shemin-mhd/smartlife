@@ -9,6 +9,15 @@ interface DocumentChecklistSectionProps {
 
 export const DocumentChecklistSection: React.FC<DocumentChecklistSectionProps> = ({ onSelectService }) => {
   const [docFilter, setDocFilter] = useState('');
+  const [expandedServices, setExpandedServices] = useState<Record<string, boolean>>({});
+
+  const toggleExpandService = (serviceId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setExpandedServices((prev) => ({
+      ...prev,
+      [serviceId]: !prev[serviceId]
+    }));
+  };
 
   const featuredServices = SERVICES_DATA.filter((s) => {
     if (!docFilter) return s.isPopular;
@@ -50,33 +59,49 @@ export const DocumentChecklistSection: React.FC<DocumentChecklistSectionProps> =
 
         {/* Requirements Preview Grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {featuredServices.slice(0, 6).map((service) => (
-            <div
-              key={service.id}
-              className="bg-white border border-slate-200 rounded-xl p-5 shadow-xs flex flex-col justify-between hover:border-blue-400 transition-colors"
-            >
-              <div>
-                <span className="text-[10px] font-bold text-blue-700 uppercase tracking-wider">
-                  • {service.categoryLabel}
-                </span>
-                <h3 className="font-bold text-slate-900 text-base mt-2 mb-3">
-                  {service.title}
-                </h3>
+          {featuredServices.slice(0, 6).map((service) => {
+            const isExpanded = !!expandedServices[service.id];
+            const visibleDocs = isExpanded
+              ? service.requiredDocuments
+              : service.requiredDocuments.slice(0, 4);
 
-                <ul className="space-y-2 text-xs text-slate-700">
-                  {service.requiredDocuments.slice(0, 4).map((doc, idx) => (
-                    <li key={idx} className="flex items-start gap-2">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
-                      <span className="line-clamp-2">{doc}</span>
-                    </li>
-                  ))}
-                  {service.requiredDocuments.length > 4 && (
-                    <li className="text-[11px] text-blue-700 font-semibold pl-5">
-                      + {service.requiredDocuments.length - 4} more document requirements
-                    </li>
-                  )}
-                </ul>
-              </div>
+            return (
+              <div
+                key={service.id}
+                className="bg-white border border-slate-200 rounded-xl p-5 shadow-xs flex flex-col justify-between hover:border-blue-400 transition-colors"
+              >
+                <div>
+                  <span className="text-[10px] font-bold text-blue-700 uppercase tracking-wider">
+                    • {service.categoryLabel}
+                  </span>
+                  <h3 className="font-bold text-slate-900 text-base mt-2 mb-3">
+                    {service.title}
+                  </h3>
+
+                  <ul className="space-y-2 text-xs text-slate-700">
+                    {visibleDocs.map((doc, idx) => (
+                      <li key={idx} className="flex items-start gap-2">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
+                        <span className={isExpanded ? 'leading-relaxed text-slate-800 font-medium' : 'line-clamp-2'}>
+                          {doc}
+                        </span>
+                      </li>
+                    ))}
+                    {service.requiredDocuments.length > 4 && (
+                      <li className="pl-5 pt-0.5">
+                        <button
+                          type="button"
+                          onClick={(e) => toggleExpandService(service.id, e)}
+                          className="text-[11px] text-blue-700 hover:text-blue-900 font-bold hover:underline cursor-pointer inline-flex items-center gap-1 bg-blue-50 hover:bg-blue-100 px-2 py-0.5 rounded transition-colors"
+                        >
+                          {isExpanded
+                            ? '− Show fewer requirements'
+                            : `+ ${service.requiredDocuments.length - 4} more document requirements`}
+                        </button>
+                      </li>
+                    )}
+                  </ul>
+                </div>
 
               <div className="pt-4 mt-4 border-t border-slate-100">
                 <button
@@ -88,7 +113,8 @@ export const DocumentChecklistSection: React.FC<DocumentChecklistSectionProps> =
                 </button>
               </div>
             </div>
-          ))}
+          );
+        })}
         </div>
 
       </div>
