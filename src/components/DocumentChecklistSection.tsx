@@ -58,7 +58,7 @@ export const DocumentChecklistSection: React.FC<DocumentChecklistSectionProps> =
         </div>
 
         {/* Requirements Preview Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 items-start">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 items-start">
           {featuredServices.slice(0, 6).map((service) => {
             const isExpanded = !!expandedServices[service.id];
             const visibleDocs = isExpanded
@@ -68,7 +68,7 @@ export const DocumentChecklistSection: React.FC<DocumentChecklistSectionProps> =
             return (
               <div
                 key={service.id}
-                className="bg-white border border-slate-200 rounded-xl p-5 shadow-xs flex flex-col justify-between hover:border-blue-400 transition-colors"
+                className="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col justify-between hover:border-blue-400 transition-colors min-w-0 overflow-hidden"
               >
                 <div>
                   <span className="text-[10px] font-bold text-blue-700 uppercase tracking-wider">
@@ -80,9 +80,9 @@ export const DocumentChecklistSection: React.FC<DocumentChecklistSectionProps> =
 
                   <ul className="space-y-2 text-xs text-slate-700">
                     {visibleDocs.map((doc, idx) => (
-                      <li key={idx} className="flex items-start gap-2">
+                      <li key={idx} className="flex items-start gap-2 min-w-0">
                         <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
-                        <span className={isExpanded ? 'leading-relaxed text-slate-800 font-medium' : 'line-clamp-2'}>
+                        <span className={isExpanded ? 'leading-relaxed text-slate-800 font-medium break-words min-w-0' : 'line-clamp-2 min-w-0'}>
                           {doc}
                         </span>
                       </li>

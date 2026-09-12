@@ -173,7 +173,7 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({
           </button>
         </div>
       ) : (
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 items-start">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 items-start">
           {filteredServices.map((service) => {
             const isExpanded = !!expandedServices[service.id];
             const visibleDocs = isExpanded
@@ -183,15 +183,15 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({
             return (
               <div
                 key={service.id}
-                className="bg-white border border-slate-200 rounded-2xl p-6 shadow-2xs hover:border-blue-300 hover:shadow-xs transition-all flex flex-col justify-between"
+                className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-6 shadow-2xs hover:border-blue-300 hover:shadow-xs transition-all flex flex-col justify-between min-w-0 overflow-hidden"
               >
                 <div className="space-y-3">
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between gap-2 flex-wrap sm:flex-nowrap">
                     <span className="text-xs font-bold text-blue-700 uppercase tracking-wider">
                       • {service.categoryLabel}
                     </span>
                     {(service.isPopular || service.badgeTag) && (
-                      <span className="text-[11px] font-extrabold text-amber-700 uppercase tracking-wider flex items-center gap-1 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200 shadow-2xs">
+                      <span className="text-[11px] font-extrabold text-amber-700 uppercase tracking-wider flex items-center gap-1 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200 shadow-2xs shrink-0">
                         <Sparkles className="w-3 h-3 text-amber-600 shrink-0" />
                         {service.badgeTag ? service.badgeTag.toUpperCase() : 'POPULAR'}
                       </span>
@@ -222,9 +222,9 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({
                     </p>
                     <ul className="space-y-1.5 text-xs text-slate-700">
                       {visibleDocs.map((doc, i) => (
-                        <li key={i} className="flex items-start gap-1.5">
+                        <li key={i} className="flex items-start gap-1.5 min-w-0">
                           <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
-                          <span className={isExpanded ? 'leading-relaxed text-slate-800 font-medium' : 'truncate'}>
+                          <span className={isExpanded ? 'leading-relaxed text-slate-800 font-medium break-words min-w-0' : 'truncate min-w-0'}>
                             {doc}
                           </span>
                         </li>
@@ -248,13 +248,13 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({
 
               {/* Action Buttons */}
               <div className="pt-4 mt-4 border-t border-slate-100 space-y-2">
-                <div className="flex items-center justify-between gap-2">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2">
                   <button
                     onClick={() => onSelectServiceDocs(service)}
-                    className="flex-1 bg-slate-900 hover:bg-slate-800 text-white text-xs font-medium py-2 px-3 rounded-lg transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+                    className="w-full sm:flex-1 bg-slate-900 hover:bg-slate-800 text-white text-xs font-medium py-2.5 sm:py-2 px-3 rounded-lg transition-colors flex items-center justify-center gap-1.5 cursor-pointer min-w-0"
                   >
-                    <FileText className="w-3.5 h-3.5 text-blue-400" />
-                    <span>View Docs Checklist</span>
+                    <FileText className="w-3.5 h-3.5 text-blue-400 shrink-0" />
+                    <span className="truncate">View Docs Checklist</span>
                   </button>
                   <a
                     href={getWhatsAppLink({ serviceTitle: service.title })}
@@ -262,10 +262,10 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({
                     data-wa-context={`Service: ${service.title}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-3 py-2 rounded-lg transition-colors flex items-center justify-center gap-1"
+                    className="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-3.5 py-2.5 sm:py-2 rounded-lg transition-colors flex items-center justify-center gap-1.5 shrink-0"
                     title="Inquire via WhatsApp"
                   >
-                    <MessageSquare className="w-3.5 h-3.5 fill-current" />
+                    <MessageSquare className="w-3.5 h-3.5 fill-current shrink-0" />
                     <span>WhatsApp</span>
                   </a>
                 </div>
