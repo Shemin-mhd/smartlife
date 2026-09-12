@@ -165,7 +165,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
         </div>
 
         {/* Deep Navigation Columns (SEO / AEO / GEO Architecture) */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8 text-xs">
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-8 text-xs">
           
           {/* Column 1: Core Navigation */}
           <div className="space-y-3">
@@ -257,51 +257,6 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
               <li>
                 <button onClick={() => handleLinkClick('services')} className="hover:text-white transition-colors cursor-pointer text-left">
                   Indian Passport (BLS) Renewal
-                </button>
-              </li>
-            </ul>
-          </div>
-
-          {/* Column 3: Document Checklists */}
-          <div className="space-y-3">
-            <h4 className="font-extrabold text-white text-xs uppercase tracking-wider text-blue-400 flex items-center gap-1.5">
-              <CheckCircle2 className="w-3.5 h-3.5" />
-              <span>Document Checklists</span>
-            </h4>
-            <ul className="space-y-2 text-slate-400">
-              <li>
-                <button onClick={() => handleLinkClick('documents')} className="hover:text-white transition-colors cursor-pointer text-left">
-                  Family Visa Requirements
-                </button>
-              </li>
-              <li>
-                <button onClick={() => handleLinkClick('documents')} className="hover:text-white transition-colors cursor-pointer text-left">
-                  Golden Visa Requirements
-                </button>
-              </li>
-              <li>
-                <button onClick={() => handleLinkClick('documents')} className="hover:text-white transition-colors cursor-pointer text-left">
-                  Labour Contract Requirements
-                </button>
-              </li>
-              <li>
-                <button onClick={() => handleLinkClick('documents')} className="hover:text-white transition-colors cursor-pointer text-left">
-                  Trade License Requirements
-                </button>
-              </li>
-              <li>
-                <button onClick={() => handleLinkClick('documents')} className="hover:text-white transition-colors cursor-pointer text-left">
-                  Attestation Requirements
-                </button>
-              </li>
-              <li>
-                <button onClick={() => handleLinkClick('documents')} className="hover:text-white transition-colors cursor-pointer text-left">
-                  Passport Renewal Checklist
-                </button>
-              </li>
-              <li>
-                <button onClick={() => handleLinkClick('documents')} className="hover:text-white transition-colors cursor-pointer text-left">
-                  Medical Fitness Typing Docs
                 </button>
               </li>
             </ul>
