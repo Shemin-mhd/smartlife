@@ -15,6 +15,7 @@ import {
   Save,
   Tag,
   Sparkles,
+  BadgeCheck,
   FolderPlus,
   FolderTree,
   Globe,
@@ -81,8 +82,12 @@ export const ServicesManager: React.FC = () => {
     const updated: ServiceItem = { 
       ...service, 
       isPopular: nextIsPopular,
-      badgeTag: nextIsPopular ? 'POPULAR' : undefined
+      badgeTag: nextIsPopular ? (service.badgeTag || 'POPULAR') : ''
     };
+    
+    // Instant local UI state update
+    setServices(prev => prev.map(s => s.id === service.id ? updated : s));
+
     await saveService(updated);
   };
 
@@ -156,11 +161,14 @@ export const ServicesManager: React.FC = () => {
     e.preventDefault();
     if (!editingService) return;
 
+    const isPop = !!editingService.isPopular;
     const serviceToSave: ServiceItem = {
       ...editingService,
-      isPopular: !!editingService.isPopular
+      isPopular: isPop,
+      badgeTag: isPop ? (editingService.badgeTag || 'POPULAR') : ''
     };
 
+    setServices(prev => prev.map(s => s.id === serviceToSave.id ? serviceToSave : s));
     await saveService(serviceToSave);
     setEditingService(null);
   };
@@ -367,16 +375,17 @@ export const ServicesManager: React.FC = () => {
                     {/* Badge Column */}
                     <td className="px-3 py-3 whitespace-nowrap">
                       <button
+                        type="button"
                         onClick={() => handleTogglePopular(service)}
-                        className={`p-1 rounded transition flex items-center gap-1 text-[11px] font-bold ${
-                          service.isPopular || service.badgeTag 
-                            ? 'text-amber-700 bg-amber-50 border border-amber-200' 
-                            : 'text-slate-400 bg-slate-100 hover:bg-slate-200'
+                        className={`px-2.5 py-1 rounded-full transition-all flex items-center gap-1.5 text-[11px] font-extrabold cursor-pointer border shadow-2xs ${
+                          service.isPopular 
+                            ? 'text-amber-800 bg-amber-50 border-amber-200 hover:bg-amber-100 hover:border-amber-300' 
+                            : 'text-slate-400 bg-slate-100 hover:bg-slate-200 border-slate-200'
                         }`}
-                        title={service.isPopular ? 'Popular Badge Active' : 'Set Badge'}
+                        title={service.isPopular ? 'Popular Badge Active - Click to remove' : 'Set Popular Badge - Click to add'}
                       >
-                        <Star className={`w-3.5 h-3.5 ${service.isPopular ? 'fill-amber-500 text-amber-500' : 'text-slate-400'}`} />
-                        <span>{service.badgeTag || (service.isPopular ? 'POPULAR' : 'None')}</span>
+                        <BadgeCheck className={`w-3.5 h-3.5 ${service.isPopular ? 'text-amber-600' : 'text-slate-400'}`} />
+                        <span>{service.isPopular ? (service.badgeTag || 'POPULAR') : 'None'}</span>
                       </button>
                     </td>
 
@@ -625,7 +634,7 @@ export const ServicesManager: React.FC = () => {
                           setEditingService({ 
                             ...editingService, 
                             isPopular: checked,
-                            badgeTag: checked ? 'POPULAR' : undefined
+                            badgeTag: checked ? (editingService.badgeTag || 'POPULAR') : ''
                           });
                         }}
                         className="rounded border-amber-300 text-amber-600 focus:ring-amber-500 cursor-pointer w-4 h-4"
@@ -640,8 +649,9 @@ export const ServicesManager: React.FC = () => {
                       </div>
                     </div>
                     {editingService.isPopular && (
-                      <span className="bg-amber-100 text-amber-800 text-[11px] font-bold px-2 py-0.5 rounded border border-amber-300 shrink-0">
-                        ★ POPULAR
+                      <span className="bg-amber-50 text-amber-800 text-[11px] font-extrabold px-2.5 py-1 rounded-full border border-amber-200 shrink-0 flex items-center gap-1.5 shadow-2xs">
+                        <BadgeCheck className="w-3.5 h-3.5 text-amber-600" />
+                        {editingService.badgeTag || 'POPULAR'}
                       </span>
                     )}
                   </div>

@@ -14,6 +14,7 @@ import {
   MessageSquare, 
   ExternalLink, 
   Sparkles, 
+  BadgeCheck,
   CheckCircle2, 
   X,
   Filter
@@ -190,9 +191,9 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({
                     <span className="text-xs font-bold text-blue-700 uppercase tracking-wider">
                       • {service.categoryLabel}
                     </span>
-                    {(service.isPopular || service.badgeTag) && (
-                      <span className="text-[11px] font-extrabold text-amber-700 uppercase tracking-wider flex items-center gap-1 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200 shadow-2xs shrink-0">
-                        <Sparkles className="w-3 h-3 text-amber-600 shrink-0" />
+                    {service.isPopular && (
+                      <span className="text-[11px] font-extrabold text-amber-800 uppercase tracking-wider flex items-center gap-1.5 bg-amber-50 px-2.5 py-0.5 rounded-full border border-amber-200 shadow-2xs shrink-0">
+                        <BadgeCheck className="w-3.5 h-3.5 text-amber-600 shrink-0" />
                         {service.badgeTag ? service.badgeTag.toUpperCase() : 'POPULAR'}
                       </span>
                     )}

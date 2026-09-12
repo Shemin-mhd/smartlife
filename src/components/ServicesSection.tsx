@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { 
   FileText, Search, Clock, ExternalLink, MessageSquare, CheckSquare, 
-  FileCheck, Shield, Sparkles, Filter 
+  FileCheck, Shield, Sparkles, BadgeCheck, Filter 
 } from 'lucide-react';
 import { SERVICES_DATA } from '../data/servicesData';
 import { CategoryItem, ServiceCategory, ServiceItem } from '../types';
@@ -183,9 +183,9 @@ export const ServicesSection: React.FC<ServicesSectionProps> = ({
                     <span className="text-xs font-bold text-blue-700 uppercase tracking-wider">
                       • {service.categoryLabel}
                     </span>
-                    {(service.isPopular || service.badgeTag) && (
-                      <span className="text-[11px] font-extrabold text-amber-700 uppercase tracking-wider flex items-center gap-1 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200 shadow-2xs">
-                        <Sparkles className="w-3 h-3 text-amber-600 shrink-0" />
+                    {service.isPopular && (
+                      <span className="text-[11px] font-extrabold text-amber-800 uppercase tracking-wider flex items-center gap-1.5 bg-amber-50 px-2.5 py-0.5 rounded-full border border-amber-200 shadow-2xs">
+                        <BadgeCheck className="w-3.5 h-3.5 text-amber-600 shrink-0" />
                         {service.badgeTag ? service.badgeTag.toUpperCase() : 'POPULAR'}
                       </span>
                     )}

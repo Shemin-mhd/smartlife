@@ -174,21 +174,27 @@ export const subscribeServices = (onData: (services: ServiceItem[]) => void): ((
 };
 
 export const saveService = async (service: ServiceItem): Promise<boolean> => {
+  const sanitizedService: ServiceItem = {
+    ...service,
+    isPopular: !!service.isPopular,
+    badgeTag: service.isPopular ? (service.badgeTag || 'POPULAR') : ''
+  };
+
   if (isFirebaseConfigured() && db) {
     try {
-      await setDoc(doc(db, 'services', service.id), service);
+      await setDoc(doc(db, 'services', sanitizedService.id), sanitizedService);
     } catch (e) {
       console.error('Error saving service to Firestore:', e);
     }
   }
   const current = getStoredLocal('smartlife_services', SERVICES_DATA);
-  const index = current.findIndex(s => s.id === service.id);
+  const index = current.findIndex(s => s.id === sanitizedService.id);
   let updated: ServiceItem[];
   if (index >= 0) {
     updated = [...current];
-    updated[index] = service;
+    updated[index] = sanitizedService;
   } else {
-    updated = [service, ...current];
+    updated = [sanitizedService, ...current];
   }
   saveStoredLocal('smartlife_services', updated);
   window.dispatchEvent(new Event('smartlife_services_updated'));
@@ -196,7 +202,12 @@ export const saveService = async (service: ServiceItem): Promise<boolean> => {
 };
 
 export const saveAllServices = async (servicesList: ServiceItem[]): Promise<boolean> => {
-  const indexedList = servicesList.map((s, idx) => ({ ...s, sortOrder: idx + 1 }));
+  const indexedList = servicesList.map((s, idx) => ({ 
+    ...s, 
+    sortOrder: idx + 1,
+    isPopular: !!s.isPopular,
+    badgeTag: s.isPopular ? (s.badgeTag || 'POPULAR') : ''
+  }));
 
   if (isFirebaseConfigured() && db) {
     try {

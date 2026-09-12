@@ -18,6 +18,7 @@ import {
   Clock, 
   MessageSquare, 
   Sparkles, 
+  BadgeCheck,
   Building2,
   BookOpen,
   ChevronDown,
@@ -59,13 +60,11 @@ export const HomePage: React.FC<HomePageProps> = ({
     return () => unsubscribe();
   }, []);
 
-  // Filter services marked as popular, fallback to top services if fewer than 3 marked
+  // Filter services marked as popular
   const popularServices = useMemo(() => {
     const popular = servicesList.filter((s) => !!s.isPopular);
-    if (popular.length >= 3) return popular;
-    const setIds = new Set(popular.map((s) => s.id));
-    const fill = servicesList.filter((s) => !setIds.has(s.id));
-    return [...popular, ...fill];
+    if (popular.length > 0) return popular;
+    return servicesList.slice(0, 3);
   }, [servicesList]);
 
   const displayedPopularServices = useMemo(() => {
@@ -114,9 +113,9 @@ export const HomePage: React.FC<HomePageProps> = ({
                       <span className="text-xs font-bold text-blue-700 uppercase tracking-wider">
                         • {service.categoryLabel}
                       </span>
-                      {(service.isPopular || service.badgeTag) && (
-                        <span className="text-[11px] font-extrabold text-amber-700 uppercase tracking-wider flex items-center gap-1 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200 shadow-2xs shrink-0">
-                          <Sparkles className="w-3 h-3 text-amber-600 shrink-0" />
+                      {service.isPopular && (
+                        <span className="text-[11px] font-extrabold text-amber-800 uppercase tracking-wider flex items-center gap-1.5 bg-amber-50 px-2.5 py-0.5 rounded-full border border-amber-200 shadow-2xs shrink-0">
+                          <BadgeCheck className="w-3.5 h-3.5 text-amber-600 shrink-0" />
                           {service.badgeTag ? service.badgeTag.toUpperCase() : 'POPULAR'}
                         </span>
                       )}
