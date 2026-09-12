@@ -58,7 +58,7 @@ export const DocumentChecklistSection: React.FC<DocumentChecklistSectionProps> =
         </div>
 
         {/* Requirements Preview Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 items-start">
           {featuredServices.slice(0, 6).map((service) => {
             const isExpanded = !!expandedServices[service.id];
             const visibleDocs = isExpanded

@@ -173,7 +173,7 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({
           </button>
         </div>
       ) : (
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 items-start">
           {filteredServices.map((service) => {
             const isExpanded = !!expandedServices[service.id];
             const visibleDocs = isExpanded
