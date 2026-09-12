@@ -85,31 +85,31 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({
   ];
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    <div className="w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8 space-y-5 sm:space-y-8 min-w-0 overflow-x-hidden">
       {/* Clean Light Page Header */}
-      <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-6 sm:p-8 space-y-4">
+      <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-4 sm:p-8 space-y-3 sm:space-y-4 min-w-0 overflow-hidden">
         <div className="max-w-3xl space-y-3">
           <div className="inline-flex items-center gap-1.5 text-blue-700 text-xs font-bold uppercase tracking-wider">
             <Sparkles className="w-3.5 h-3.5 text-blue-600" />
             <span>UAE Typing & Legal Documentation</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 tracking-tight">
+          <h1 className="text-xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 tracking-tight">
             Our Government & Typing Services
           </h1>
-          <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
+          <p className="text-slate-600 text-xs sm:text-base leading-relaxed">
             Browse our full range of typing, residence visa processing, Indian passport renewal, certificate attestation, and MoHRE labor solutions for individuals, families, and businesses.
           </p>
 
           {/* Inline Search Bar */}
-          <div className="pt-2">
+          <div className="pt-1 sm:pt-2">
             <div className="relative max-w-xl">
               <Search className="absolute left-3.5 top-3 w-4 h-4 text-slate-400" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search service e.g., Family Visa, Attestation, Indian Passport..."
-                className="w-full pl-10 pr-10 py-2.5 bg-white border border-slate-300 rounded-xl text-slate-900 placeholder:text-slate-400 text-sm font-medium focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 shadow-2xs"
+                placeholder="Search service e.g., Family Visa, Attestation..."
+                className="w-full pl-10 pr-10 py-2.5 bg-white border border-slate-300 rounded-xl text-slate-900 placeholder:text-slate-400 text-xs sm:text-sm font-medium focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 shadow-2xs"
               />
               {searchQuery && (
                 <button
@@ -125,7 +125,7 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({
       </div>
 
       {/* Category Filter Pills */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+      <div className="flex items-center gap-2 overflow-x-auto max-w-full pb-2 scrollbar-none min-w-0">
         <span className="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1 shrink-0 mr-2">
           <Filter className="w-3.5 h-3.5" />
           <span>Category:</span>

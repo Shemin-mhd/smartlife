@@ -161,7 +161,7 @@ function MainContent() {
   }
 
   return (
-    <div className="min-h-screen bg-white text-slate-900 flex flex-col font-['Plus_Jakarta_Sans',sans-serif]">
+    <div className="min-h-screen bg-white text-slate-900 flex flex-col font-['Plus_Jakarta_Sans',sans-serif] overflow-x-hidden w-full">
       {/* Navigation Header */}
       <Header
         currentPage={currentPage}
@@ -169,7 +169,7 @@ function MainContent() {
       />
 
       {/* Main Page Content */}
-      <main className="flex-grow">
+      <main className="flex-grow w-full max-w-full overflow-x-hidden">
         {currentPage === 'home' && (
           <HomePage
             searchQuery={searchQuery}
