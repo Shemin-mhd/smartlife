@@ -19,7 +19,9 @@ import {
   MessageSquare, 
   Sparkles, 
   Building2,
-  BookOpen
+  BookOpen,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 
 interface HomePageProps {
@@ -36,7 +38,17 @@ export const HomePage: React.FC<HomePageProps> = ({
   onSelectServiceDocs,
 }) => {
   const [servicesList, setServicesList] = useState<ServiceItem[]>(SERVICES_DATA);
+  const [expandedServices, setExpandedServices] = useState<Record<string, boolean>>({});
+  const [showAllPopular, setShowAllPopular] = useState(false);
   const mainBranch = BRANCHES_DATA[0];
+
+  const toggleExpandService = (serviceId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setExpandedServices((prev) => ({
+      ...prev,
+      [serviceId]: !prev[serviceId]
+    }));
+  };
 
   useEffect(() => {
     const unsubscribe = subscribeServices((liveServices) => {
@@ -47,10 +59,18 @@ export const HomePage: React.FC<HomePageProps> = ({
     return () => unsubscribe();
   }, []);
 
-  // Filter ONLY services marked as featured / popular by the admin in Admin Panel (Max 6 limit)
+  // Filter services marked as popular, fallback to top services if fewer than 3 marked
   const popularServices = useMemo(() => {
-    return servicesList.filter((s) => !!s.isPopular).slice(0, 6);
+    const popular = servicesList.filter((s) => !!s.isPopular);
+    if (popular.length >= 3) return popular;
+    const setIds = new Set(popular.map((s) => s.id));
+    const fill = servicesList.filter((s) => !setIds.has(s.id));
+    return [...popular, ...fill];
   }, [servicesList]);
+
+  const displayedPopularServices = useMemo(() => {
+    return showAllPopular ? popularServices : popularServices.slice(0, 3);
+  }, [popularServices, showAllPopular]);
 
   return (
     <div className="space-y-12 pb-12">
@@ -64,7 +84,7 @@ export const HomePage: React.FC<HomePageProps> = ({
         onSelectServiceDocs={onSelectServiceDocs}
       />
 
-      {/* Featured Services Overview (Hidden if no services are starred) */}
+      {/* Featured Services Overview (Right after Hero & before Corporate Clients) */}
       {popularServices.length > 0 && (
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
@@ -74,77 +94,122 @@ export const HomePage: React.FC<HomePageProps> = ({
                 <span>Core Government & Visa Solutions</span>
               </div>
               <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-                Popular Typing Services
+                Most Popular Services
               </h2>
               <p className="text-slate-600 text-sm sm:text-base mt-1">
-                Select from our most requested visa, legal attestation, and consular services
+                Our top-requested residence visa processing, legal attestation, and MoHRE labor typing solutions
               </p>
             </div>
             <button
               onClick={() => onNavigate('services')}
               className="inline-flex items-center gap-2 text-blue-700 hover:text-blue-800 font-bold text-sm bg-blue-50 hover:bg-blue-100 px-4 py-2.5 rounded-lg transition-colors cursor-pointer shrink-0"
             >
-              <span>View All Services</span>
+              <span>Explore Full Catalogue</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </div>
 
-          {/* Services Cards Grid */}
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {popularServices.map((service) => (
-              <div
-                key={service.id}
-                className="bg-white border border-slate-200 rounded-2xl p-6 shadow-2xs hover:border-blue-400 hover:shadow-xs transition-all flex flex-col justify-between"
-              >
-                <div>
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="text-xs font-bold text-blue-700 uppercase tracking-wider">
-                      • {service.categoryLabel}
-                    </span>
-                    {(service.isPopular || service.badgeTag) && (
-                      <span className="text-[11px] font-extrabold text-amber-700 uppercase tracking-wider flex items-center gap-1 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200 shadow-2xs">
-                        <Sparkles className="w-3 h-3 text-amber-600 shrink-0" />
-                        {service.badgeTag ? service.badgeTag.toUpperCase() : 'POPULAR'}
+          {/* Services Cards Grid - Equal height cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            {popularServices.slice(0, 3).map((service) => {
+              const isExpanded = !!expandedServices[service.id];
+              const visibleDocs = isExpanded
+                ? service.requiredDocuments
+                : service.requiredDocuments.slice(0, 3);
+
+              return (
+                <div
+                  key={service.id}
+                  className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-6 shadow-2xs hover:border-blue-300 hover:shadow-xs transition-all flex flex-col justify-between min-w-0 overflow-hidden h-full"
+                >
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between gap-2 flex-wrap sm:flex-nowrap">
+                      <span className="text-xs font-bold text-blue-700 uppercase tracking-wider">
+                        • {service.categoryLabel}
                       </span>
-                    )}
+                      {(service.isPopular || service.badgeTag) && (
+                        <span className="text-[11px] font-extrabold text-amber-700 uppercase tracking-wider flex items-center gap-1 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200 shadow-2xs shrink-0">
+                          <Sparkles className="w-3 h-3 text-amber-600 shrink-0" />
+                          {service.badgeTag ? service.badgeTag.toUpperCase() : 'POPULAR'}
+                        </span>
+                      )}
+                    </div>
+
+                    <h3 
+                      onClick={() => onNavigate && onNavigate('service-detail', service.id)}
+                      className="text-base font-bold text-slate-900 leading-snug cursor-pointer hover:text-blue-700 transition-colors"
+                    >
+                      {service.title}
+                    </h3>
+
+                    <p className="text-slate-600 text-xs leading-relaxed">
+                      {service.shortDesc}
+                    </p>
+
+                    {/* Turnaround Time */}
+                    <div className="flex items-center gap-2 text-xs font-medium text-slate-600 bg-slate-50 p-2.5 rounded-lg border border-slate-100">
+                      <Clock className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                      <span>Processing Time: <strong className="text-slate-800">{service.processingTime}</strong></span>
+                    </div>
+
+                    {/* Required Documents Highlight Preview */}
+                    <div className="space-y-1 pt-1">
+                      <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                        Key Required Documents ({service.requiredDocuments.length}):
+                      </p>
+                      <ul className="space-y-1.5 text-xs text-slate-700">
+                        {visibleDocs.map((doc, i) => (
+                          <li key={i} className="flex items-start gap-1.5 min-w-0">
+                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
+                            <span className={isExpanded ? 'leading-relaxed text-slate-800 font-medium break-words min-w-0' : 'truncate min-w-0'}>
+                              {doc}
+                            </span>
+                          </li>
+                        ))}
+                        {service.requiredDocuments.length > 3 && (
+                          <li className="pl-5 pt-1">
+                            <button
+                              type="button"
+                              onClick={(e) => toggleExpandService(service.id, e)}
+                              className="text-[11px] text-blue-700 hover:text-blue-900 font-bold hover:underline cursor-pointer inline-flex items-center gap-1 bg-blue-50 hover:bg-blue-100 px-2.5 py-1 rounded-md transition-colors"
+                            >
+                              {isExpanded
+                                ? '− Show fewer items'
+                                : `+${service.requiredDocuments.length - 3} more items in checklist`}
+                            </button>
+                          </li>
+                        )}
+                      </ul>
+                    </div>
                   </div>
 
-                  <h3 className="text-lg font-bold text-slate-900 mb-2">
-                    {service.title}
-                  </h3>
-                  <p className="text-slate-600 text-xs leading-relaxed mb-4">
-                    {service.shortDesc}
-                  </p>
-
-                  {/* Processing time badge */}
-                  <div className="flex items-center gap-2 text-xs font-medium text-slate-600 mb-4 bg-slate-50 p-2 rounded-lg border border-slate-100">
-                    <Clock className="w-3.5 h-3.5 text-blue-600 shrink-0" />
-                    <span>Turnaround: <strong className="text-slate-800">{service.processingTime}</strong></span>
+                  {/* Action Buttons */}
+                  <div className="pt-4 mt-4 border-t border-slate-100 space-y-2">
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2">
+                      <button
+                        onClick={() => onSelectServiceDocs(service)}
+                        className="w-full sm:flex-1 bg-slate-900 hover:bg-slate-800 text-white text-xs font-medium py-2.5 sm:py-2 px-3 rounded-lg transition-colors flex items-center justify-center gap-1.5 cursor-pointer min-w-0"
+                      >
+                        <FileText className="w-3.5 h-3.5 text-blue-400 shrink-0" />
+                        <span className="truncate">View Docs Checklist</span>
+                      </button>
+                      <a
+                        href={getWhatsAppLink({ serviceTitle: service.title })}
+                        data-wa-location="Homepage Service Card"
+                        data-wa-context={`Service: ${service.title}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-3.5 py-2.5 sm:py-2 rounded-lg transition-colors flex items-center justify-center gap-1.5 shrink-0"
+                        title="Inquire via WhatsApp"
+                      >
+                        <MessageSquare className="w-3.5 h-3.5 fill-current shrink-0" />
+                        <span>WhatsApp</span>
+                      </a>
+                    </div>
                   </div>
                 </div>
-
-                <div className="pt-4 border-t border-slate-100 flex items-center justify-between gap-2">
-                  <button
-                    onClick={() => onSelectServiceDocs(service)}
-                    className="text-xs font-semibold text-blue-700 hover:text-blue-800 hover:underline flex items-center gap-1 cursor-pointer"
-                  >
-                    <FileText className="w-3.5 h-3.5" />
-                    <span>Required Docs</span>
-                  </button>
-                  <a
-                    href={getWhatsAppLink({ serviceTitle: service.title })}
-                    data-wa-location="Homepage Service Card"
-                    data-wa-context={`Service: ${service.title}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1"
-                  >
-                    <MessageSquare className="w-3 h-3 fill-current" />
-                    <span>Inquire</span>
-                  </a>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </section>
       )}

@@ -18,7 +18,7 @@ export const SERVICES_DATA: ServiceItem[] = [
       'Sponsor Bank Statements (3 to 6 months if required by immigration)'
     ],
     processingTime: '2 - 5 Working Days',
-    isPopular: false,
+    isPopular: true,
     keywords: ['family visa Dubai', 'family visa Sharjah', 'dependents visa renewal', 'family residency UAE', 'Ejari family visa'],
     officialPortalUrl: 'https://smartservices.icp.gov.ae',
     officialPortalName: 'ICP UAE Federal Authority'
@@ -38,7 +38,7 @@ export const SERVICES_DATA: ServiceItem[] = [
       'Hotel Booking / Host Residency Proof'
     ],
     processingTime: '24 - 48 Hours',
-    isPopular: false,
+    isPopular: true,
     keywords: ['UAE tourist visa', '30 days visit visa', '60 days visit visa Sharjah', 'visit visa extension', 'Dubai tourist visa'],
     officialPortalUrl: 'https://gdrfad.gov.ae',
     officialPortalName: 'GDRFA Portal'
@@ -58,7 +58,7 @@ export const SERVICES_DATA: ServiceItem[] = [
       'MoHRE Offer Letter signed by employee & employer'
     ],
     processingTime: '3 - 5 Working Days',
-    isPopular: false,
+    isPopular: true,
     keywords: ['MoHRE work permit', 'labour visa Sharjah', 'employment visa typing', 'Tasheel typing Sharjah', 'labour contract renewal'],
     officialPortalUrl: 'https://www.mohre.gov.ae',
     officialPortalName: 'MoHRE Portal'
@@ -80,7 +80,7 @@ export const SERVICES_DATA: ServiceItem[] = [
       'UAE Emergency Contact (Family Member of Friend'
     ],
     processingTime: '3 - 7 Working Days',
-    isPopular: false,
+    isPopular: true,
     keywords: ['Indian passport renewal Sharjah', 'BLS typing Sharjah', 'Indian consulate passport renewal', 'Tatkaal Indian passport Dubai'],
     officialPortalUrl: 'https://www.blsindiavisa-uae.com',
     officialPortalName: 'BLS International UAE'
