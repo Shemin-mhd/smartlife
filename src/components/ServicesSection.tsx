@@ -170,7 +170,7 @@ export const ServicesSection: React.FC<ServicesSectionProps> = ({
             </button>
           </div>
         ) : (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 items-start">
             {filteredServices.map((service) => (
               <div
                 key={service.id}

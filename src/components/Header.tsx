@@ -3,7 +3,6 @@ import {
   Phone,
   MapPin,
   Clock,
-  MessageSquare,
   Menu,
   X,
   ArrowRight,
@@ -18,8 +17,6 @@ import {
   Briefcase
 } from 'lucide-react';
 import { BRANCHES_DATA } from '../data/branchesData';
-import { getWhatsAppLink } from '../config/whatsapp';
-import { trackAndOpenWhatsApp } from '../utils/whatsappTracker';
 
 interface HeaderProps {
   currentPage: string;
@@ -293,25 +290,7 @@ export const Header: React.FC<HeaderProps> = ({ currentPage, onNavigate }) => {
           </button>
         </nav>
 
-        {/* Action Button */}
-        <div className="hidden sm:flex items-center gap-3 shrink-0">
-          <a
-            href={getWhatsAppLink({ message: 'Hello Smart Life Typing Services, I need assistance with UAE visa / typing services.' })}
-            onClick={(e) => {
-              e.stopPropagation();
-              trackAndOpenWhatsApp({
-                buttonLocation: 'Header Top Bar CTA',
-                contextDetails: 'Header - WhatsApp Consultation'
-              });
-            }}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white text-xs font-semibold px-3.5 py-2 rounded-lg transition-all shadow-2xs hover:shadow-xs shrink-0"
-          >
-            <MessageSquare className="w-3.5 h-3.5 fill-current shrink-0" />
-            <span>WhatsApp Consultation</span>
-          </a>
-        </div>
+
 
         {/* Mobile Menu Button */}
         <button
@@ -418,21 +397,6 @@ export const Header: React.FC<HeaderProps> = ({ currentPage, onNavigate }) => {
 
           {/* Mobile Direct Action Buttons */}
           <div className="pt-4 border-t border-slate-100 flex flex-col gap-2">
-            <a
-              href={getWhatsAppLink({ message: 'Hello Smart Life Typing Services, I need assistance with UAE visa / typing services.' })}
-              onClick={() => {
-                trackAndOpenWhatsApp({
-                  buttonLocation: 'Mobile Header Menu CTA',
-                  contextDetails: 'Mobile Menu - WhatsApp Consultation'
-                });
-              }}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-full flex items-center justify-center gap-2 bg-emerald-600 text-white font-semibold py-2.5 px-4 rounded-xl text-xs"
-            >
-              <MessageSquare className="w-4 h-4 fill-current" />
-              <span>WhatsApp Consultation</span>
-            </a>
             <a
               href={`tel:${mainBranch.phoneRaw}`}
               className="w-full flex items-center justify-center gap-2 bg-slate-100 text-slate-800 font-semibold py-2.5 px-4 rounded-xl text-xs"

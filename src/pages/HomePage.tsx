@@ -109,8 +109,8 @@ export const HomePage: React.FC<HomePageProps> = ({
             </button>
           </div>
 
-          {/* Services Cards Grid - Equal height cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+          {/* Services Cards Grid - Independent height cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 items-start">
             {popularServices.slice(0, 3).map((service) => {
               const isExpanded = !!expandedServices[service.id];
               const visibleDocs = isExpanded
