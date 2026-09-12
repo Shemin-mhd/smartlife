@@ -1,21 +1,15 @@
 import React, { useState, useRef, useEffect } from 'react';
 import {
-  ShieldCheck,
   Search,
   MessageSquare,
   ChevronLeft,
   ChevronRight,
-  FileCheck,
   FileText,
-  BookOpen,
-  HelpCircle,
   X,
   ArrowUpRight,
   CheckCircle2
 } from 'lucide-react';
 import { SERVICES_DATA } from '../data/servicesData';
-import { BLOG_POSTS } from '../data/blogData';
-import { FAQS_DATA } from '../data/faqsData';
 import { ServiceItem } from '../types';
 import { getWhatsAppLink } from '../config/whatsapp';
 import { trackAndOpenWhatsApp } from '../utils/whatsappTracker';
@@ -93,46 +87,21 @@ export const Hero: React.FC<HeroProps> = ({
     onExploreServices();
   };
 
-  // Search matching logic across multiple sources
+  // Search matching logic - flat listing of matching services
   const query = searchQuery.trim().toLowerCase();
   const hasQuery = query.length >= 1;
 
-  const serviceResults = hasQuery
+  const matchingResults = hasQuery
     ? SERVICES_DATA.filter(s =>
-      s.title.toLowerCase().includes(query) ||
-      s.categoryLabel.toLowerCase().includes(query) ||
-      s.shortDesc.toLowerCase().includes(query) ||
-      s.keywords.some(k => k.toLowerCase().includes(query))
-    ).slice(0, 3)
+        s.title.toLowerCase().includes(query) ||
+        s.categoryLabel.toLowerCase().includes(query) ||
+        s.shortDesc.toLowerCase().includes(query) ||
+        (s.keywords && s.keywords.some(k => k.toLowerCase().includes(query))) ||
+        (s.requiredDocuments && s.requiredDocuments.some(d => d.toLowerCase().includes(query)))
+      ).slice(0, 6)
     : [];
 
-  const docResults = hasQuery
-    ? SERVICES_DATA.filter(s =>
-      s.title.toLowerCase().includes(query) ||
-      s.requiredDocuments.some(doc => doc.toLowerCase().includes(query))
-    ).slice(0, 2)
-    : [];
-
-  const blogResults = hasQuery
-    ? BLOG_POSTS.filter(b =>
-      b.title.toLowerCase().includes(query) ||
-      b.summary.toLowerCase().includes(query) ||
-      b.category.toLowerCase().includes(query)
-    ).slice(0, 2)
-    : [];
-
-  const faqResults = hasQuery
-    ? FAQS_DATA.filter(f =>
-      f.question.toLowerCase().includes(query) ||
-      f.answer.toLowerCase().includes(query)
-    ).slice(0, 2)
-    : [];
-
-  const totalResultsCount =
-    serviceResults.length +
-    docResults.length +
-    blogResults.length +
-    faqResults.length;
+  const totalResultsCount = matchingResults.length;
 
   const handleSelectService = (service: ServiceItem) => {
     setSearchQuery(service.title);
@@ -177,12 +146,6 @@ export const Hero: React.FC<HeroProps> = ({
 
           {/* Left Column: Copy & Search */}
           <div className="lg:col-span-6 space-y-5">
-
-            {/* Top Badge */}
-            <div className="inline-flex items-center gap-2 text-blue-700 text-xs sm:text-sm font-bold uppercase tracking-wider bg-blue-50 px-3 py-1 rounded-full border border-blue-200/60 shadow-2xs">
-              <ShieldCheck className="w-4 h-4 text-blue-600" />
-              <span>Sharjah & All Emirates Visa & Government Typing Center</span>
-            </div>
 
             {/* Main Headline */}
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight">
@@ -236,110 +199,31 @@ export const Hero: React.FC<HeroProps> = ({
                 </button>
               </form>
 
-              {/* Clean Auto-Suggestions (Inline Flow - No Content Overlap) */}
-              {isOpen && hasQuery && totalResultsCount > 0 && (
-                <div className="mt-3 bg-white border border-slate-200/90 rounded-xl shadow-md overflow-hidden divide-y divide-slate-100 text-slate-900 max-h-[340px] overflow-y-auto transition-all">
-                  {serviceResults.length > 0 && (
-                    <div>
-                      <div className="px-3.5 py-1.5 bg-slate-50/80 border-b border-slate-100 text-[10px] font-extrabold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-                        <FileText className="w-3 h-3 text-blue-600" />
-                        <span>Services ({serviceResults.length})</span>
+              {/* Clean Auto-Suggestions (Flat Listing Type) */}
+              {isOpen && hasQuery && matchingResults.length > 0 && (
+                <div className="mt-3 bg-white border border-slate-200/90 rounded-xl shadow-md overflow-hidden divide-y divide-slate-100 text-slate-900 max-h-[340px] overflow-y-auto">
+                  {matchingResults.map((service) => (
+                    <div
+                      key={service.id}
+                      onClick={() => handleSelectService(service)}
+                      className="px-4 py-3 hover:bg-blue-50/60 transition-colors cursor-pointer flex items-center justify-between group"
+                    >
+                      <div className="space-y-1 max-w-[85%] min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+                          <span className="text-xs font-bold text-slate-900 group-hover:text-blue-700 transition-colors truncate">
+                            {service.title}
+                          </span>
+                          <span className="text-[10px] font-semibold text-blue-700 bg-blue-50 px-2 py-0.5 rounded-full shrink-0">
+                            {service.categoryLabel}
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-slate-500 line-clamp-1">
+                          {service.shortDesc}
+                        </p>
                       </div>
-                      <div className="divide-y divide-slate-50">
-                        {serviceResults.map((service) => (
-                          <div
-                            key={service.id}
-                            onClick={() => handleSelectService(service)}
-                            className="px-3.5 py-2.5 hover:bg-blue-50/60 transition-colors cursor-pointer flex items-center justify-between group"
-                          >
-                            <div className="space-y-0.5 max-w-[82%]">
-                              <div className="flex items-center gap-2">
-                                <span className="text-xs font-bold text-slate-900 group-hover:text-blue-700 transition-colors">
-                                  {service.title}
-                                </span>
-                                <span className="text-[10px] font-semibold text-blue-700">
-                                  • {service.categoryLabel}
-                                </span>
-                              </div>
-                              <p className="text-[11px] text-slate-500 line-clamp-1">
-                                {service.shortDesc}
-                              </p>
-                            </div>
-                            <ArrowUpRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-blue-600 transition-colors" />
-                          </div>
-                        ))}
-                      </div>
+                      <ArrowUpRight className="w-4 h-4 text-slate-400 group-hover:text-blue-600 transition-colors shrink-0" />
                     </div>
-                  )}
-
-                  {docResults.length > 0 && (
-                    <div>
-                      <div className="px-3.5 py-1.5 bg-slate-50/80 border-b border-slate-100 text-[10px] font-extrabold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-                        <FileCheck className="w-3 h-3 text-emerald-600" />
-                        <span>Required Documents Checklist</span>
-                      </div>
-                      <div className="divide-y divide-slate-50">
-                        {docResults.map((service) => (
-                          <div
-                            key={`doc-${service.id}`}
-                            onClick={() => handleSelectDoc(service)}
-                            className="px-3.5 py-2.5 hover:bg-emerald-50/50 transition-colors cursor-pointer flex items-center justify-between group"
-                          >
-                            <span className="text-xs font-bold text-slate-900 group-hover:text-emerald-700 transition-colors">
-                              {service.title} Document List
-                            </span>
-                            <ArrowUpRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-emerald-600 transition-colors" />
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {blogResults.length > 0 && (
-                    <div>
-                      <div className="px-3.5 py-1.5 bg-slate-50/80 border-b border-slate-100 text-[10px] font-extrabold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-                        <BookOpen className="w-3.5 h-3.5 text-amber-600" />
-                        <span>Guides & Articles</span>
-                      </div>
-                      <div className="divide-y divide-slate-50">
-                        {blogResults.map((post) => (
-                          <div
-                            key={post.id}
-                            onClick={() => handleSelectBlog(post.slug, post.title)}
-                            className="px-3.5 py-2.5 hover:bg-amber-50/50 transition-colors cursor-pointer flex items-center justify-between group"
-                          >
-                            <span className="text-xs font-bold text-slate-900 group-hover:text-amber-800 transition-colors">
-                              {post.title}
-                            </span>
-                            <ArrowUpRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-amber-600 transition-colors" />
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {faqResults.length > 0 && (
-                    <div>
-                      <div className="px-3.5 py-1.5 bg-slate-50/80 border-b border-slate-100 text-[10px] font-extrabold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-                        <HelpCircle className="w-3.5 h-3.5 text-indigo-600" />
-                        <span>FAQs</span>
-                      </div>
-                      <div className="divide-y divide-slate-50">
-                        {faqResults.map((faq) => (
-                          <div
-                            key={faq.id}
-                            onClick={() => handleSelectFaq(faq.question)}
-                            className="px-3.5 py-2.5 hover:bg-indigo-50/50 transition-colors cursor-pointer flex items-center justify-between group"
-                          >
-                            <span className="text-xs font-bold text-slate-900 group-hover:text-indigo-700 transition-colors">
-                              {faq.question}
-                            </span>
-                            <ArrowUpRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-indigo-600 transition-colors" />
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
+                  ))}
                 </div>
               )}
             </div>

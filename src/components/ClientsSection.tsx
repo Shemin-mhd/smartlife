@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { CORPORATE_CLIENTS, ClientItem } from '../data/clientsData';
-import { Building2, ShieldCheck, MessageSquare, ArrowRight } from 'lucide-react';
+import { ShieldCheck, MessageSquare, ArrowRight } from 'lucide-react';
 import { getWhatsAppLink } from '../config/whatsapp';
 import { trackAndOpenWhatsApp } from '../utils/whatsappTracker';
 
@@ -18,10 +18,6 @@ export const ClientsSection: React.FC = () => {
     <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       {/* Section Header */}
       <div className="mb-6">
-        <div className="inline-flex items-center gap-1.5 text-blue-700 text-xs font-bold uppercase tracking-wider mb-2">
-          <Building2 className="w-3.5 h-3.5 text-blue-700" />
-          <span>Corporate PRO & Business Client Network</span>
-        </div>
         <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
           Trusted Corporate & Business Partners
         </h2>
