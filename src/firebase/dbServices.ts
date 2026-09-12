@@ -354,6 +354,21 @@ export const saveBranch = async (branch: Branch): Promise<boolean> => {
   return true;
 };
 
+export const deleteBranch = async (id: string): Promise<boolean> => {
+  if (isFirebaseConfigured() && db) {
+    try {
+      await deleteDoc(doc(db, 'branches', id));
+      return true;
+    } catch (e) {
+      console.error('Error deleting branch from Firestore:', e);
+    }
+  }
+  const current = getStoredLocal('smartlife_branches', BRANCHES_DATA);
+  const updated = current.filter(b => b.id !== id);
+  saveStoredLocal('smartlife_branches', updated);
+  return true;
+};
+
 export const subscribeBranches = (onData: (branches: Branch[]) => void): (() => void) => {
   if (isFirebaseConfigured() && db) {
     try {
