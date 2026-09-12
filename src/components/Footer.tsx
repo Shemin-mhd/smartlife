@@ -219,48 +219,52 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
 
           {/* Column 2: Popular Typing Services */}
           <div className="space-y-3">
-            <h4 className="font-extrabold text-white text-xs uppercase tracking-wider text-blue-400 flex items-center gap-1.5">
+            <h4 
+              onClick={() => handleLinkClick('services')}
+              className="font-extrabold text-white text-xs uppercase tracking-wider text-blue-400 flex items-center gap-1.5 cursor-pointer hover:underline"
+              title="View all Services"
+            >
               <FileText className="w-3.5 h-3.5" />
               <span>Typing Services</span>
             </h4>
             <ul className="space-y-2 text-slate-400">
               <li>
-                <button onClick={() => handleLinkClick('services')} className="hover:text-white transition-colors cursor-pointer text-left">
+                <button onClick={() => handleLinkClick('service-detail', 'family-visa')} className="hover:text-white transition-colors cursor-pointer text-left">
                   Family Residence Visa
                 </button>
               </li>
               <li>
-                <button onClick={() => handleLinkClick('services')} className="hover:text-white transition-colors cursor-pointer text-left">
+                <button onClick={() => handleLinkClick('service-detail', 'tourist-visit-visa')} className="hover:text-white transition-colors cursor-pointer text-left">
                   Tourist & Visit Visa Typing
                 </button>
               </li>
               <li>
-                <button onClick={() => handleLinkClick('services')} className="hover:text-white transition-colors cursor-pointer text-left">
+                <button onClick={() => handleLinkClick('service-detail', 'labour-visa')} className="hover:text-white transition-colors cursor-pointer text-left">
                   MoHRE Labour Contracts
                 </button>
               </li>
               <li>
-                <button onClick={() => handleLinkClick('services')} className="hover:text-white transition-colors cursor-pointer text-left">
+                <button onClick={() => handleLinkClick('service-detail', 'family-visa')} className="hover:text-white transition-colors cursor-pointer text-left">
                   Golden Visa Applications
                 </button>
               </li>
               <li>
-                <button onClick={() => handleLinkClick('services')} className="hover:text-white transition-colors cursor-pointer text-left">
+                <button onClick={() => handleLinkClick('service-detail', 'emirates-id-typing')} className="hover:text-white transition-colors cursor-pointer text-left">
                   Emirates ID New / Renewal
                 </button>
               </li>
               <li>
-                <button onClick={() => handleLinkClick('services')} className="hover:text-white transition-colors cursor-pointer text-left">
+                <button onClick={() => handleLinkClick('service-detail', 'certificate-attestation')} className="hover:text-white transition-colors cursor-pointer text-left">
                   Degree & Certificate Attestation
                 </button>
               </li>
               <li>
-                <button onClick={() => handleLinkClick('services')} className="hover:text-white transition-colors cursor-pointer text-left">
+                <button onClick={() => handleLinkClick('service-detail', 'company-setup-pro')} className="hover:text-white transition-colors cursor-pointer text-left">
                   Trade License & Tasheel
                 </button>
               </li>
               <li>
-                <button onClick={() => handleLinkClick('services')} className="hover:text-white transition-colors cursor-pointer text-left">
+                <button onClick={() => handleLinkClick('service-detail', 'indian-passport-renewal')} className="hover:text-white transition-colors cursor-pointer text-left">
                   Indian Passport (BLS) Renewal
                 </button>
               </li>
@@ -269,7 +273,11 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
 
           {/* Column 4: Detailed Guides & Portals */}
           <div className="space-y-3">
-            <h4 className="font-extrabold text-white text-xs uppercase tracking-wider text-blue-400 flex items-center gap-1.5">
+            <h4 
+              onClick={() => handleLinkClick('blog')}
+              className="font-extrabold text-white text-xs uppercase tracking-wider text-blue-400 flex items-center gap-1.5 cursor-pointer hover:underline"
+              title="View all Government Guides"
+            >
               <BookOpen className="w-3.5 h-3.5" />
               <span>Government Guides</span>
             </h4>
@@ -278,32 +286,36 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                 <button 
                   onClick={() => handleLinkClick('blog-article', 'sharjah-family-visa-renewal-guide')} 
                   className="hover:text-white transition-colors cursor-pointer text-left line-clamp-1"
+                  title="Read Family Visa Renewal Guide"
                 >
                   Family Visa Renewal Guide
                 </button>
               </li>
               <li>
                 <button 
-                  onClick={() => handleLinkClick('blog-article', 'educational-certificate-attestation-uae-guide')} 
+                  onClick={() => handleLinkClick('blog-article', 'uae-certificate-attestation-guide')} 
                   className="hover:text-white transition-colors cursor-pointer text-left line-clamp-1"
+                  title="Read Certificate Attestation Guide"
                 >
                   Certificate Attestation Guide
                 </button>
               </li>
               <li>
                 <button 
-                  onClick={() => handleLinkClick('blog-article', 'indian-passport-renewal-bls-sharjah-checklist')} 
+                  onClick={() => handleLinkClick('blog-article', 'indian-passport-renewal-uae-bls-guide')} 
                   className="hover:text-white transition-colors cursor-pointer text-left line-clamp-1"
+                  title="Read BLS Indian Passport Guide"
                 >
                   BLS Indian Passport Guide
                 </button>
               </li>
               <li>
                 <button 
-                  onClick={() => handleLinkClick('blog-article', 'golden-visa-sharjah-requirements')} 
+                  onClick={() => handleLinkClick('blog-article', 'mohre-labour-contract-rules-uae')} 
                   className="hover:text-white transition-colors cursor-pointer text-left line-clamp-1"
+                  title="Read MoHRE Labour Contracts Guide"
                 >
-                  Golden Visa Eligibility Guide
+                  MoHRE Labour Contracts Guide
                 </button>
               </li>
               <li className="pt-2">
