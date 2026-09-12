@@ -242,11 +242,19 @@ export const deleteService = async (serviceId: string): Promise<boolean> => {
 // 2. BLOGS API
 // ==========================================
 export const fetchBlogPosts = async (): Promise<BlogPost[]> => {
+  const syncBlogImages = (list: BlogPost[]) => {
+    return list.map(item => {
+      const defaultMatch = BLOG_POSTS.find(b => b.id === item.id);
+      return defaultMatch ? { ...item, coverImage: defaultMatch.coverImage } : item;
+    });
+  };
+
   if (isFirebaseConfigured() && db) {
     try {
       const querySnapshot = await getDocs(collection(db, 'blogs'));
       if (!querySnapshot.empty) {
-        return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as BlogPost));
+        const cloudPosts = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as BlogPost));
+        return syncBlogImages(cloudPosts);
       } else {
         // Auto-seed empty Firestore blogs
         for (const post of BLOG_POSTS) {
@@ -258,10 +266,18 @@ export const fetchBlogPosts = async (): Promise<BlogPost[]> => {
       console.warn('Firestore fetchBlogPosts fallback to local:', e);
     }
   }
-  return getStoredLocal('smartlife_blogs', BLOG_POSTS);
+  saveStoredLocal('smartlife_blogs', BLOG_POSTS);
+  return BLOG_POSTS;
 };
 
 export const subscribeBlogPosts = (onData: (posts: BlogPost[]) => void): (() => void) => {
+  const syncBlogImages = (list: BlogPost[]) => {
+    return list.map(item => {
+      const defaultMatch = BLOG_POSTS.find(b => b.id === item.id);
+      return defaultMatch ? { ...item, coverImage: defaultMatch.coverImage } : item;
+    });
+  };
+
   if (isFirebaseConfigured() && db) {
     try {
       const q = collection(db, 'blogs');
@@ -271,16 +287,19 @@ export const subscribeBlogPosts = (onData: (posts: BlogPost[]) => void): (() => 
           onData(BLOG_POSTS);
           return;
         }
-        onData(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as BlogPost)));
+        const cloudPosts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as BlogPost));
+        onData(syncBlogImages(cloudPosts));
       }, () => {
-        onData(getStoredLocal('smartlife_blogs', BLOG_POSTS));
+        saveStoredLocal('smartlife_blogs', BLOG_POSTS);
+        onData(BLOG_POSTS);
       });
       return unsubscribe;
     } catch (e) {
       console.warn('Error subscribing to blogs:', e);
     }
   }
-  onData(getStoredLocal('smartlife_blogs', BLOG_POSTS));
+  saveStoredLocal('smartlife_blogs', BLOG_POSTS);
+  onData(BLOG_POSTS);
   return () => { };
 };
 

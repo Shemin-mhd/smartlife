@@ -49,7 +49,7 @@ export const BLOG_POSTS: BlogPost[] = [
     date: "June 2026",
     readTime: "5 min read",
     summary: "Step-by-step procedure for attesting degree certificates, diplomas, marriage, and birth certificates through MoFA UAE.",
-    coverImage: "https://images.unsplash.com/photo-1450133064473-71024230f91b?q=80&w=1200&auto=format&fit=crop",
+    coverImage: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?q=80&w=1200&auto=format&fit=crop",
     relatedServiceId: "srv-6",
     seoKeywords: ["mofa attestation sharjah", "degree certificate attestation", "marriage certificate legal stamp"],
     keyTakeaways: [
@@ -75,7 +75,7 @@ export const BLOG_POSTS: BlogPost[] = [
     date: "May 2026",
     readTime: "3 min read",
     summary: "Crucial instructions for Indian expats renewing passports via BLS International centers in Sharjah and Dubai.",
-    coverImage: "https://images.unsplash.com/photo-1544717305-2782549b5136?q=80&w=1200&auto=format&fit=crop",
+    coverImage: "/images/blog_indian_passport_bls.jpg",
     relatedServiceId: "srv-5",
     seoKeywords: ["indian passport renewal uae", "bls application typing sharjah", "bls photo specs"],
     keyTakeaways: [
