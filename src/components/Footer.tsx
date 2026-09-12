@@ -209,6 +209,11 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                   Frequently Asked Questions
                 </button>
               </li>
+              <li>
+                <button onClick={() => handleLinkClick('privacy')} className="hover:text-blue-300 font-medium transition-colors cursor-pointer text-left text-slate-400">
+                  Privacy Policy & Data Protection
+                </button>
+              </li>
             </ul>
           </div>
 
@@ -410,8 +415,16 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
         {/* Bottom Copyright & Legal Disclaimer */}
         <div className="pt-4 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500 border-t border-slate-900">
           <p>© {new Date().getFullYear()} Smart Life Typing Services. All Rights Reserved. Sharjah, UAE.</p>
-          <div className="flex items-center gap-4 text-[11px] text-slate-500">
-            <span>Government Document Typing & Passport Services Center</span>
+          <div className="flex items-center gap-3 text-[11px] text-slate-400">
+            <button 
+              onClick={() => handleLinkClick('privacy')}
+              className="hover:text-blue-300 font-semibold underline underline-offset-4 transition-colors cursor-pointer text-blue-400 flex items-center gap-1"
+            >
+              <ShieldCheck className="w-3.5 h-3.5 text-blue-400" />
+              <span>Privacy Policy & Data Protection</span>
+            </button>
+            <span>•</span>
+            <span>Government Document Typing & Passport Services</span>
           </div>
         </div>
 

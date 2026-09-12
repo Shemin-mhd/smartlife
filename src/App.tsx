@@ -12,6 +12,7 @@ import { ArticlePage } from './pages/ArticlePage';
 import { ServiceDetailPage } from './pages/ServiceDetailPage';
 import { FaqPage } from './pages/FaqPage';
 import { ReviewsPage } from './pages/ReviewsPage';
+import { PrivacyPolicyPage } from './pages/PrivacyPolicyPage';
 import { ServiceItem } from './types';
 import { LOCAL_BUSINESS_SCHEMA, FAQ_SCHEMA } from './data/seoData';
 import { getSeoConfigForPage, updateDomMetadata } from './utils/seoManager';
@@ -211,6 +212,8 @@ function MainContent() {
         )}
 
         {currentPage === 'faq' && <FaqPage />}
+
+        {currentPage === 'privacy' && <PrivacyPolicyPage onNavigate={handleNavigate} />}
       </main>
 
       {/* Footer */}
