@@ -140,7 +140,7 @@ export const Hero: React.FC<HeroProps> = ({
   };
 
   return (
-    <section className="bg-gradient-to-b from-slate-50 via-blue-50/20 to-white border-b border-slate-200/80 py-8 sm:py-10 lg:py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+    <section className="bg-gradient-to-b from-slate-50 via-blue-50/20 to-white py-8 sm:py-10 lg:py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
       <div className="max-w-7xl mx-auto">
         <div className="grid lg:grid-cols-12 gap-8 lg:gap-10 items-center">
 
@@ -257,7 +257,7 @@ export const Hero: React.FC<HeroProps> = ({
             </div>
 
             {/* Key Trust Highlights Grid */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-3 border-t border-slate-200/80 text-xs font-semibold text-slate-700">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 pt-3 text-xs font-semibold text-slate-700">
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
                 <span>All 7 Emirates Covered</span>

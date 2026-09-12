@@ -183,7 +183,7 @@ export const ServicesPage: React.FC<ServicesPageProps> = ({
             return (
               <div
                 key={service.id}
-                className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-6 shadow-2xs hover:border-blue-300 hover:shadow-xs transition-all flex flex-col justify-between min-w-0 overflow-hidden h-full"
+                className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-6 shadow-2xs hover:border-blue-300 hover:shadow-xs transition-all flex flex-col justify-between min-w-0 overflow-hidden h-auto"
               >
                 <div className="space-y-3">
                   <div className="flex items-center justify-between gap-2 flex-wrap sm:flex-nowrap">

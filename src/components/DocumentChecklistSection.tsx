@@ -68,7 +68,7 @@ export const DocumentChecklistSection: React.FC<DocumentChecklistSectionProps> =
             return (
               <div
                 key={service.id}
-                className="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col justify-between hover:border-blue-400 transition-colors min-w-0 overflow-hidden h-full"
+                className="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col justify-between hover:border-blue-400 transition-colors min-w-0 overflow-hidden h-auto"
               >
                 <div>
                   <span className="text-[10px] font-bold text-blue-700 uppercase tracking-wider">

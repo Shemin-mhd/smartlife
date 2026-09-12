@@ -86,23 +86,14 @@ export const HomePage: React.FC<HomePageProps> = ({
 
       {/* Featured Services Overview (Right after Hero & before Corporate Clients) */}
       {popularServices.length > 0 && (
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
-            <div>
-              <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-                Most Popular Services
-              </h2>
-              <p className="text-slate-600 text-sm sm:text-base mt-1">
-                Our top-requested residence visa processing, legal attestation, and MoHRE labor typing solutions
-              </p>
-            </div>
-            <button
-              onClick={() => onNavigate('services')}
-              className="inline-flex items-center gap-2 text-blue-700 hover:text-blue-800 font-bold text-sm bg-blue-50 hover:bg-blue-100 px-4 py-2.5 rounded-lg transition-colors cursor-pointer shrink-0"
-            >
-              <span>Explore Full Catalogue</span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 sm:pt-10 lg:pt-12">
+          <div className="mb-6 sm:mb-8">
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight leading-tight">
+              Most Popular Services
+            </h2>
+            <p className="text-slate-600 text-sm sm:text-base mt-1.5 max-w-3xl">
+              Our top-requested residence visa processing, legal attestation, and MoHRE labor typing solutions
+            </p>
           </div>
 
           {/* Services Cards Grid - Independent height cards */}
@@ -116,7 +107,7 @@ export const HomePage: React.FC<HomePageProps> = ({
               return (
                 <div
                   key={service.id}
-                  className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-6 shadow-2xs hover:border-blue-300 hover:shadow-xs transition-all flex flex-col justify-between min-w-0 overflow-hidden h-full"
+                  className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-6 shadow-2xs hover:border-blue-300 hover:shadow-xs transition-all flex flex-col justify-between min-w-0 overflow-hidden h-auto"
                 >
                   <div className="space-y-3">
                     <div className="flex items-center justify-between gap-2 flex-wrap sm:flex-nowrap">
@@ -206,6 +197,17 @@ export const HomePage: React.FC<HomePageProps> = ({
                 </div>
               );
             })}
+          </div>
+
+          {/* Bottom Action Link: Right-aligned "View Full Catalogue →" */}
+          <div className="mt-4 pt-2 flex justify-end">
+            <button
+              onClick={() => onNavigate('services')}
+              className="inline-flex items-center gap-1.5 text-blue-700 hover:text-blue-900 font-bold text-sm hover:underline transition-colors cursor-pointer group"
+            >
+              <span>View Full Catalogue</span>
+              <ArrowRight className="w-4 h-4 text-blue-600 group-hover:translate-x-1 transition-transform" />
+            </button>
           </div>
         </section>
       )}
@@ -353,50 +355,83 @@ export const HomePage: React.FC<HomePageProps> = ({
 
       {/* Latest Blog & Guidance Articles Preview */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
-          <div>
-            <div className="inline-flex items-center gap-1.5 text-blue-700 text-xs font-bold uppercase tracking-wider mb-2">
-              <BookOpen className="w-3.5 h-3.5" />
-              <span>UAE Government Rules & Guidance</span>
-            </div>
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-              Latest Typing & Visa Guides
-            </h2>
-            <p className="text-slate-600 text-sm mt-1">
-              Stay informed on current UAE visa rules, attestation steps, and passport renewals
-            </p>
+        <div className="mb-8">
+          <div className="inline-flex items-center gap-1.5 text-blue-700 text-xs font-bold uppercase tracking-wider mb-2">
+            <BookOpen className="w-3.5 h-3.5" />
+            <span>UAE Government Rules & Guidance</span>
           </div>
-          <button
-            onClick={() => onNavigate('blog')}
-            className="inline-flex items-center gap-2 text-blue-700 hover:text-blue-800 font-bold text-sm bg-blue-50 hover:bg-blue-100 px-4 py-2.5 rounded-lg transition-colors cursor-pointer shrink-0"
-          >
-            <span>Read All Articles</span>
-            <ArrowRight className="w-4 h-4" />
-          </button>
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+            Latest Typing & Visa Guides
+          </h2>
+          <p className="text-slate-600 text-sm mt-1">
+            Stay informed on current UAE visa rules, attestation steps, and passport renewals
+          </p>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-6">
-          {BLOG_POSTS.slice(0, 2).map((post) => (
-            <div key={post.id} className="bg-white border border-slate-200 rounded-2xl p-6 shadow-2xs space-y-3">
-              <div className="flex items-center justify-between text-xs text-slate-500">
-                <span className="font-bold text-blue-700 text-xs uppercase tracking-wider">
-                  • {post.category}
-                </span>
-                <span>{post.readTime}</span>
-              </div>
-              <h3 className="text-lg font-bold text-slate-900 leading-snug">{post.title}</h3>
-              <p className="text-xs text-slate-600 line-clamp-2 leading-relaxed">{post.summary}</p>
-              <div className="pt-2 border-t border-slate-100 flex justify-end">
-                <button
-                  onClick={() => onNavigate('blog-article', post.slug)}
-                  className="text-xs font-bold text-blue-700 hover:text-blue-800 flex items-center gap-1 cursor-pointer"
-                >
-                  <span>Read Full Article</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </button>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {BLOG_POSTS.slice(0, 3).map((post) => (
+            <div
+              key={post.id}
+              onClick={() => onNavigate('blog-article', post.slug)}
+              className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-2xs hover:border-blue-300 hover:shadow-xs transition-all flex flex-col justify-between group cursor-pointer"
+            >
+              {post.coverImage && (
+                <div className="relative w-full h-44 sm:h-48 overflow-hidden bg-slate-100 shrink-0">
+                  <img
+                    src={post.coverImage}
+                    alt={post.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                  <span className="absolute top-3 left-3 bg-white/95 backdrop-blur-xs text-slate-900 text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-md shadow-2xs border border-slate-200/60">
+                    {post.category}
+                  </span>
+                </div>
+              )}
+
+              <div className="p-5 space-y-3 flex-grow flex flex-col justify-between">
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-xs text-slate-500">
+                    {!post.coverImage && (
+                      <span className="font-bold text-blue-700 text-xs uppercase tracking-wider">
+                        • {post.category}
+                      </span>
+                    )}
+                    <span className="flex items-center gap-1 text-[11px] font-medium text-slate-400 ml-auto">
+                      <Clock className="w-3.5 h-3.5 text-slate-400" />
+                      <span>{post.readTime}</span>
+                    </span>
+                  </div>
+
+                  <h3 className="text-base font-bold text-slate-900 leading-snug group-hover:text-blue-700 transition-colors line-clamp-2">
+                    {post.title}
+                  </h3>
+
+                  <p className="text-xs text-slate-600 line-clamp-2 leading-relaxed">
+                    {post.summary}
+                  </p>
+                </div>
+
+                <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
+                  <span className="text-[11px] text-slate-400 font-medium">{post.date}</span>
+                  <div className="text-xs font-bold text-blue-700 group-hover:text-blue-800 flex items-center gap-1">
+                    <span>Read Guide</span>
+                    <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+                  </div>
+                </div>
               </div>
             </div>
           ))}
+        </div>
+
+        {/* Bottom Action Link: Right-aligned "Read All Articles →" (no box type) */}
+        <div className="mt-4 pt-2 flex justify-end">
+          <button
+            onClick={() => onNavigate('blog')}
+            className="inline-flex items-center gap-1.5 text-blue-700 hover:text-blue-900 font-bold text-sm hover:underline transition-colors cursor-pointer group"
+          >
+            <span>Read All Articles</span>
+            <ArrowRight className="w-4 h-4 text-blue-600 group-hover:translate-x-1 transition-transform" />
+          </button>
         </div>
       </section>
     </div>
