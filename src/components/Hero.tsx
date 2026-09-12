@@ -7,7 +7,9 @@ import {
   FileText,
   X,
   ArrowUpRight,
-  CheckCircle2
+  CheckCircle2,
+  Clock,
+  Sparkles
 } from 'lucide-react';
 import { SERVICES_DATA } from '../data/servicesData';
 import { ServiceItem } from '../types';
@@ -23,8 +25,15 @@ interface HeroProps {
   onSelectServiceDocs?: (service: ServiceItem) => void;
 }
 
-// 3 Featured Service Cards for 3D Cover Flow Deck Slider
+// Featured Showcase Cards for Hero Section
 const SLIDING_CARDS = [
+  {
+    id: 'indian-passport',
+    title: 'Indian Passport Renewal Services (BLS Approved)',
+    category: 'BLS Indian Consulate',
+    image: '/images/cards/card_indian_passport.png',
+    whatsappMsg: 'Hi Smart Life Typing, I need information regarding Indian Passport Renewal Services.'
+  },
   {
     id: 'family-visa',
     title: 'All Emirates Family Visa Services (New / Renewal)',
@@ -38,13 +47,6 @@ const SLIDING_CARDS = [
     category: 'Visas & Immigration',
     image: '/images/cards/card_tourist_visa.png',
     whatsappMsg: 'Hi Smart Life Typing, I need information regarding UAE Tourist Visa & Visit Visa Services.'
-  },
-  {
-    id: 'indian-passport',
-    title: 'Indian Passport Renewal Services (BLS Approved)',
-    category: 'BLS Indian Consulate',
-    image: '/images/cards/card_indian_passport.png',
-    whatsappMsg: 'Hi Smart Life Typing, I need information regarding Indian Passport Renewal Services.'
   }
 ];
 
@@ -61,7 +63,7 @@ export const Hero: React.FC<HeroProps> = ({
   const [activeCardIndex, setActiveCardIndex] = useState<number>(0);
   const [isPaused, setIsPaused] = useState<boolean>(false);
 
-  // Auto-slide to the right every 3.5 seconds
+  // Auto-slide every 3.5 seconds
   useEffect(() => {
     if (isPaused) return;
     const interval = setInterval(() => {
@@ -274,57 +276,171 @@ export const Hero: React.FC<HeroProps> = ({
 
           </div>
 
-          {/* Right Column: 3D COVER FLOW CARD DECK STACK SLIDER (Exact match to Reference Image) */}
-          <div className="lg:col-span-6 relative flex justify-center py-4">
-            <div
-              className="relative w-full max-w-[500px] h-[380px] sm:h-[420px] flex items-center justify-center perspective-1000"
-              onMouseEnter={() => setIsPaused(true)}
-              onMouseLeave={() => setIsPaused(false)}
-            >
-              {SLIDING_CARDS.map((card, idx) => {
-                // Calculate position relative to activeCardIndex (0 = active, 1 = right, 2 = left)
-                const position = (idx - activeCardIndex + SLIDING_CARDS.length) % SLIDING_CARDS.length;
+          {/* Right Column: Clean HTML/CSS SaaS 2-Card Feature Showcase Deck with Floating Animations */}
+          <div className="lg:col-span-6 relative flex items-center justify-center py-6 lg:py-4 min-h-[460px] sm:min-h-[500px]">
+            <style>{`
+              @keyframes floatCard1 {
+                0%, 100% { transform: translateY(0px) rotate(-1.5deg); }
+                50% { transform: translateY(-10px) rotate(-1.5deg); }
+              }
+              @keyframes floatCard2 {
+                0%, 100% { transform: translateY(0px) rotate(1.5deg); }
+                50% { transform: translateY(-12px) rotate(1.5deg); }
+              }
+              .animate-float-1 {
+                animation: floatCard1 6s ease-in-out infinite;
+              }
+              .animate-float-2 {
+                animation: floatCard2 6s ease-in-out 3s infinite;
+              }
+            `}</style>
 
-                let styleClass = '';
-                let isCenter = false;
-
-                if (position === 0) {
-                  // Active Center Card
-                  isCenter = true;
-                  styleClass = 'translate-x-0 scale-100 z-30 opacity-100 shadow-2xl shadow-blue-900/25 cursor-pointer';
-                } else if (position === 1) {
-                  // Right Preview Card (Tilted & Receded)
-                  styleClass = 'translate-x-[24%] sm:translate-x-[28%] scale-[0.82] z-10 opacity-50 filter blur-[0.5px] shadow-lg cursor-pointer hover:opacity-80 hover:scale-85';
-                } else {
-                  // Left Preview Card (Tilted & Receded)
-                  styleClass = '-translate-x-[24%] sm:-translate-x-[28%] scale-[0.82] z-10 opacity-50 filter blur-[0.5px] shadow-lg cursor-pointer hover:opacity-80 hover:scale-85';
-                }
-
-                return (
-                  <div
-                    key={card.id}
-                    onClick={() => {
-                      if (!isCenter) {
-                        setActiveCardIndex(idx);
-                      } else {
-                        const matched = SERVICES_DATA.find(s => s.title.toLowerCase().includes(card.category.toLowerCase()) || card.title.toLowerCase().includes(s.title.toLowerCase()));
-                        if (matched && onSelectServiceDocs) {
-                          onSelectServiceDocs(matched);
-                        } else {
-                          onExploreServices();
-                        }
-                      }
-                    }}
-                    className={`absolute w-[290px] sm:w-[330px] rounded-2xl overflow-hidden transition-all duration-700 ease-out transform-gpu ${styleClass}`}
-                  >
-                    <img
-                      src={card.image}
-                      alt={card.title}
-                      className="w-full h-auto object-contain block rounded-2xl"
-                    />
+            <div className="relative w-full max-w-[480px] sm:max-w-[540px] h-[430px] sm:h-[470px] flex items-center justify-center">
+              
+              {/* Card 1: All Emirates Family Visa Services (Staggered Top-Left Layer) */}
+              <div
+                onClick={() => {
+                  const matched = SERVICES_DATA.find(s => s.title.toLowerCase().includes('family') || s.title.toLowerCase().includes('residence'));
+                  if (matched && onSelectServiceDocs) {
+                    onSelectServiceDocs(matched);
+                  } else {
+                    onExploreServices();
+                  }
+                }}
+                className="absolute left-0 sm:left-2 top-0 sm:top-2 w-[290px] sm:w-[335px] bg-white border border-slate-200/90 rounded-2xl p-4 sm:p-5 shadow-xl hover:shadow-2xl transition-all duration-300 transform-gpu cursor-pointer z-10 hover:z-30 hover:scale-105 animate-float-1 group"
+              >
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between gap-2 flex-wrap sm:flex-nowrap">
+                    <span className="text-[10px] font-bold text-blue-700 uppercase tracking-wider bg-blue-50 px-2.5 py-0.5 rounded-full border border-blue-200/60">
+                      • Visas & Immigration
+                    </span>
+                    <span className="text-[10px] font-extrabold text-amber-700 uppercase tracking-wider flex items-center gap-1 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200 shadow-2xs shrink-0">
+                      <Sparkles className="w-3 h-3 text-amber-600 shrink-0" />
+                      POPULAR
+                    </span>
                   </div>
-                );
-              })}
+
+                  <h3 className="text-sm sm:text-base font-extrabold text-slate-900 leading-snug group-hover:text-blue-700 transition-colors">
+                    All Emirates Family Visa Services (New / Renewal)
+                  </h3>
+
+                  <p className="text-[11px] text-slate-500 leading-relaxed line-clamp-2">
+                    Comprehensive family residence visa application, entry permit, medical fitness typing, and Emirates ID processing across all 7 Emirates.
+                  </p>
+
+                  <div className="flex items-center gap-2 text-xs font-semibold text-slate-800 bg-blue-50/80 p-2 rounded-lg border border-blue-100">
+                    <Clock className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                    <span>Processing Time: <strong className="text-slate-900">2 – 5 Working Days</strong></span>
+                  </div>
+
+                  <div className="space-y-1 pt-0.5">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                      Key Required Documents:
+                    </p>
+                    <ul className="space-y-1 text-xs text-slate-700">
+                      <li className="flex items-start gap-1.5 min-w-0">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
+                        <span className="truncate">Sponsor Passport Copy, Visa & Original EID</span>
+                      </li>
+                      <li className="flex items-start gap-1.5 min-w-0">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
+                        <span className="truncate">Sponsor Salary Certificate (Min AED 4,000)</span>
+                      </li>
+                      <li className="flex items-start gap-1.5 min-w-0">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
+                        <span className="truncate">Registered Tenancy Contract (EJARI / SEWA)</span>
+                      </li>
+                      <li className="pl-5 text-[11px] font-bold text-blue-700">
+                        +4 more items in checklist
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+
+                <div className="pt-3 mt-3 border-t border-slate-100 flex items-center justify-between gap-2">
+                  <span className="text-[11px] font-bold bg-slate-900 hover:bg-slate-800 text-white px-3 py-1.5 rounded-lg flex items-center gap-1">
+                    <FileText className="w-3 h-3 text-blue-400" />
+                    <span>View Docs</span>
+                  </span>
+                  <span className="text-[11px] font-bold bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg flex items-center gap-1">
+                    <MessageSquare className="w-3 h-3 fill-current" />
+                    <span>WhatsApp</span>
+                  </span>
+                </div>
+              </div>
+
+              {/* Card 2: Indian Passport Renewal Services (Foreground Bottom-Right Layer) */}
+              <div
+                onClick={() => {
+                  const matched = SERVICES_DATA.find(s => s.title.toLowerCase().includes('passport') || s.title.toLowerCase().includes('bls'));
+                  if (matched && onSelectServiceDocs) {
+                    onSelectServiceDocs(matched);
+                  } else {
+                    onExploreServices();
+                  }
+                }}
+                className="absolute right-0 sm:right-2 bottom-0 sm:bottom-2 w-[295px] sm:w-[340px] bg-white border border-slate-200/90 rounded-2xl p-4 sm:p-5 shadow-2xl hover:shadow-2xl transition-all duration-300 transform-gpu cursor-pointer z-20 hover:z-30 hover:scale-105 animate-float-2 group"
+              >
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between gap-2 flex-wrap sm:flex-nowrap">
+                    <span className="text-[10px] font-bold text-blue-700 uppercase tracking-wider bg-blue-50 px-2.5 py-0.5 rounded-full border border-blue-200/60">
+                      • BLS Indian Consulate
+                    </span>
+                    <span className="text-[10px] font-extrabold text-amber-700 uppercase tracking-wider flex items-center gap-1 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200 shadow-2xs shrink-0">
+                      <Sparkles className="w-3 h-3 text-amber-600 shrink-0" />
+                      POPULAR
+                    </span>
+                  </div>
+
+                  <h3 className="text-sm sm:text-base font-extrabold text-slate-900 leading-snug group-hover:text-blue-700 transition-colors">
+                    Indian Passport Renewal Services (BLS Approved)
+                  </h3>
+
+                  <p className="text-[11px] text-slate-500 leading-relaxed line-clamp-2">
+                    Complete Indian passport renewal, minor passport application, Tatkaal typing, photo formatting, and BLS form preparation.
+                  </p>
+
+                  <div className="flex items-center gap-2 text-xs font-semibold text-slate-800 bg-blue-50/80 p-2 rounded-lg border border-blue-100">
+                    <Clock className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                    <span>Processing Time: <strong className="text-slate-900">3 – 7 Working Days</strong></span>
+                  </div>
+
+                  <div className="space-y-1 pt-0.5">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                      Key Required Documents:
+                    </p>
+                    <ul className="space-y-1 text-xs text-slate-700">
+                      <li className="flex items-start gap-1.5 min-w-0">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
+                        <span className="truncate">Original Indian Passport & Residence Visa Copy</span>
+                      </li>
+                      <li className="flex items-start gap-1.5 min-w-0">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
+                        <span className="truncate">Original Emirates ID Card</span>
+                      </li>
+                      <li className="flex items-start gap-1.5 min-w-0">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
+                        <span className="truncate">51mm x 51mm White Background Photographs</span>
+                      </li>
+                      <li className="pl-5 text-[11px] font-bold text-blue-700">
+                        +4 more items in checklist
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+
+                <div className="pt-3 mt-3 border-t border-slate-100 flex items-center justify-between gap-2">
+                  <span className="text-[11px] font-bold bg-slate-900 hover:bg-slate-800 text-white px-3 py-1.5 rounded-lg flex items-center gap-1">
+                    <FileText className="w-3 h-3 text-blue-400" />
+                    <span>View Docs</span>
+                  </span>
+                  <span className="text-[11px] font-bold bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg flex items-center gap-1">
+                    <MessageSquare className="w-3 h-3 fill-current" />
+                    <span>WhatsApp</span>
+                  </span>
+                </div>
+              </div>
+
             </div>
           </div>
 
