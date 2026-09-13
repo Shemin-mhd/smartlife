@@ -9,10 +9,9 @@ export const SERVICES_DATA: ServiceItem[] = [
     shortDesc: 'Comprehensive family residence visa application, entry permit, medical fitness typing, and Emirates ID processing across all 7 Emirates.',
     fullDesc: 'We assist sponsors in bringing their spouse, children, or parents to the UAE. We handle the complete procedure across Dubai, Sharjah, Abu Dhabi, Ajman, RAK, Fujairah, and Umm Al Quwain, including file opening, salary certificate validation, lease agreement (Ejari/Moulqad), medical typing, and Emirates ID.',
     requiredDocuments: [
-      'Sponsor Passport Copy, Residence Visa Copy & Original Emirates ID Copy',
-      'Sponsor Salary Certificate / Labor Contract (Minimum salary AED 4,000 )',
+      'Sponsor Passport Copy, Residence Visa Copy &  Emirates ID Copy',
+      'Sponsor Salary Certificate / Labour Contract (Minimum salary AED 4,000 )',
       'Registered Tenancy Contract (Tenancy / Ejari / Municipal Registered Lease)',
-      'Sponsor Electricity/Water Bill (SEWA / DEWA / FEWA)',
       'Dependents Passport Copies (valid at least 6 months) & Passport Photographs (white background)',
       'Attested Marriage Certificate (for Spouse) & Attested Birth Certificates (for Children)',
       'Sponsor Bank Statements (3 to 6 months if required by immigration)'
@@ -55,7 +54,7 @@ export const SERVICES_DATA: ServiceItem[] = [
       'Company Trade License Copy',
       'Establishment Card Copy',
       'Educational Certificate Copy (Attested for skilled categories)',
-      'MoHRE Offer Letter signed by employee & employer'
+    
     ],
     processingTime: '3 - 5 Working Days',
     isPopular: true,
@@ -77,7 +76,7 @@ export const SERVICES_DATA: ServiceItem[] = [
       'Address Proof (Aadhaar / Utility Bill / Indian Election Card for address changes)',
       'Spouse Passport Copy (for spouse name endorsement)',
       'UAE Mobile Number and Delivery Address',
-      'UAE Emergency Contact (Family Member of Friend'
+      'UAE Emergency Contact (Family Member of Friend)'
     ],
     processingTime: '3 - 7 Working Days',
     isPopular: true,
@@ -115,7 +114,7 @@ export const SERVICES_DATA: ServiceItem[] = [
       'Passport Copy & Entry Permit / Current Visa Copy',
       'Old Emirates ID Card (for renewals)',
       'Passport Photograph with White Background',
-      'Active Mobile Number for OTP Verification'
+      'Active Mobile Number and Email ID'
     ],
     processingTime: 'Same Day / 24 Hours',
     isPopular: false,
@@ -134,7 +133,7 @@ export const SERVICES_DATA: ServiceItem[] = [
       'Trade License Copy / Initial Approval',
       'Partners / Investor Passport Copies & Emirates IDs',
       'Lease Agreement (Tenancy / Ejari / SEDD Contract)',
-      'Establishment Card / Computer Card'
+      'Establishment Card'
     ],
     processingTime: '2 - 5 Working Days',
     isPopular: false,
@@ -153,7 +152,6 @@ export const SERVICES_DATA: ServiceItem[] = [
       'Applicant Passport Copy (Valid minimum 6 months)',
       'Valid UAE Residence Visa (Valid minimum 3 months)',
       'Passport Photograph with White Background',
-      'GCC Profession Verification'
     ],
     processingTime: '24 - 48 Hours',
     isPopular: false,
@@ -171,8 +169,7 @@ export const SERVICES_DATA: ServiceItem[] = [
     requiredDocuments: [
       'Emirates ID Copy (or Unified Number for former residents)',
       'Passport Copy',
-      'Fingerprint Card (if requested for former residents)',
-      'Purpose of Certificate'
+    
     ],
     processingTime: '24 - 48 Hours',
     isPopular: false,
