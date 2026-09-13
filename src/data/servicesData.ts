@@ -54,7 +54,7 @@ export const SERVICES_DATA: ServiceItem[] = [
       'Company Trade License Copy',
       'Establishment Card Copy',
       'Educational Certificate Copy (Attested for skilled categories)',
-    
+
     ],
     processingTime: '3 - 5 Working Days',
     isPopular: true,
@@ -169,7 +169,7 @@ export const SERVICES_DATA: ServiceItem[] = [
     requiredDocuments: [
       'Emirates ID Copy (or Unified Number for former residents)',
       'Passport Copy',
-    
+
     ],
     processingTime: '24 - 48 Hours',
     isPopular: false,

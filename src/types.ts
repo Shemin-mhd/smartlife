@@ -18,6 +18,7 @@ export interface ServiceItem {
   isPopular?: boolean;
   badgeTag?: string; // e.g. 'POPULAR' | 'BEST SELLER' | 'FAST TRACK' | 'HIGH DEMAND' | 'NEW' | 'FEATURED'
   sortOrder?: number; // Sequence index for ordering
+  isCustomized?: boolean; // Flag indicating explicit admin panel customization
   keywords: string[];
   officialPortalUrl?: string;
   officialPortalName?: string;

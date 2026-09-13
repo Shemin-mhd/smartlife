@@ -103,6 +103,43 @@ const saveStoredLocal = <T>(key: string, data: T) => {
 // ==========================================
 // 1. SERVICES API (Real-Time Live & Dynamic Sort Order)
 // ==========================================
+
+// Helper to merge stored/live Firestore data with code-defined SERVICES_DATA defaults
+const mergeWithCodeDefaults = (storedList: ServiceItem[]): ServiceItem[] => {
+  if (!storedList || !storedList.length) return SERVICES_DATA;
+  
+  const codeMap = new Map(SERVICES_DATA.map(s => [s.id, s]));
+  
+  const merged = storedList.map(stored => {
+    const codeService = codeMap.get(stored.id);
+    if (!codeService) return stored; // User-created custom service in admin panel
+    if (stored.isCustomized) return stored; // Explicitly customized via Admin Dashboard
+    
+    // Default: prioritize code file (servicesData.ts) for content & document checklists
+    return {
+      ...stored,
+      title: codeService.title,
+      shortDesc: codeService.shortDesc,
+      fullDesc: codeService.fullDesc,
+      requiredDocuments: codeService.requiredDocuments,
+      processingTime: codeService.processingTime,
+      officialPortalUrl: codeService.officialPortalUrl,
+      officialPortalName: codeService.officialPortalName,
+      keywords: codeService.keywords,
+      categoryLabel: codeService.categoryLabel,
+    };
+  });
+
+  // Include any code-defined services that aren't present in storedList
+  SERVICES_DATA.forEach(codeService => {
+    if (!storedList.some(s => s.id === codeService.id)) {
+      merged.push(codeService);
+    }
+  });
+
+  return merged;
+};
+
 export const fetchServices = async (): Promise<ServiceItem[]> => {
   let list: ServiceItem[] = [];
   if (isFirebaseConfigured() && db) {
@@ -129,8 +166,9 @@ export const fetchServices = async (): Promise<ServiceItem[]> => {
     }
   }
 
+  const merged = mergeWithCodeDefaults(list);
   // Sort by sortOrder if available
-  return list.sort((a, b) => (a.sortOrder ?? 999) - (b.sortOrder ?? 999));
+  return merged.sort((a, b) => (a.sortOrder ?? 999) - (b.sortOrder ?? 999));
 };
 
 export const subscribeServices = (onData: (services: ServiceItem[]) => void): (() => void) => {
@@ -145,12 +183,14 @@ export const subscribeServices = (onData: (services: ServiceItem[]) => void): ((
           return;
         }
         const liveList = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as ServiceItem));
-        const sorted = liveList.sort((a, b) => (a.sortOrder ?? 999) - (b.sortOrder ?? 999));
+        const merged = mergeWithCodeDefaults(liveList);
+        const sorted = merged.sort((a, b) => (a.sortOrder ?? 999) - (b.sortOrder ?? 999));
         onData(sorted);
       }, (err) => {
         console.warn('Firestore services onSnapshot error:', err);
         const local = getStoredLocal('smartlife_services', SERVICES_DATA);
-        onData(local.sort((a, b) => (a.sortOrder ?? 999) - (b.sortOrder ?? 999)));
+        const merged = mergeWithCodeDefaults(local);
+        onData(merged.sort((a, b) => (a.sortOrder ?? 999) - (b.sortOrder ?? 999)));
       });
       return unsubscribe;
     } catch (e) {
@@ -160,7 +200,8 @@ export const subscribeServices = (onData: (services: ServiceItem[]) => void): ((
 
   const handleUpdate = () => {
     const local = getStoredLocal('smartlife_services', SERVICES_DATA);
-    onData(local.sort((a, b) => (a.sortOrder ?? 999) - (b.sortOrder ?? 999)));
+    const merged = mergeWithCodeDefaults(local);
+    onData(merged.sort((a, b) => (a.sortOrder ?? 999) - (b.sortOrder ?? 999)));
   };
 
   handleUpdate();
@@ -176,6 +217,7 @@ export const subscribeServices = (onData: (services: ServiceItem[]) => void): ((
 export const saveService = async (service: ServiceItem): Promise<boolean> => {
   const sanitizedService: ServiceItem = {
     ...service,
+    isCustomized: true,
     isPopular: !!service.isPopular,
     badgeTag: service.isPopular ? (service.badgeTag || 'POPULAR') : ''
   };
