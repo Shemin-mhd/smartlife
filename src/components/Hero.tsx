@@ -30,8 +30,8 @@ interface HeroProps {
 const SLIDING_CARDS = [
   {
     id: 'indian-passport',
-    title: 'Indian Passport Renewal Services (BLS Approved)',
-    category: 'BLS Indian Consulate',
+    title: 'Indian Passport Renewal Services',
+    category: 'Indian Consular Services',
     image: '/images/cards/card_indian_passport.png',
     whatsappMsg: 'Hi Smart Life Typing, I need information regarding Indian Passport Renewal Services.'
   },

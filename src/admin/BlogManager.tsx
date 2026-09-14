@@ -491,7 +491,7 @@ export const BlogManager: React.FC = () => {
                     >
                       <option value="Visa Updates">Visa Updates</option>
                       <option value="Attestation">Attestation</option>
-                      <option value="Passport & BLS">Passport & BLS</option>
+                      <option value="Indian Consular Services">Indian Consular Services</option>
                       <option value="MoHRE Labour">MoHRE Labour</option>
                     </select>
                   </div>

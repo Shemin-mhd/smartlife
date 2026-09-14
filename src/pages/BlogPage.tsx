@@ -28,7 +28,7 @@ export const BlogPage: React.FC<BlogPageProps> = ({ onNavigate }) => {
     return () => unsub();
   }, []);
 
-  const categories = ['All', 'Visa Updates', 'Attestation', 'Passport & BLS', 'MoHRE Labour'];
+  const categories = ['All', 'Visa Updates', 'Attestation', 'Indian Consular Services', 'MoHRE Labour'];
 
   const filteredPosts = blogsList.filter((post) => {
     const matchesCategory = selectedCategory === 'All' || post.category === selectedCategory;

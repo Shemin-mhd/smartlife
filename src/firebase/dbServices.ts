@@ -38,7 +38,7 @@ const INITIAL_MOCK_INQUIRIES: InquiryItem[] = [
     clientName: 'Sanjay Varma',
     phone: '+971 55 987 6543',
     email: 'sanjay.varma@example.com',
-    serviceCategory: 'BLS Indian Consulate',
+    serviceCategory: 'Indian Consular Services',
     serviceTitle: 'Indian Passport Renewal',
     message: 'Passport expiring in 2 months. Need Tatkaal appointment guidance and document pre-verification.',
     source: 'visa_helper',
@@ -142,18 +142,25 @@ const saveDeletedServiceIds = (ids: Set<string>): void => {
 const mergeWithCodeDefaults = (storedList: ServiceItem[], deletedIds?: Set<string>): ServiceItem[] => {
   const deletedSet = deletedIds || getDeletedServiceIds();
   const activeStored = (storedList || []).filter(s => !deletedSet.has(s.id));
-  if (!activeStored.length && !deletedSet.size) return SERVICES_DATA;
+  if (!activeStored.length && !deletedSet.size) {
+    return SERVICES_DATA.map(s => s.category === 'indian_consulate' || s.categoryLabel === 'BLS Indian Consulate' ? { ...s, categoryLabel: 'Indian Consular Services' } : s);
+  }
   
   const codeMap = new Map(SERVICES_DATA.map(s => [s.id, s]));
   const storedIds = new Set(activeStored.map(s => s.id));
   
   const mergedStored = activeStored.map(stored => {
     const codeService = codeMap.get(stored.id);
-    if (!codeService) return stored;
+    const updatedCategoryLabel = (stored.category === 'indian_consulate' || stored.categoryLabel === 'BLS Indian Consulate' || !stored.categoryLabel)
+      ? 'Indian Consular Services'
+      : stored.categoryLabel;
+
+    if (!codeService) return { ...stored, categoryLabel: updatedCategoryLabel };
 
     return {
       ...codeService,
       ...stored,
+      categoryLabel: updatedCategoryLabel,
       requiredDocuments: (stored.requiredDocuments && stored.requiredDocuments.length > 0)
         ? stored.requiredDocuments
         : codeService.requiredDocuments
@@ -161,7 +168,14 @@ const mergeWithCodeDefaults = (storedList: ServiceItem[], deletedIds?: Set<strin
   });
 
   const missingCodeServices = SERVICES_DATA.filter(s => !storedIds.has(s.id) && !deletedSet.has(s.id));
-  return [...mergedStored, ...missingCodeServices];
+  const combined = [...mergedStored, ...missingCodeServices];
+
+  return combined.map(s => {
+    if (s.category === 'indian_consulate' || s.categoryLabel === 'BLS Indian Consulate') {
+      return { ...s, categoryLabel: 'Indian Consular Services' };
+    }
+    return s;
+  });
 };
 
 export const fetchServices = async (): Promise<ServiceItem[]> => {
@@ -382,14 +396,76 @@ export const deleteService = async (serviceId: string): Promise<boolean> => {
 // ==========================================
 // 2. BLOGS API
 // ==========================================
-export const fetchBlogPosts = async (): Promise<BlogPost[]> => {
-  const syncBlogImages = (list: BlogPost[]) => {
-    return list.map(item => {
-      const defaultMatch = BLOG_POSTS.find(b => b.id === item.id);
-      return defaultMatch ? { ...item, coverImage: defaultMatch.coverImage } : item;
-    });
-  };
+const DELETED_BLOGS_KEY = 'smartlife_deleted_blogs';
 
+const getDeletedBlogIds = (): Set<string> => {
+  try {
+    const raw = localStorage.getItem(DELETED_BLOGS_KEY);
+    if (!raw) return new Set();
+    const arr = JSON.parse(raw);
+    return new Set(Array.isArray(arr) ? arr : []);
+  } catch {
+    return new Set();
+  }
+};
+
+const saveDeletedBlogIds = (ids: Set<string>): void => {
+  try {
+    const arr = Array.from(ids);
+    localStorage.setItem(DELETED_BLOGS_KEY, JSON.stringify(arr));
+    fetch('/api/save-cms-data', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type: 'deletedBlogs', data: arr })
+    }).catch(() => {});
+  } catch {}
+};
+
+const mergeBlogWithCodeDefaults = (storedList: BlogPost[], deletedIds?: Set<string>): BlogPost[] => {
+  const deletedSet = deletedIds || getDeletedBlogIds();
+  const activeStored = (storedList || []).filter(b => !deletedSet.has(b.id));
+
+  const codeMap = new Map(BLOG_POSTS.map(b => [b.id, b]));
+  const storedIds = new Set(activeStored.map(b => b.id));
+
+  const mergedStored = activeStored.map(stored => {
+    const codePost = codeMap.get(stored.id);
+    let category = stored.category;
+    if (category === ('BLS Indian Consulate' as any) || category === ('Indian Consulate (BLS)' as any) || (category as string)?.includes('BLS')) {
+      category = 'Indian Consular Services';
+    }
+    if (!codePost) return { ...stored, category };
+
+    const coverImage = (stored.id === 'post-3' || stored.coverImage?.includes('photo-1544620347-c4fd4a3d5957'))
+      ? codePost.coverImage
+      : (stored.coverImage || codePost.coverImage);
+
+    return {
+      ...codePost,
+      ...stored,
+      category,
+      coverImage
+    };
+  });
+
+  const missingCodePosts = BLOG_POSTS.filter(b => !storedIds.has(b.id) && !deletedSet.has(b.id));
+  const combined = [...mergedStored, ...missingCodePosts];
+
+  return combined.map(b => {
+    let category = b.category;
+    if (category === ('BLS Indian Consulate' as any) || category === ('Indian Consulate (BLS)' as any) || (category as string)?.includes('BLS')) {
+      category = 'Indian Consular Services';
+    }
+    const codePost = codeMap.get(b.id);
+    const coverImage = (b.id === 'post-3' || b.coverImage?.includes('photo-1544620347-c4fd4a3d5957'))
+      ? (codePost?.coverImage || b.coverImage)
+      : b.coverImage;
+
+    return { ...b, category, coverImage };
+  });
+};
+
+export const fetchBlogPosts = async (): Promise<BlogPost[]> => {
   let list: BlogPost[] = [];
   if (isFirebaseConfigured() && db) {
     try {
@@ -425,20 +501,13 @@ export const fetchBlogPosts = async (): Promise<BlogPost[]> => {
     list = getStoredLocal('smartlife_blogs', BLOG_POSTS);
   }
 
-  return syncBlogImages(list);
+  return mergeBlogWithCodeDefaults(list);
 };
 
 export const subscribeBlogPosts = (onData: (posts: BlogPost[]) => void): (() => void) => {
-  const syncBlogImages = (list: BlogPost[]) => {
-    return list.map(item => {
-      const defaultMatch = BLOG_POSTS.find(b => b.id === item.id);
-      return defaultMatch ? { ...item, coverImage: defaultMatch.coverImage } : item;
-    });
-  };
-
   const handleUpdate = (liveList?: BlogPost[]) => {
     const posts = liveList || getStoredLocal('smartlife_blogs', BLOG_POSTS);
-    onData(syncBlogImages(posts));
+    onData(mergeBlogWithCodeDefaults(posts));
   };
 
   let unsubscribeFirestore: (() => void) | null = null;
@@ -449,7 +518,7 @@ export const subscribeBlogPosts = (onData: (posts: BlogPost[]) => void): (() => 
       unsubscribeFirestore = onSnapshot(q, (snapshot) => {
         if (snapshot.empty) {
           BLOG_POSTS.forEach(p => setDoc(doc(db, 'blogs', p.id), p));
-          onData(syncBlogImages(BLOG_POSTS));
+          onData(mergeBlogWithCodeDefaults(BLOG_POSTS));
           return;
         }
         const cloudPosts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as BlogPost));
@@ -526,6 +595,10 @@ export const saveBlogPost = async (post: BlogPost): Promise<boolean> => {
 };
 
 export const deleteBlogPost = async (postId: string): Promise<boolean> => {
+  const deletedSet = getDeletedBlogIds();
+  deletedSet.add(postId);
+  saveDeletedBlogIds(deletedSet);
+
   if (isFirebaseConfigured() && db) {
     try {
       await deleteDoc(doc(db, 'blogs', postId));

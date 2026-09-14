@@ -3,7 +3,7 @@ export interface BlogPost {
   title: string;
   slug: string;
   summary: string;
-  category: 'Visa Updates' | 'Attestation' | 'Passport & BLS' | 'MoHRE Labour';
+  category: 'Visa Updates' | 'Attestation' | 'Indian Consular Services' | 'MoHRE Labour';
   date: string;
   readTime: string;
   content: string[];
@@ -67,7 +67,30 @@ export const BLOG_POSTS: BlogPost[] = [
       "Smart Life Typing offers complete end-to-end attestation clearance for Indian, UK, US, Pakistani, and international certificates with door-to-door courier options."
     ]
   },
-
+  {
+    id: "post-3",
+    title: "Indian Passport Renewal & Consular Services in UAE: Requirements & Process Guide",
+    slug: "indian-passport-renewal-uae-consular-guide",
+    category: "Indian Consular Services",
+    date: "May 2026",
+    readTime: "4 min read",
+    summary: "Complete instructions for Indian expats renewing passports and applying for consular services via BLS centers under CGI Dubai in Sharjah and UAE.",
+    coverImage: "/images/blog_indian_passport_bls.jpg",
+    relatedServiceId: "indian-passport-renewal",
+    seoKeywords: ["indian passport renewal uae", "indian consular services sharjah", "bls application typing sharjah", "passport photo specs uae"],
+    keyTakeaways: [
+      "Apply at least 6 months prior to passport expiration.",
+      "Valid UAE Residence Visa and original Emirates ID card are mandatory.",
+      "Address updates require valid Indian proof (Aadhaar card, utility bill, or voter ID).",
+      "Spouse name addition requires attested marriage certificate copy."
+    ],
+    author: "Smart Life Consular Services Desk",
+    content: [
+      "Indian nationals residing in Sharjah and Northern Emirates must submit passport renewal and consular applications through authorized BLS International centers under the Consulate General of India (CGI), Dubai.",
+      "Mandatory documents include: Original current passport, copy of valid UAE residence visa, original Emirates ID card, 51mm x 51mm white background photographs, and filled online application form.",
+      "Our typists at Smart Life Typing generate error-free application forms, format photo requirements to CGI specifications, and prepare complete file submissions to avoid counter rejections."
+    ]
+  },
   {
     id: "post-4",
     title: "MoHRE Labour Contracts & Offer Letter Typing Rules in Sharjah & UAE",

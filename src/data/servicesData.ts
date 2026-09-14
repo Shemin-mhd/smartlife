@@ -65,11 +65,11 @@ export const SERVICES_DATA: ServiceItem[] = [
   },
   {
     id: 'indian-passport-renewal',
-    title: 'Indian Passport Renewal Services (BLS Approved)',
+    title: 'Indian Passport Renewal & Consular Services',
     category: 'indian_consulate',
-    categoryLabel: 'BLS Indian Consulate',
-    shortDesc: 'Complete Indian passport renewal, minor passport application, Tatkaal typing, photo formatting, and BLS form preparation.',
-    fullDesc: 'Expert assistance for Indian passport renewals across Sharjah and the UAE. We prepare BLS online application forms, verify original documents, format 51mm x 51mm white background photographs, and draft affidavit letters.',
+    categoryLabel: 'Indian Consular Services',
+    shortDesc: 'Complete Indian passport renewal, minor passport application, Tatkaal typing, photo formatting, and consular application form preparation.',
+    fullDesc: 'Expert assistance for Indian passport renewals and consular documentation across Sharjah and the UAE. We prepare online consular application forms, verify original documents, format 51mm x 51mm white background photographs, and draft affidavit letters.',
     requiredDocuments: [
       'Original Indian Passport & Residence Visa Copy',
       'Original Emirates ID Card',
@@ -77,13 +77,14 @@ export const SERVICES_DATA: ServiceItem[] = [
       'Address Proof (Aadhaar / Utility Bill / Indian Election Card for address changes)',
       'Spouse Passport Copy (for spouse name endorsement)',
       'UAE Mobile Number and Delivery Address',
-      'UAE Emergency Contact (Family Member of Friend)'
+      'UAE Emergency Contact (Family Member or Friend)'
     ],
     processingTime: '3 - 7 Working Days',
     isPopular: true,
-    keywords: ['Indian passport renewal Sharjah', 'BLS typing Sharjah', 'Indian consulate passport renewal', 'Tatkaal Indian passport Dubai'],
-    officialPortalUrl: 'https://www.blsindiavisa-uae.com',
-    officialPortalName: 'BLS International UAE'
+    badgeTag: 'POPULAR',
+    keywords: ['Indian passport renewal Sharjah', 'Indian consular services Sharjah', 'Indian consulate passport renewal', 'Tatkaal Indian passport Dubai'],
+    officialPortalUrl: 'https://blsindia-uae.com',
+    officialPortalName: 'Indian Consular & BLS Portal'
   },
   {
     id: 'certificate-attestation',

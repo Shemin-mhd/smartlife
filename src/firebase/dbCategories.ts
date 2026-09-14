@@ -67,6 +67,13 @@ export const fetchCategories = async (): Promise<CategoryItem[]> => {
     list = getStoredLocalCategories();
   }
 
+  list = list.map(c => {
+    if (c.id === 'indian_consulate' || c.label === 'BLS Indian Consulate' || (c.label && c.label.includes('BLS'))) {
+      return { ...c, label: 'Indian Consular Services' };
+    }
+    return c;
+  });
+
   return list.sort((a, b) => (a.sortOrder ?? 99) - (b.sortOrder ?? 99));
 };
 
