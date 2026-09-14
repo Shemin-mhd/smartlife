@@ -71,38 +71,9 @@ export const ServicesManager: React.FC = () => {
     };
   }, []);
 
+  // Form state for raw documents and keywords textareas
   const [rawDocumentsText, setRawDocumentsText] = useState('');
   const [rawKeywordsText, setRawKeywordsText] = useState('');
-
-  // Real-time live keystroke auto-sync as Admin types in Service Studio modal
-  useEffect(() => {
-    if (!editingService || !editingService.title) return;
-
-    const parsedDocs = rawDocumentsText
-      .split('\n')
-      .map(line => line.trim())
-      .filter(Boolean);
-
-    const parsedKeywords = rawKeywordsText
-      .split(',')
-      .map(k => k.trim())
-      .filter(Boolean);
-
-    const isPop = !!editingService.isPopular;
-    const liveDraft: ServiceItem = {
-      ...editingService,
-      requiredDocuments: parsedDocs,
-      keywords: parsedKeywords,
-      isPopular: isPop,
-      badgeTag: isPop ? (editingService.badgeTag || 'POPULAR') : ''
-    };
-
-    const timer = setTimeout(() => {
-      saveService(liveDraft);
-    }, 120);
-
-    return () => clearTimeout(timer);
-  }, [editingService, rawDocumentsText, rawKeywordsText]);
 
   const handleTogglePopular = async (service: ServiceItem) => {
     const nextIsPopular = !service.isPopular;

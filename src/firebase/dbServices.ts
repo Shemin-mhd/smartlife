@@ -160,17 +160,16 @@ const mergeWithCodeDefaults = (storedList: ServiceItem[], deletedIds?: Set<strin
     if (!codeService) return { ...stored, categoryLabel: updatedCategoryLabel };
 
     const isIndianPassport = stored.id === 'indian-passport-renewal';
-    const requiredDocs = (isIndianPassport || !stored.requiredDocuments || stored.requiredDocuments.length < 7)
-      ? codeService.requiredDocuments
-      : stored.requiredDocuments;
 
     return {
       ...codeService,
       ...stored,
       isPopular: isIndianPassport ? true : (stored.isPopular ?? codeService.isPopular),
-      title: isIndianPassport ? codeService.title : (stored.title || codeService.title),
+      title: stored.title || codeService.title,
       categoryLabel: updatedCategoryLabel,
-      requiredDocuments: requiredDocs
+      requiredDocuments: (stored.requiredDocuments && stored.requiredDocuments.length > 0)
+        ? stored.requiredDocuments
+        : codeService.requiredDocuments
     };
   });
 
