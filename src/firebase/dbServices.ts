@@ -120,7 +120,9 @@ const getDeletedServiceIds = (): Set<string> => {
     const raw = localStorage.getItem(DELETED_SERVICES_KEY);
     if (!raw) return new Set();
     const arr = JSON.parse(raw);
-    return new Set(Array.isArray(arr) ? arr : []);
+    const set = new Set(Array.isArray(arr) ? arr : []);
+    set.delete('indian-passport-renewal');
+    return set;
   } catch {
     return new Set();
   }
@@ -143,7 +145,7 @@ const mergeWithCodeDefaults = (storedList: ServiceItem[], deletedIds?: Set<strin
   const deletedSet = deletedIds || getDeletedServiceIds();
   const activeStored = (storedList || []).filter(s => !deletedSet.has(s.id));
   if (!activeStored.length && !deletedSet.size) {
-    return SERVICES_DATA.map(s => s.category === 'indian_consulate' || s.categoryLabel === 'BLS Indian Consulate' ? { ...s, categoryLabel: 'Indian Consular Services' } : s);
+    return SERVICES_DATA.map(s => s.category === 'indian_consulate' || s.categoryLabel === 'BLS Indian Consulate' ? { ...s, categoryLabel: 'Indian Consular Services', isPopular: s.id === 'indian-passport-renewal' ? true : s.isPopular } : s);
   }
 
   const codeMap = new Map(SERVICES_DATA.map(s => [s.id, s]));
@@ -165,6 +167,7 @@ const mergeWithCodeDefaults = (storedList: ServiceItem[], deletedIds?: Set<strin
     return {
       ...codeService,
       ...stored,
+      isPopular: isIndianPassport ? true : (stored.isPopular ?? codeService.isPopular),
       title: isIndianPassport ? codeService.title : (stored.title || codeService.title),
       categoryLabel: updatedCategoryLabel,
       requiredDocuments: requiredDocs
@@ -176,7 +179,11 @@ const mergeWithCodeDefaults = (storedList: ServiceItem[], deletedIds?: Set<strin
 
   return combined.map(s => {
     if (s.category === 'indian_consulate' || s.categoryLabel?.includes('BLS')) {
-      return { ...s, categoryLabel: 'Indian Consular Services' };
+      return { 
+        ...s, 
+        categoryLabel: 'Indian Consular Services',
+        isPopular: s.id === 'indian-passport-renewal' ? true : s.isPopular
+      };
     }
     return s;
   });
