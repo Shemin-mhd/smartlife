@@ -40,6 +40,11 @@ const saveStoredLocalCategories = (items: CategoryItem[]): void => {
     localStorage.setItem(LOCAL_KEY, JSON.stringify(items));
     window.dispatchEvent(new Event('smartlife_categories_updated'));
     broadcastLiveEvent('CATEGORIES_UPDATED', items);
+    fetch('/api/save-cms-data', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type: 'categories', data: items })
+    }).catch(() => {});
   } catch (e) {
     console.error('Failed saving local categories:', e);
   }
@@ -129,6 +134,12 @@ export const subscribeCategories = (onData: (categories: CategoryItem[]) => void
   }
 
   handleLocalUpdate();
+  fetch('/api/get-cms-data').then(res => res.json()).then(json => {
+    if (json.success && json.data && json.data.categories && Array.isArray(json.data.categories)) {
+      handleLocalUpdate(json.data.categories);
+    }
+  }).catch(() => {});
+
   const handleEvent = () => handleLocalUpdate();
   window.addEventListener('smartlife_categories_updated', handleEvent);
   window.addEventListener('storage', handleEvent);

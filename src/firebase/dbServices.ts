@@ -122,19 +122,23 @@ const mergeWithCodeDefaults = (storedList: ServiceItem[]): ServiceItem[] => {
   if (!storedList || !storedList.length) return SERVICES_DATA;
   
   const codeMap = new Map(SERVICES_DATA.map(s => [s.id, s]));
+  const storedIds = new Set(storedList.map(s => s.id));
   
-  return storedList.map(stored => {
+  const mergedStored = storedList.map(stored => {
     const codeService = codeMap.get(stored.id);
     if (!codeService) return stored;
-
-    const useCodeDocs = !stored.isCustomized || (!stored.requiredDocuments || stored.requiredDocuments.length < codeService.requiredDocuments.length);
 
     return {
       ...codeService,
       ...stored,
-      requiredDocuments: useCodeDocs ? codeService.requiredDocuments : stored.requiredDocuments
+      requiredDocuments: (stored.requiredDocuments && stored.requiredDocuments.length > 0)
+        ? stored.requiredDocuments
+        : codeService.requiredDocuments
     };
   });
+
+  const missingCodeServices = SERVICES_DATA.filter(s => !storedIds.has(s.id));
+  return [...mergedStored, ...missingCodeServices];
 };
 
 export const fetchServices = async (): Promise<ServiceItem[]> => {
@@ -150,8 +154,21 @@ export const fetchServices = async (): Promise<ServiceItem[]> => {
         list = SERVICES_DATA;
       }
     } catch (e) {
-      console.warn('Firestore fetchServices fallback to local:', e);
+      console.warn('Firestore fetchServices fallback to local/cloud:', e);
     }
+  }
+
+  if (!list.length) {
+    try {
+      const res = await fetch('/api/get-cms-data');
+      if (res.ok) {
+        const json = await res.json();
+        if (json.data && json.data.services && Array.isArray(json.data.services) && json.data.services.length > 0) {
+          list = json.data.services;
+          saveStoredLocal('smartlife_services', list);
+        }
+      }
+    } catch {}
   }
 
   if (!list.length) {
@@ -201,6 +218,13 @@ export const subscribeServices = (onData: (services: ServiceItem[]) => void): ((
       console.warn('Error setting up services listener:', e);
     }
   }
+
+  // Also fetch global cloud CMS data if Firestore is offline
+  fetch('/api/get-cms-data').then(res => res.json()).then(json => {
+    if (json.success && json.data && json.data.services && Array.isArray(json.data.services)) {
+      handleUpdate(json.data.services);
+    }
+  }).catch(() => {});
 
   const handleLocalEvent = () => handleUpdate();
   handleUpdate();
@@ -256,6 +280,15 @@ export const saveService = async (service: ServiceItem): Promise<boolean> => {
     updated = [sanitizedService, ...current];
   }
   saveStoredLocal('smartlife_services', updated);
+
+  try {
+    fetch('/api/save-cms-data', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type: 'services', data: updated })
+    }).catch(() => {});
+  } catch {}
+
   window.dispatchEvent(new Event('smartlife_services_updated'));
   broadcastLiveEvent('SERVICES_UPDATED', updated);
   return true;
@@ -277,6 +310,16 @@ export const saveAllServices = async (servicesList: ServiceItem[]): Promise<bool
       console.error('Error saving all services to Firestore:', e);
     }
   }
+
+  saveStoredLocal('smartlife_services', indexedList);
+
+  try {
+    fetch('/api/save-cms-data', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type: 'services', data: indexedList })
+    }).catch(() => {});
+  } catch {}
 
   saveStoredLocal('smartlife_services', indexedList);
   window.dispatchEvent(new Event('smartlife_services_updated'));

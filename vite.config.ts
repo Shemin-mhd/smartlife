@@ -10,6 +10,7 @@ const otpStore = new Map<string, { otp: string; expiresAt: number }>();
 // In-memory stores for dev server cross-port sync
 const serverWaClicks: any[] = [];
 const serverInquiries: any[] = [];
+const serverCmsData: Record<string, any> = {};
 // Active SSE client connections
 const sseClients = new Set<any>();
 
@@ -372,6 +373,37 @@ function brevoOtpPlugin(): Plugin {
               res.statusCode = 200;
               res.setHeader('Content-Type', 'application/json');
               res.end(JSON.stringify({ success: true }));
+            } catch {
+              res.statusCode = 500;
+              res.setHeader('Content-Type', 'application/json');
+              res.end(JSON.stringify({ success: false }));
+            }
+          });
+          return;
+        }
+
+        if (req.url === '/api/get-cms-data' && req.method === 'GET') {
+          res.statusCode = 200;
+          res.setHeader('Content-Type', 'application/json');
+          res.setHeader('Access-Control-Allow-Origin', '*');
+          res.end(JSON.stringify({ success: true, data: serverCmsData }));
+          return;
+        }
+
+        if (req.url === '/api/save-cms-data' && req.method === 'POST') {
+          let body = '';
+          req.on('data', chunk => { body += chunk; });
+          req.on('end', () => {
+            try {
+              const { type, data } = JSON.parse(body || '{}');
+              if (type && data) {
+                serverCmsData[type] = data;
+                broadcastSseEvent('CMS_UPDATED', { type, data });
+              }
+              res.statusCode = 200;
+              res.setHeader('Content-Type', 'application/json');
+              res.setHeader('Access-Control-Allow-Origin', '*');
+              res.end(JSON.stringify({ success: true, cmsData: serverCmsData }));
             } catch {
               res.statusCode = 500;
               res.setHeader('Content-Type', 'application/json');
