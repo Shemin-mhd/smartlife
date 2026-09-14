@@ -9,10 +9,9 @@ export const SERVICES_DATA: ServiceItem[] = [
     shortDesc: 'Comprehensive family residence visa application, entry permit, medical fitness typing, and Emirates ID processing across all 7 Emirates.',
     fullDesc: 'We assist sponsors in bringing their spouse, children, or parents to the UAE. We handle the complete procedure across Dubai, Sharjah, Abu Dhabi, Ajman, RAK, Fujairah, and Umm Al Quwain, including file opening, salary certificate validation, lease agreement (Ejari/Moulqad), medical typing, and Emirates ID.',
     requiredDocuments: [
-      'Sponsor Passport Copy, Residence Visa Copy & Original Emirates',
+      'Sponsor Passport Copy, Residence Visa Copy &  Emirates ID Copy',
       'Sponsor Salary Certificate / Labor Contract (Minimum salary AED 4,000 )',
       'Registered Tenancy Contract (Tenancy / Ejari / Municipal Registered Lease)',
-      'Sponsor Electricity/Water Bill (SEWA / DEMA / FEWA)',
       'Dependents Passport Copies (valid at least 6 months) & Passport Photographs (white background)',
       'Attested Marriage Certificate (for Spouse) & Attested Birth Certificates (for Children)',
       'Sponsor Bank Statements (3 to 6 months if required by immigration)'
