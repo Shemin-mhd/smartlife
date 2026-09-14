@@ -164,6 +164,7 @@ export const ServicesManager: React.FC = () => {
 
   const handleDelete = async (id: string) => {
     if (window.confirm('Are you sure you want to delete this service listing?')) {
+      setServices(prev => prev.filter(s => s.id !== id));
       await deleteService(id);
     }
   };

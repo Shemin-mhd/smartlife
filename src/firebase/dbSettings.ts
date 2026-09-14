@@ -104,11 +104,27 @@ export const saveGeneralSettings = async (settings: GeneralSettings): Promise<vo
   }
 
   saveStoredLocalSettings(updatedSettings);
+
+  try {
+    fetch('/api/save-cms-data', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type: 'settings', data: updatedSettings })
+    }).catch(() => {});
+  } catch {}
 };
 
 export const subscribeGeneralSettings = (onData: (settings: GeneralSettings) => void): (() => void) => {
   // Always emit initial local value immediately
   onData(getStoredLocalSettings());
+
+  fetch('/api/get-cms-data').then(res => res.json()).then(json => {
+    if (json.success && json.data && json.data.settings) {
+      const cloudSettings = { ...DEFAULT_GENERAL_SETTINGS, ...json.data.settings };
+      saveStoredLocalSettings(cloudSettings);
+      onData(cloudSettings);
+    }
+  }).catch(() => {});
 
   let unsubFirestore: (() => void) | null = null;
 

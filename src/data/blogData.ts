@@ -67,30 +67,7 @@ export const BLOG_POSTS: BlogPost[] = [
       "Smart Life Typing offers complete end-to-end attestation clearance for Indian, UK, US, Pakistani, and international certificates with door-to-door courier options."
     ]
   },
-  {
-    id: "post-3",
-    title: "Indian Passport Renewal in UAE: BLS Application & Document Checklist",
-    slug: "indian-passport-renewal-uae-bls-guide",
-    category: "Passport & BLS",
-    date: "May 2026",
-    readTime: "3 min read",
-    summary: "Crucial instructions for Indian expats renewing passports via BLS International centers in Sharjah and Dubai.",
-    coverImage: "/images/blog_indian_passport_bls.jpg",
-    relatedServiceId: "srv-5",
-    seoKeywords: ["indian passport renewal uae", "bls application typing sharjah", "bls photo specs"],
-    keyTakeaways: [
-      "Apply at least 6 months prior to passport expiration.",
-      "Current UAE Residence Visa and original Emirates ID must be produced.",
-      "Address changes require valid proof (Aadhaar, utility bill, or Indian election ID).",
-      "Spouse name addition requires attested marriage certificate copy."
-    ],
-    author: "Smart Life Consular Services Desk",
-    content: [
-      "Indian nationals residing in Sharjah and Northern Emirates must submit passport renewal applications through BLS International centers under the Consulate General of India, Dubai.",
-      "Mandatory documents include: Original current passport, copy of valid UAE residence visa, original Emirates ID card, 51mm x 51mm white background photographs, and filled online BLS application form.",
-      "Our typists at Smart Life Typing generate error-free BLS application forms, format photo requirements, and prepare complete file submissions to avoid rejections at BLS counters."
-    ]
-  },
+
   {
     id: "post-4",
     title: "MoHRE Labour Contracts & Offer Letter Typing Rules in Sharjah & UAE",

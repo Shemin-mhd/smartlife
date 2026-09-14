@@ -113,18 +113,41 @@ const saveStoredLocal = <T>(key: string, data: T) => {
   }
 };
 
-// ==========================================
-// 1. SERVICES API (Real-Time Live & Dynamic Sort Order)
-// ==========================================
+const DELETED_SERVICES_KEY = 'smartlife_deleted_services';
+
+const getDeletedServiceIds = (): Set<string> => {
+  try {
+    const raw = localStorage.getItem(DELETED_SERVICES_KEY);
+    if (!raw) return new Set();
+    const arr = JSON.parse(raw);
+    return new Set(Array.isArray(arr) ? arr : []);
+  } catch {
+    return new Set();
+  }
+};
+
+const saveDeletedServiceIds = (ids: Set<string>): void => {
+  try {
+    const arr = Array.from(ids);
+    localStorage.setItem(DELETED_SERVICES_KEY, JSON.stringify(arr));
+    fetch('/api/save-cms-data', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type: 'deletedServices', data: arr })
+    }).catch(() => {});
+  } catch {}
+};
 
 // Helper to merge stored/live Firestore data with code-defined SERVICES_DATA defaults
-const mergeWithCodeDefaults = (storedList: ServiceItem[]): ServiceItem[] => {
-  if (!storedList || !storedList.length) return SERVICES_DATA;
+const mergeWithCodeDefaults = (storedList: ServiceItem[], deletedIds?: Set<string>): ServiceItem[] => {
+  const deletedSet = deletedIds || getDeletedServiceIds();
+  const activeStored = (storedList || []).filter(s => !deletedSet.has(s.id));
+  if (!activeStored.length && !deletedSet.size) return SERVICES_DATA;
   
   const codeMap = new Map(SERVICES_DATA.map(s => [s.id, s]));
-  const storedIds = new Set(storedList.map(s => s.id));
+  const storedIds = new Set(activeStored.map(s => s.id));
   
-  const mergedStored = storedList.map(stored => {
+  const mergedStored = activeStored.map(stored => {
     const codeService = codeMap.get(stored.id);
     if (!codeService) return stored;
 
@@ -137,7 +160,7 @@ const mergeWithCodeDefaults = (storedList: ServiceItem[]): ServiceItem[] => {
     };
   });
 
-  const missingCodeServices = SERVICES_DATA.filter(s => !storedIds.has(s.id));
+  const missingCodeServices = SERVICES_DATA.filter(s => !storedIds.has(s.id) && !deletedSet.has(s.id));
   return [...mergedStored, ...missingCodeServices];
 };
 
@@ -328,6 +351,10 @@ export const saveAllServices = async (servicesList: ServiceItem[]): Promise<bool
 };
 
 export const deleteService = async (serviceId: string): Promise<boolean> => {
+  const deletedIds = getDeletedServiceIds();
+  deletedIds.add(serviceId);
+  saveDeletedServiceIds(deletedIds);
+
   if (isFirebaseConfigured() && db) {
     try {
       await deleteDoc(doc(db, 'services', serviceId));
@@ -338,6 +365,15 @@ export const deleteService = async (serviceId: string): Promise<boolean> => {
   const current = getStoredLocal('smartlife_services', SERVICES_DATA);
   const updated = current.filter(s => s.id !== serviceId);
   saveStoredLocal('smartlife_services', updated);
+
+  try {
+    fetch('/api/save-cms-data', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type: 'services', data: updated })
+    }).catch(() => {});
+  } catch {}
+
   window.dispatchEvent(new Event('smartlife_services_updated'));
   broadcastLiveEvent('SERVICES_UPDATED', updated);
   return true;
@@ -370,6 +406,19 @@ export const fetchBlogPosts = async (): Promise<BlogPost[]> => {
     } catch (e) {
       console.warn('Firestore fetchBlogPosts fallback to local:', e);
     }
+  }
+
+  if (!list.length) {
+    try {
+      const res = await fetch('/api/get-cms-data');
+      if (res.ok) {
+        const json = await res.json();
+        if (json.data && json.data.blogs && Array.isArray(json.data.blogs)) {
+          list = json.data.blogs;
+          saveStoredLocal('smartlife_blogs', list);
+        }
+      }
+    } catch {}
   }
 
   if (!list.length) {
@@ -412,6 +461,12 @@ export const subscribeBlogPosts = (onData: (posts: BlogPost[]) => void): (() => 
       console.warn('Error subscribing to blogs:', e);
     }
   }
+
+  fetch('/api/get-cms-data').then(res => res.json()).then(json => {
+    if (json.success && json.data && json.data.blogs && Array.isArray(json.data.blogs)) {
+      handleUpdate(json.data.blogs);
+    }
+  }).catch(() => {});
 
   const handleLocalEvent = () => handleUpdate();
   handleUpdate();
@@ -456,6 +511,15 @@ export const saveBlogPost = async (post: BlogPost): Promise<boolean> => {
     updated = [post, ...current];
   }
   saveStoredLocal('smartlife_blogs', updated);
+
+  try {
+    fetch('/api/save-cms-data', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type: 'blogs', data: updated })
+    }).catch(() => {});
+  } catch {}
+
   window.dispatchEvent(new Event('smartlife_blogs_updated'));
   broadcastLiveEvent('BLOGS_UPDATED', updated);
   return true;
@@ -472,6 +536,15 @@ export const deleteBlogPost = async (postId: string): Promise<boolean> => {
   const current = getStoredLocal('smartlife_blogs', BLOG_POSTS);
   const updated = current.filter(b => b.id !== postId);
   saveStoredLocal('smartlife_blogs', updated);
+
+  try {
+    fetch('/api/save-cms-data', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type: 'blogs', data: updated })
+    }).catch(() => {});
+  } catch {}
+
   window.dispatchEvent(new Event('smartlife_blogs_updated'));
   broadcastLiveEvent('BLOGS_UPDATED', updated);
   return true;
@@ -517,6 +590,15 @@ export const saveBranch = async (branch: Branch): Promise<boolean> => {
     updated = [...current, branch];
   }
   saveStoredLocal('smartlife_branches', updated);
+
+  try {
+    fetch('/api/save-cms-data', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type: 'branches', data: updated })
+    }).catch(() => {});
+  } catch {}
+
   window.dispatchEvent(new Event('smartlife_branches_updated'));
   broadcastLiveEvent('BRANCHES_UPDATED', updated);
   return true;
@@ -533,6 +615,15 @@ export const deleteBranch = async (id: string): Promise<boolean> => {
   const current = getStoredLocal('smartlife_branches', BRANCHES_DATA);
   const updated = current.filter(b => b.id !== id);
   saveStoredLocal('smartlife_branches', updated);
+
+  try {
+    fetch('/api/save-cms-data', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type: 'branches', data: updated })
+    }).catch(() => {});
+  } catch {}
+
   window.dispatchEvent(new Event('smartlife_branches_updated'));
   broadcastLiveEvent('BRANCHES_UPDATED', updated);
   return true;
@@ -563,6 +654,12 @@ export const subscribeBranches = (onData: (branches: Branch[]) => void): (() => 
       console.warn('Error subscribing to branches:', e);
     }
   }
+
+  fetch('/api/get-cms-data').then(res => res.json()).then(json => {
+    if (json.success && json.data && json.data.branches && Array.isArray(json.data.branches)) {
+      handleUpdate(json.data.branches);
+    }
+  }).catch(() => {});
 
   const handleLocalEvent = () => handleUpdate();
   handleUpdate();
@@ -637,6 +734,12 @@ export const subscribeFaqs = (onData: (faqs: FaqItem[]) => void): (() => void) =
     }
   }
 
+  fetch('/api/get-cms-data').then(res => res.json()).then(json => {
+    if (json.success && json.data && json.data.faqs && Array.isArray(json.data.faqs)) {
+      handleUpdate(json.data.faqs);
+    }
+  }).catch(() => {});
+
   const handleLocalEvent = () => handleUpdate();
   handleUpdate();
   window.addEventListener('smartlife_faqs_updated', handleLocalEvent);
@@ -680,6 +783,15 @@ export const saveFaq = async (faq: FaqItem): Promise<boolean> => {
     updated = [...current, faq];
   }
   saveStoredLocal('smartlife_faqs', updated);
+
+  try {
+    fetch('/api/save-cms-data', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type: 'faqs', data: updated })
+    }).catch(() => {});
+  } catch {}
+
   window.dispatchEvent(new Event('smartlife_faqs_updated'));
   broadcastLiveEvent('FAQS_UPDATED', updated);
   return true;
@@ -696,6 +808,15 @@ export const deleteFaq = async (faqId: number): Promise<boolean> => {
   const current = getStoredLocal('smartlife_faqs', FAQS_DATA);
   const updated = current.filter(f => f.id !== faqId);
   saveStoredLocal('smartlife_faqs', updated);
+
+  try {
+    fetch('/api/save-cms-data', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type: 'faqs', data: updated })
+    }).catch(() => {});
+  } catch {}
+
   window.dispatchEvent(new Event('smartlife_faqs_updated'));
   broadcastLiveEvent('FAQS_UPDATED', updated);
   return true;
