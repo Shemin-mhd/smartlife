@@ -4,12 +4,12 @@ import { BRANCHES_DATA } from '../data/branchesData';
 import { Branch, FaqItem } from '../types';
 import { getWhatsAppLink } from '../config/whatsapp';
 import { subscribeFaqs, subscribeBranches } from '../firebase/dbServices';
-import { 
-  HelpCircle, 
-  ChevronDown, 
-  ChevronUp, 
-  Search, 
-  MessageSquare, 
+import {
+  HelpCircle,
+  ChevronDown,
+  ChevronUp,
+  Search,
+  MessageSquare,
   Phone
 } from 'lucide-react';
 
@@ -90,11 +90,10 @@ export const FaqPage: React.FC = () => {
           <button
             key={cat}
             onClick={() => setSelectedCategory(cat)}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all cursor-pointer ${
-              selectedCategory === cat
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all cursor-pointer ${selectedCategory === cat
                 ? 'bg-blue-700 text-white font-semibold shadow-2xs'
                 : 'bg-white border border-slate-200 text-slate-700 hover:bg-slate-50'
-            }`}
+              }`}
           >
             {cat}
           </button>

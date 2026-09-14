@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  BookOpen, 
-  Plus, 
-  Search, 
-  Edit2, 
-  Trash2, 
+import {
+  BookOpen,
+  Plus,
+  Search,
+  Edit2,
+  Trash2,
   ExternalLink,
   RefreshCw,
   FileText,
@@ -210,13 +210,13 @@ export const BlogManager: React.FC = () => {
     return { score, tips };
   };
 
-  const filteredBlogs = blogs.filter(post => 
+  const filteredBlogs = blogs.filter(post =>
     post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
     post.summary.toLowerCase().includes(searchQuery.toLowerCase()) ||
     post.category.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const selectedService = editingPost?.relatedServiceId 
+  const selectedService = editingPost?.relatedServiceId
     ? SERVICES_DATA.find(s => s.id === editingPost.relatedServiceId)
     : undefined;
 
@@ -235,8 +235,8 @@ export const BlogManager: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-2">
-          <button 
-            onClick={loadBlogData} 
+          <button
+            onClick={loadBlogData}
             disabled={loading}
             className="p-2 text-xs text-slate-600 border border-slate-200 rounded-lg hover:bg-slate-50 transition cursor-pointer"
             title="Refresh list"
@@ -246,7 +246,7 @@ export const BlogManager: React.FC = () => {
 
           <div className="relative">
             <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-            <input 
+            <input
               type="text"
               placeholder="Search guides..."
               value={searchQuery}
@@ -295,7 +295,7 @@ export const BlogManager: React.FC = () => {
               ) : (
                 filteredBlogs.map((post) => {
                   const { score } = calculateSeoScore(post);
-                  const linkedSrv = post.relatedServiceId 
+                  const linkedSrv = post.relatedServiceId
                     ? SERVICES_DATA.find(s => s.id === post.relatedServiceId)
                     : null;
 
@@ -304,10 +304,10 @@ export const BlogManager: React.FC = () => {
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-3">
                           {post.coverImage ? (
-                            <img 
-                              src={post.coverImage} 
-                              alt="" 
-                              className="w-12 h-9 rounded object-cover border border-slate-200 shrink-0 bg-slate-100" 
+                            <img
+                              src={post.coverImage}
+                              alt=""
+                              className="w-12 h-9 rounded object-cover border border-slate-200 shrink-0 bg-slate-100"
                             />
                           ) : (
                             <div className="w-12 h-9 rounded bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-400 shrink-0">
@@ -342,10 +342,9 @@ export const BlogManager: React.FC = () => {
 
                       <td className="px-4 py-3 whitespace-nowrap">
                         <div className="flex items-center gap-1.5">
-                          <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                            score >= 80 ? 'bg-emerald-100 text-emerald-800' :
-                            score >= 50 ? 'bg-amber-100 text-amber-800' : 'bg-red-100 text-red-800'
-                          }`}>
+                          <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${score >= 80 ? 'bg-emerald-100 text-emerald-800' :
+                              score >= 50 ? 'bg-amber-100 text-amber-800' : 'bg-red-100 text-red-800'
+                            }`}>
                             {score}/100
                           </span>
                         </div>
@@ -386,7 +385,7 @@ export const BlogManager: React.FC = () => {
       {editingPost && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-4xl overflow-hidden max-h-[92vh] flex flex-col font-['Plus_Jakarta_Sans',sans-serif]">
-            
+
             {/* Modal Header Bar with Tab Navigation */}
             <div className="bg-slate-900 text-white p-4 flex flex-wrap items-center justify-between gap-3 shrink-0">
               <div className="flex items-center gap-2">
@@ -401,9 +400,8 @@ export const BlogManager: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setActiveTab('editor')}
-                  className={`px-3 py-1 rounded-md font-semibold transition flex items-center gap-1.5 cursor-pointer ${
-                    activeTab === 'editor' ? 'bg-emerald-600 text-white shadow-2xs' : 'text-slate-300 hover:text-white'
-                  }`}
+                  className={`px-3 py-1 rounded-md font-semibold transition flex items-center gap-1.5 cursor-pointer ${activeTab === 'editor' ? 'bg-emerald-600 text-white shadow-2xs' : 'text-slate-300 hover:text-white'
+                    }`}
                 >
                   <Edit2 className="w-3.5 h-3.5" />
                   <span>Editor & Media</span>
@@ -412,9 +410,8 @@ export const BlogManager: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setActiveTab('seo')}
-                  className={`px-3 py-1 rounded-md font-semibold transition flex items-center gap-1.5 cursor-pointer relative ${
-                    activeTab === 'seo' ? 'bg-emerald-600 text-white shadow-2xs' : 'text-slate-300 hover:text-white'
-                  }`}
+                  className={`px-3 py-1 rounded-md font-semibold transition flex items-center gap-1.5 cursor-pointer relative ${activeTab === 'seo' ? 'bg-emerald-600 text-white shadow-2xs' : 'text-slate-300 hover:text-white'
+                    }`}
                 >
                   <Globe className="w-3.5 h-3.5 text-blue-400" />
                   <span>SEO & Search Preview</span>
@@ -426,17 +423,16 @@ export const BlogManager: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setActiveTab('preview')}
-                  className={`px-3 py-1 rounded-md font-semibold transition flex items-center gap-1.5 cursor-pointer ${
-                    activeTab === 'preview' ? 'bg-emerald-600 text-white shadow-2xs' : 'text-slate-300 hover:text-white'
-                  }`}
+                  className={`px-3 py-1 rounded-md font-semibold transition flex items-center gap-1.5 cursor-pointer ${activeTab === 'preview' ? 'bg-emerald-600 text-white shadow-2xs' : 'text-slate-300 hover:text-white'
+                    }`}
                 >
                   <Eye className="w-3.5 h-3.5" />
                   <span>Live Article Preview</span>
                 </button>
               </div>
 
-              <button 
-                onClick={() => setEditingPost(null)} 
+              <button
+                onClick={() => setEditingPost(null)}
                 className="text-slate-400 hover:text-white text-xs p-1 cursor-pointer"
               >
                 ✕
@@ -560,10 +556,10 @@ export const BlogManager: React.FC = () => {
                     {/* Live Image Preview Studio */}
                     <div className="w-full h-24 rounded-lg border border-slate-300 overflow-hidden bg-slate-100 flex items-center justify-center relative group">
                       {editingPost.coverImage ? (
-                        <img 
-                          src={editingPost.coverImage} 
-                          alt="Cover Preview" 
-                          className="w-full h-full object-cover" 
+                        <img
+                          src={editingPost.coverImage}
+                          alt="Cover Preview"
+                          className="w-full h-full object-cover"
                         />
                       ) : (
                         <div className="text-center p-2 text-slate-400 text-[11px]">
@@ -694,9 +690,8 @@ export const BlogManager: React.FC = () => {
                             <p className="text-[11px] text-slate-500">Real-time search optimization score for Google & Bing</p>
                           </div>
                           <div className="text-right">
-                            <span className={`text-2xl font-extrabold ${
-                              score >= 80 ? 'text-emerald-600' : score >= 50 ? 'text-amber-600' : 'text-red-600'
-                            }`}>
+                            <span className={`text-2xl font-extrabold ${score >= 80 ? 'text-emerald-600' : score >= 50 ? 'text-amber-600' : 'text-red-600'
+                              }`}>
                               {score}/100
                             </span>
                             <span className="block text-[10px] text-slate-400 font-bold uppercase tracking-wider">
@@ -707,10 +702,9 @@ export const BlogManager: React.FC = () => {
 
                         {/* Progress Bar */}
                         <div className="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
-                          <div 
-                            className={`h-full transition-all duration-300 rounded-full ${
-                              score >= 80 ? 'bg-emerald-500' : score >= 50 ? 'bg-amber-500' : 'bg-red-500'
-                            }`}
+                          <div
+                            className={`h-full transition-all duration-300 rounded-full ${score >= 80 ? 'bg-emerald-500' : score >= 50 ? 'bg-amber-500' : 'bg-red-500'
+                              }`}
                             style={{ width: `${score}%` }}
                           />
                         </div>

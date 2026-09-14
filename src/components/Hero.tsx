@@ -106,12 +106,12 @@ export const Hero: React.FC<HeroProps> = ({
 
   const matchingResults = hasQuery
     ? servicesList.filter(s =>
-        s.title.toLowerCase().includes(query) ||
-        s.categoryLabel.toLowerCase().includes(query) ||
-        s.shortDesc.toLowerCase().includes(query) ||
-        (s.keywords && s.keywords.some(k => k.toLowerCase().includes(query))) ||
-        (s.requiredDocuments && s.requiredDocuments.some(d => d.toLowerCase().includes(query)))
-      ).slice(0, 6)
+      s.title.toLowerCase().includes(query) ||
+      s.categoryLabel.toLowerCase().includes(query) ||
+      s.shortDesc.toLowerCase().includes(query) ||
+      (s.keywords && s.keywords.some(k => k.toLowerCase().includes(query))) ||
+      (s.requiredDocuments && s.requiredDocuments.some(d => d.toLowerCase().includes(query)))
+    ).slice(0, 6)
     : [];
 
   const totalResultsCount = matchingResults.length;
@@ -307,7 +307,7 @@ export const Hero: React.FC<HeroProps> = ({
             `}</style>
 
             <div className="relative w-full max-w-[480px] sm:max-w-[540px] h-[430px] sm:h-[470px] flex items-center justify-center">
-              
+
               {/* Card 1: Dynamic Family Visa Service Card */}
               {(() => {
                 const card1 = servicesList.find(s => s.id === 'family-visa' || s.title.toLowerCase().includes('family')) || servicesList[0];

@@ -1,11 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { GOOGLE_PROFILE_STATS, GOOGLE_REVIEWS_DATA } from '../data/googleReviewsData';
-import { 
-  Star, 
-  MapPin, 
-  ExternalLink, 
-  ThumbsUp, 
-  CheckCircle2, 
+import {
+  Star,
+  MapPin,
+  ExternalLink,
+  ThumbsUp,
+  CheckCircle2,
   ChevronLeft,
   ChevronRight
 } from 'lucide-react';
@@ -69,7 +69,7 @@ export const GoogleReviewsSection: React.FC<GoogleReviewsSectionProps> = ({ onNa
   return (
     <section id="google-reviews" className="relative bg-white py-12 overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
-        
+
         {/* Header Bar - Clean Google Visual Identity */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-slate-100 pb-6">
           <div className="space-y-2">
@@ -140,11 +140,10 @@ export const GoogleReviewsSection: React.FC<GoogleReviewsSectionProps> = ({ onNa
               <button
                 key={cat}
                 onClick={() => setSelectedFilter(cat)}
-                className={`px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
-                  selectedFilter === cat
+                className={`px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${selectedFilter === cat
                     ? 'bg-[#4285F4] text-white shadow-2xs'
                     : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200'
-                }`}
+                  }`}
               >
                 {cat}
               </button>
@@ -171,7 +170,7 @@ export const GoogleReviewsSection: React.FC<GoogleReviewsSectionProps> = ({ onNa
         </div>
 
         {/* Single Scroll Stream (Auto-scrolls horizontally, pauses on hover) */}
-        <div 
+        <div
           ref={scrollContainerRef}
           onMouseEnter={() => setIsPaused(true)}
           onMouseLeave={() => setIsPaused(false)}
@@ -250,9 +249,8 @@ export const GoogleReviewsSection: React.FC<GoogleReviewsSectionProps> = ({ onNa
                   <div className="flex items-center gap-2">
                     <button
                       onClick={(e) => toggleLike(e, rev.id)}
-                      className={`flex items-center gap-1 text-[11px] font-semibold px-2 py-1 rounded transition-colors ${
-                        isLiked ? 'text-[#4285F4] bg-blue-50' : 'hover:bg-slate-100 text-slate-500'
-                      }`}
+                      className={`flex items-center gap-1 text-[11px] font-semibold px-2 py-1 rounded transition-colors ${isLiked ? 'text-[#4285F4] bg-blue-50' : 'hover:bg-slate-100 text-slate-500'
+                        }`}
                     >
                       <ThumbsUp className={`w-3 h-3 ${isLiked ? 'fill-current text-[#4285F4]' : ''}`} />
                       <span>{likes}</span>

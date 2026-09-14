@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  MapPin, Phone, Mail, Clock, MessageSquare, ShieldCheck, 
-  Building2, ExternalLink, FileText, CheckCircle2, Sparkles, 
+import {
+  MapPin, Phone, Mail, Clock, MessageSquare, ShieldCheck,
+  Building2, ExternalLink, FileText, CheckCircle2, Sparkles,
   BookOpen, HelpCircle, Star, Globe, ArrowRight, Facebook, Instagram, Linkedin, Twitter, Tv, Map
 } from 'lucide-react';
 import { BRANCHES_DATA } from '../data/branchesData';
@@ -34,18 +34,18 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
   return (
     <footer className="bg-slate-950 text-slate-300 pt-16 pb-8 border-t border-slate-800 font-['Plus_Jakarta_Sans',sans-serif]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
-        
+
         {/* Top Bar: Brand, Trust Badges & Social Contact Actions */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 pb-10 border-b border-slate-800/80 items-start">
-          
+
           {/* Brand Info */}
           <div className="lg:col-span-5 space-y-4">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center p-1 shadow-md shrink-0">
-                <img 
-                  src="/images/clients/logo-Black.png" 
-                  alt="Smart Life Logo" 
-                  className="w-full h-full object-contain" 
+                <img
+                  src="/images/clients/logo-Black.png"
+                  alt="Smart Life Logo"
+                  className="w-full h-full object-contain"
                 />
               </div>
               <div>
@@ -67,7 +67,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                 <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
                 <span>100% Guaranteed Documentation Accuracy</span>
               </div>
-              <button 
+              <button
                 onClick={() => handleLinkClick('reviews')}
                 className="flex items-center gap-2 text-slate-300 hover:text-amber-300 font-medium cursor-pointer transition-colors"
               >
@@ -114,7 +114,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
 
           {/* Direct Social & Quick Contact Links */}
           <div className="lg:col-span-7 flex flex-col sm:flex-row items-start sm:items-center justify-end gap-6 pt-2">
-            
+
             {/* WhatsApp Contact */}
             <a
               href={getWhatsAppLink({ message: 'Hi Smart Life Typing, I need urgent document typing assistance.' })}
@@ -166,7 +166,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
 
         {/* Deep Navigation Columns (SEO / AEO / GEO Architecture) */}
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-4 gap-8 text-xs">
-          
+
           {/* Column 1: Core Navigation */}
           <div className="space-y-3">
             <h4 className="font-extrabold text-white text-xs uppercase tracking-wider text-blue-400 flex items-center gap-1.5">
@@ -219,7 +219,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
 
           {/* Column 2: Popular Typing Services */}
           <div className="space-y-3">
-            <h4 
+            <h4
               onClick={() => handleLinkClick('services')}
               className="font-extrabold text-white text-xs uppercase tracking-wider text-blue-400 flex items-center gap-1.5 cursor-pointer hover:underline"
               title="View all Services"
@@ -273,7 +273,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
 
           {/* Column 4: Detailed Guides & Portals */}
           <div className="space-y-3">
-            <h4 
+            <h4
               onClick={() => handleLinkClick('blog')}
               className="font-extrabold text-white text-xs uppercase tracking-wider text-blue-400 flex items-center gap-1.5 cursor-pointer hover:underline"
               title="View all Government Guides"
@@ -283,8 +283,8 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
             </h4>
             <ul className="space-y-2 text-slate-400">
               <li>
-                <button 
-                  onClick={() => handleLinkClick('blog-article', 'sharjah-family-visa-renewal-guide')} 
+                <button
+                  onClick={() => handleLinkClick('blog-article', 'sharjah-family-visa-renewal-guide')}
                   className="hover:text-white transition-colors cursor-pointer text-left line-clamp-1"
                   title="Read Family Visa Renewal Guide"
                 >
@@ -292,8 +292,8 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                 </button>
               </li>
               <li>
-                <button 
-                  onClick={() => handleLinkClick('blog-article', 'uae-certificate-attestation-guide')} 
+                <button
+                  onClick={() => handleLinkClick('blog-article', 'uae-certificate-attestation-guide')}
                   className="hover:text-white transition-colors cursor-pointer text-left line-clamp-1"
                   title="Read Certificate Attestation Guide"
                 >
@@ -301,8 +301,8 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                 </button>
               </li>
               <li>
-                <button 
-                  onClick={() => handleLinkClick('blog-article', 'indian-passport-renewal-uae-bls-guide')} 
+                <button
+                  onClick={() => handleLinkClick('blog-article', 'indian-passport-renewal-uae-bls-guide')}
                   className="hover:text-white transition-colors cursor-pointer text-left line-clamp-1"
                   title="Read BLS Indian Passport Guide"
                 >
@@ -310,8 +310,8 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                 </button>
               </li>
               <li>
-                <button 
-                  onClick={() => handleLinkClick('blog-article', 'mohre-labour-contract-rules-uae')} 
+                <button
+                  onClick={() => handleLinkClick('blog-article', 'mohre-labour-contract-rules-uae')}
                   className="hover:text-white transition-colors cursor-pointer text-left line-clamp-1"
                   title="Read MoHRE Labour Contracts Guide"
                 >
@@ -319,9 +319,9 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                 </button>
               </li>
               <li className="pt-2">
-                <a 
-                  href="https://smartservices.icp.gov.ae" 
-                  target="_blank" 
+                <a
+                  href="https://smartservices.icp.gov.ae"
+                  target="_blank"
                   rel="noopener noreferrer"
                   className="text-slate-400 hover:text-blue-300 transition-colors inline-flex items-center gap-1 text-[11px]"
                 >
@@ -330,9 +330,9 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                 </a>
               </li>
               <li>
-                <a 
-                  href="https://gdrfad.gov.ae" 
-                  target="_blank" 
+                <a
+                  href="https://gdrfad.gov.ae"
+                  target="_blank"
                   rel="noopener noreferrer"
                   className="text-slate-400 hover:text-blue-300 transition-colors inline-flex items-center gap-1 text-[11px]"
                 >
@@ -341,9 +341,9 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                 </a>
               </li>
               <li>
-                <a 
-                  href="https://www.mohre.gov.ae" 
-                  target="_blank" 
+                <a
+                  href="https://www.mohre.gov.ae"
+                  target="_blank"
                   rel="noopener noreferrer"
                   className="text-slate-400 hover:text-blue-300 transition-colors inline-flex items-center gap-1 text-[11px]"
                 >
@@ -363,7 +363,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
 
             <ul className="space-y-3 text-xs">
               <li>
-                <button 
+                <button
                   onClick={() => handleLinkClick('branches')}
                   className="group text-left space-y-0.5 cursor-pointer block hover:text-blue-300 transition-colors"
                 >
@@ -378,7 +378,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
               </li>
 
               <li>
-                <button 
+                <button
                   onClick={() => handleLinkClick('branches')}
                   className="group text-left space-y-0.5 cursor-pointer block hover:text-emerald-300 transition-colors"
                 >
@@ -428,7 +428,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
         <div className="pt-4 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500 border-t border-slate-900">
           <p>© {new Date().getFullYear()} Smart Life Typing Services. All Rights Reserved. Sharjah, UAE.</p>
           <div className="flex items-center gap-3 text-[11px] text-slate-400">
-            <button 
+            <button
               onClick={() => handleLinkClick('privacy')}
               className="hover:text-blue-300 font-semibold underline underline-offset-4 transition-colors cursor-pointer text-blue-400 flex items-center gap-1"
             >

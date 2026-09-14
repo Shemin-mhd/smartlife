@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { GOOGLE_PROFILE_STATS, GOOGLE_REVIEWS_DATA } from '../data/googleReviewsData';
-import { 
-  Star, 
+import {
+  Star,
   StarHalf,
-  MapPin, 
-  ExternalLink, 
-  ThumbsUp, 
-  CheckCircle2, 
+  MapPin,
+  ExternalLink,
+  ThumbsUp,
+  CheckCircle2,
   Search,
   Filter,
   MessageSquare,
@@ -123,11 +123,11 @@ export const ReviewsPage: React.FC<ReviewsPageProps> = ({ onNavigate }) => {
 
   return (
     <div className="bg-slate-50 min-h-screen py-10 px-4 sm:px-6 lg:px-8 space-y-10">
-      
+
       {/* Top Hero Section - Clean, Open, Professional (No Boxy Card Container) */}
       <div className="max-w-7xl mx-auto pt-4 pb-2 space-y-6">
         <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 pb-8 border-b border-slate-200">
-          
+
           {/* Main Hero Copy */}
           <div className="space-y-4 max-w-2xl">
             <div className="inline-flex items-center gap-2 text-blue-700 text-xs font-bold uppercase tracking-wider">
@@ -233,7 +233,7 @@ export const ReviewsPage: React.FC<ReviewsPageProps> = ({ onNavigate }) => {
       {/* Filter and Search Bar Section - Unboxed & Clean Toolbar */}
       <div className="max-w-7xl mx-auto space-y-4 pt-1">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pb-4 border-b border-slate-200/80">
-          
+
           {/* Search Input */}
           <div className="relative w-full sm:w-80">
             <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
@@ -252,11 +252,10 @@ export const ReviewsPage: React.FC<ReviewsPageProps> = ({ onNavigate }) => {
               <button
                 key={branch}
                 onClick={() => setSelectedBranch(branch)}
-                className={`flex-1 sm:flex-initial px-4 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
-                  selectedBranch === branch
+                className={`flex-1 sm:flex-initial px-4 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${selectedBranch === branch
                     ? 'bg-white text-slate-900 shadow-2xs'
                     : 'text-slate-600 hover:text-slate-900'
-                }`}
+                  }`}
               >
                 {branch === 'All' ? 'All Branches (240+)' : `${branch} Branch`}
               </button>
@@ -275,11 +274,10 @@ export const ReviewsPage: React.FC<ReviewsPageProps> = ({ onNavigate }) => {
             <button
               key={cat}
               onClick={() => setSelectedCategory(cat)}
-              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
-                selectedCategory === cat
+              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${selectedCategory === cat
                   ? 'bg-[#4285F4] text-white shadow-2xs'
                   : 'bg-white hover:bg-slate-100 text-slate-700 border border-slate-200'
-              }`}
+                }`}
             >
               {cat}
             </button>
@@ -384,9 +382,8 @@ export const ReviewsPage: React.FC<ReviewsPageProps> = ({ onNavigate }) => {
                       <div className="flex items-center gap-3">
                         <button
                           onClick={(e) => toggleLike(e, rev.id)}
-                          className={`flex items-center gap-1 text-[11px] font-semibold px-2 py-1 rounded transition-colors ${
-                            isLiked ? 'text-[#4285F4] bg-blue-50' : 'hover:bg-slate-100 text-slate-500'
-                          }`}
+                          className={`flex items-center gap-1 text-[11px] font-semibold px-2 py-1 rounded transition-colors ${isLiked ? 'text-[#4285F4] bg-blue-50' : 'hover:bg-slate-100 text-slate-500'
+                            }`}
                         >
                           <ThumbsUp className={`w-3.5 h-3.5 ${isLiked ? 'fill-current text-[#4285F4]' : ''}`} />
                           <span>{likes}</span>

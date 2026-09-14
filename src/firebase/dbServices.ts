@@ -134,8 +134,8 @@ const saveDeletedServiceIds = (ids: Set<string>): void => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ type: 'deletedServices', data: arr })
-    }).catch(() => {});
-  } catch {}
+    }).catch(() => { });
+  } catch { }
 };
 
 // Helper to merge stored/live Firestore data with code-defined SERVICES_DATA defaults
@@ -145,25 +145,29 @@ const mergeWithCodeDefaults = (storedList: ServiceItem[], deletedIds?: Set<strin
   if (!activeStored.length && !deletedSet.size) {
     return SERVICES_DATA.map(s => s.category === 'indian_consulate' || s.categoryLabel === 'BLS Indian Consulate' ? { ...s, categoryLabel: 'Indian Consular Services' } : s);
   }
-  
+
   const codeMap = new Map(SERVICES_DATA.map(s => [s.id, s]));
   const storedIds = new Set(activeStored.map(s => s.id));
-  
+
   const mergedStored = activeStored.map(stored => {
     const codeService = codeMap.get(stored.id);
-    const updatedCategoryLabel = (stored.category === 'indian_consulate' || stored.categoryLabel === 'BLS Indian Consulate' || !stored.categoryLabel)
+    const updatedCategoryLabel = (stored.category === 'indian_consulate' || stored.categoryLabel?.includes('BLS') || !stored.categoryLabel)
       ? 'Indian Consular Services'
       : stored.categoryLabel;
 
     if (!codeService) return { ...stored, categoryLabel: updatedCategoryLabel };
 
+    const isIndianPassport = stored.id === 'indian-passport-renewal';
+    const requiredDocs = (isIndianPassport || !stored.requiredDocuments || stored.requiredDocuments.length < 7)
+      ? codeService.requiredDocuments
+      : stored.requiredDocuments;
+
     return {
       ...codeService,
       ...stored,
+      title: isIndianPassport ? codeService.title : (stored.title || codeService.title),
       categoryLabel: updatedCategoryLabel,
-      requiredDocuments: (stored.requiredDocuments && stored.requiredDocuments.length > 0)
-        ? stored.requiredDocuments
-        : codeService.requiredDocuments
+      requiredDocuments: requiredDocs
     };
   });
 
@@ -171,7 +175,7 @@ const mergeWithCodeDefaults = (storedList: ServiceItem[], deletedIds?: Set<strin
   const combined = [...mergedStored, ...missingCodeServices];
 
   return combined.map(s => {
-    if (s.category === 'indian_consulate' || s.categoryLabel === 'BLS Indian Consulate') {
+    if (s.category === 'indian_consulate' || s.categoryLabel?.includes('BLS')) {
       return { ...s, categoryLabel: 'Indian Consular Services' };
     }
     return s;
@@ -205,7 +209,7 @@ export const fetchServices = async (): Promise<ServiceItem[]> => {
           saveStoredLocal('smartlife_services', list);
         }
       }
-    } catch {}
+    } catch { }
   }
 
   if (!list.length) {
@@ -261,7 +265,7 @@ export const subscribeServices = (onData: (services: ServiceItem[]) => void): ((
     if (json.success && json.data && json.data.services && Array.isArray(json.data.services)) {
       handleUpdate(json.data.services);
     }
-  }).catch(() => {});
+  }).catch(() => { });
 
   const handleLocalEvent = () => handleUpdate();
   handleUpdate();
@@ -282,7 +286,7 @@ export const subscribeServices = (onData: (services: ServiceItem[]) => void): ((
         }
       };
     }
-  } catch {}
+  } catch { }
 
   return () => {
     if (unsubscribeFirestore) unsubscribeFirestore();
@@ -323,8 +327,8 @@ export const saveService = async (service: ServiceItem): Promise<boolean> => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ type: 'services', data: updated })
-    }).catch(() => {});
-  } catch {}
+    }).catch(() => { });
+  } catch { }
 
   window.dispatchEvent(new Event('smartlife_services_updated'));
   broadcastLiveEvent('SERVICES_UPDATED', updated);
@@ -332,8 +336,8 @@ export const saveService = async (service: ServiceItem): Promise<boolean> => {
 };
 
 export const saveAllServices = async (servicesList: ServiceItem[]): Promise<boolean> => {
-  const indexedList = servicesList.map((s, idx) => ({ 
-    ...s, 
+  const indexedList = servicesList.map((s, idx) => ({
+    ...s,
     sortOrder: idx + 1,
     isPopular: !!s.isPopular,
     badgeTag: s.isPopular ? (s.badgeTag || 'POPULAR') : ''
@@ -355,8 +359,8 @@ export const saveAllServices = async (servicesList: ServiceItem[]): Promise<bool
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ type: 'services', data: indexedList })
-    }).catch(() => {});
-  } catch {}
+    }).catch(() => { });
+  } catch { }
 
   saveStoredLocal('smartlife_services', indexedList);
   window.dispatchEvent(new Event('smartlife_services_updated'));
@@ -385,8 +389,8 @@ export const deleteService = async (serviceId: string): Promise<boolean> => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ type: 'services', data: updated })
-    }).catch(() => {});
-  } catch {}
+    }).catch(() => { });
+  } catch { }
 
   window.dispatchEvent(new Event('smartlife_services_updated'));
   broadcastLiveEvent('SERVICES_UPDATED', updated);
@@ -417,8 +421,8 @@ const saveDeletedBlogIds = (ids: Set<string>): void => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ type: 'deletedBlogs', data: arr })
-    }).catch(() => {});
-  } catch {}
+    }).catch(() => { });
+  } catch { }
 };
 
 const mergeBlogWithCodeDefaults = (storedList: BlogPost[], deletedIds?: Set<string>): BlogPost[] => {
@@ -494,7 +498,7 @@ export const fetchBlogPosts = async (): Promise<BlogPost[]> => {
           saveStoredLocal('smartlife_blogs', list);
         }
       }
-    } catch {}
+    } catch { }
   }
 
   if (!list.length) {
@@ -535,7 +539,7 @@ export const subscribeBlogPosts = (onData: (posts: BlogPost[]) => void): (() => 
     if (json.success && json.data && json.data.blogs && Array.isArray(json.data.blogs)) {
       handleUpdate(json.data.blogs);
     }
-  }).catch(() => {});
+  }).catch(() => { });
 
   const handleLocalEvent = () => handleUpdate();
   handleUpdate();
@@ -552,7 +556,7 @@ export const subscribeBlogPosts = (onData: (posts: BlogPost[]) => void): (() => 
         }
       };
     }
-  } catch {}
+  } catch { }
 
   return () => {
     if (unsubscribeFirestore) unsubscribeFirestore();
@@ -586,8 +590,8 @@ export const saveBlogPost = async (post: BlogPost): Promise<boolean> => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ type: 'blogs', data: updated })
-    }).catch(() => {});
-  } catch {}
+    }).catch(() => { });
+  } catch { }
 
   window.dispatchEvent(new Event('smartlife_blogs_updated'));
   broadcastLiveEvent('BLOGS_UPDATED', updated);
@@ -615,8 +619,8 @@ export const deleteBlogPost = async (postId: string): Promise<boolean> => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ type: 'blogs', data: updated })
-    }).catch(() => {});
-  } catch {}
+    }).catch(() => { });
+  } catch { }
 
   window.dispatchEvent(new Event('smartlife_blogs_updated'));
   broadcastLiveEvent('BLOGS_UPDATED', updated);
@@ -669,8 +673,8 @@ export const saveBranch = async (branch: Branch): Promise<boolean> => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ type: 'branches', data: updated })
-    }).catch(() => {});
-  } catch {}
+    }).catch(() => { });
+  } catch { }
 
   window.dispatchEvent(new Event('smartlife_branches_updated'));
   broadcastLiveEvent('BRANCHES_UPDATED', updated);
@@ -694,8 +698,8 @@ export const deleteBranch = async (id: string): Promise<boolean> => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ type: 'branches', data: updated })
-    }).catch(() => {});
-  } catch {}
+    }).catch(() => { });
+  } catch { }
 
   window.dispatchEvent(new Event('smartlife_branches_updated'));
   broadcastLiveEvent('BRANCHES_UPDATED', updated);
@@ -732,7 +736,7 @@ export const subscribeBranches = (onData: (branches: Branch[]) => void): (() => 
     if (json.success && json.data && json.data.branches && Array.isArray(json.data.branches)) {
       handleUpdate(json.data.branches);
     }
-  }).catch(() => {});
+  }).catch(() => { });
 
   const handleLocalEvent = () => handleUpdate();
   handleUpdate();
@@ -749,7 +753,7 @@ export const subscribeBranches = (onData: (branches: Branch[]) => void): (() => 
         }
       };
     }
-  } catch {}
+  } catch { }
 
   return () => {
     if (unsubscribeFirestore) unsubscribeFirestore();
@@ -811,7 +815,7 @@ export const subscribeFaqs = (onData: (faqs: FaqItem[]) => void): (() => void) =
     if (json.success && json.data && json.data.faqs && Array.isArray(json.data.faqs)) {
       handleUpdate(json.data.faqs);
     }
-  }).catch(() => {});
+  }).catch(() => { });
 
   const handleLocalEvent = () => handleUpdate();
   handleUpdate();
@@ -828,7 +832,7 @@ export const subscribeFaqs = (onData: (faqs: FaqItem[]) => void): (() => void) =
         }
       };
     }
-  } catch {}
+  } catch { }
 
   return () => {
     if (unsubscribeFirestore) unsubscribeFirestore();
@@ -862,8 +866,8 @@ export const saveFaq = async (faq: FaqItem): Promise<boolean> => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ type: 'faqs', data: updated })
-    }).catch(() => {});
-  } catch {}
+    }).catch(() => { });
+  } catch { }
 
   window.dispatchEvent(new Event('smartlife_faqs_updated'));
   broadcastLiveEvent('FAQS_UPDATED', updated);
@@ -887,8 +891,8 @@ export const deleteFaq = async (faqId: number): Promise<boolean> => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ type: 'faqs', data: updated })
-    }).catch(() => {});
-  } catch {}
+    }).catch(() => { });
+  } catch { }
 
   window.dispatchEvent(new Event('smartlife_faqs_updated'));
   broadcastLiveEvent('FAQS_UPDATED', updated);
@@ -943,7 +947,7 @@ export const subscribeInquiries = (onData: (inquiries: InquiryItem[]) => void): 
         }
       };
     }
-  } catch {}
+  } catch { }
 
   // 2. Dev Server SSE EventSource Stream (Instant Push)
   let eventSource: EventSource | null = null;
@@ -967,10 +971,10 @@ export const subscribeInquiries = (onData: (inquiries: InquiryItem[]) => void): 
             saveStoredLocalInquiries(filtered);
             onData(filtered);
           }
-        } catch {}
+        } catch { }
       };
     }
-  } catch {}
+  } catch { }
 
   // 3. Dev Server API Polling for Cross-Port Sync
   let lastInqFingerprint = '';
@@ -993,7 +997,7 @@ export const subscribeInquiries = (onData: (inquiries: InquiryItem[]) => void): 
           }
         }
       }
-    } catch {}
+    } catch { }
   }, 400);
 
   // 4. Firestore Stream
@@ -1048,7 +1052,7 @@ export const submitNewInquiry = async (inquiry: Omit<InquiryItem, 'id' | 'create
       bc.postMessage({ type: 'NEW_INQUIRY', payload: newItem });
       bc.close();
     }
-  } catch {}
+  } catch { }
 
   const inquiryJson = JSON.stringify(newItem);
   try {
@@ -1061,7 +1065,7 @@ export const submitNewInquiry = async (inquiry: Omit<InquiryItem, 'id' | 'create
         headers: { 'Content-Type': 'application/json' },
         body: inquiryJson,
         keepalive: true
-      }).catch(() => {});
+      }).catch(() => { });
     }
   } catch {
     fetch('/api/track-inquiry', {
@@ -1069,7 +1073,7 @@ export const submitNewInquiry = async (inquiry: Omit<InquiryItem, 'id' | 'create
       headers: { 'Content-Type': 'application/json' },
       body: inquiryJson,
       keepalive: true
-    }).catch(() => {});
+    }).catch(() => { });
   }
 
   if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
@@ -1081,8 +1085,8 @@ export const submitNewInquiry = async (inquiry: Omit<InquiryItem, 'id' | 'create
             headers: { 'Content-Type': 'application/json' },
             body: inquiryJson,
             keepalive: true
-          }).catch(() => {});
-        } catch {}
+          }).catch(() => { });
+        } catch { }
       }
     });
   }
@@ -1119,7 +1123,7 @@ export const updateInquiryStatus = async (id: string, status: InquiryItem['statu
       bc.postMessage({ type: 'INQUIRY_UPDATED' });
       bc.close();
     }
-  } catch {}
+  } catch { }
 
   if (isFirebaseConfigured() && db) {
     try {
@@ -1146,8 +1150,8 @@ export const deleteInquiry = async (id: string): Promise<boolean> => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id })
-    }).catch(() => {});
-  } catch {}
+    }).catch(() => { });
+  } catch { }
 
   if (isFirebaseConfigured() && db) {
     try {
@@ -1236,7 +1240,7 @@ export const subscribeWhatsAppClicks = (onData: (clicks: WhatsAppClickEvent[]) =
         }
       };
     }
-  } catch {}
+  } catch { }
 
   // Dev Server SSE EventSource Stream (Instant Sub-Second Push)
   let eventSource: EventSource | null = null;
@@ -1263,10 +1267,10 @@ export const subscribeWhatsAppClicks = (onData: (clicks: WhatsAppClickEvent[]) =
             saveStoredLocal('smartlife_wa_clicks', []);
             onData([]);
           }
-        } catch {}
+        } catch { }
       };
     }
-  } catch {}
+  } catch { }
 
   // Dev Server API Polling for Cross-Port Live Sync (e.g. 3001 vs 3000)
   let lastFingerprint = '';
@@ -1289,7 +1293,7 @@ export const subscribeWhatsAppClicks = (onData: (clicks: WhatsAppClickEvent[]) =
           }
         }
       }
-    } catch {}
+    } catch { }
   }, 400);
 
   // Firestore Cloud Database Listener
@@ -1358,7 +1362,7 @@ export const saveWhatsAppClick = async (event: Omit<WhatsAppClickEvent, 'id' | '
       bc.postMessage({ type: 'WA_CLICK', payload: newClick });
       bc.close();
     }
-  } catch {}
+  } catch { }
 
   const waJson = JSON.stringify(newClick);
   try {
@@ -1371,7 +1375,7 @@ export const saveWhatsAppClick = async (event: Omit<WhatsAppClickEvent, 'id' | '
         headers: { 'Content-Type': 'application/json' },
         body: waJson,
         keepalive: true
-      }).catch(() => {});
+      }).catch(() => { });
     }
   } catch {
     fetch('/api/track-wa-click', {
@@ -1379,7 +1383,7 @@ export const saveWhatsAppClick = async (event: Omit<WhatsAppClickEvent, 'id' | '
       headers: { 'Content-Type': 'application/json' },
       body: waJson,
       keepalive: true
-    }).catch(() => {});
+    }).catch(() => { });
   }
 
   if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
@@ -1391,8 +1395,8 @@ export const saveWhatsAppClick = async (event: Omit<WhatsAppClickEvent, 'id' | '
             headers: { 'Content-Type': 'application/json' },
             body: waJson,
             keepalive: true
-          }).catch(() => {});
-        } catch {}
+          }).catch(() => { });
+        } catch { }
       }
     });
   }
@@ -1420,8 +1424,8 @@ export const deleteWhatsAppClickEvent = async (id: string): Promise<boolean> => 
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id })
-    }).catch(() => {});
-  } catch {}
+    }).catch(() => { });
+  } catch { }
 
   if (isFirebaseConfigured() && db) {
     try {
@@ -1440,8 +1444,8 @@ export const clearAllWhatsAppClicks = async (): Promise<boolean> => {
   try {
     fetch('/api/clear-wa-clicks', {
       method: 'POST'
-    }).catch(() => {});
-  } catch {}
+    }).catch(() => { });
+  } catch { }
 
   if (isFirebaseConfigured() && db) {
     try {
