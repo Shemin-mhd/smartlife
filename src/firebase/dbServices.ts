@@ -119,16 +119,20 @@ const saveStoredLocal = <T>(key: string, data: T) => {
 
 // Helper to merge stored/live Firestore data with code-defined SERVICES_DATA defaults
 const mergeWithCodeDefaults = (storedList: ServiceItem[]): ServiceItem[] => {
-  if (!storedList || !storedList.length) return [];
+  if (!storedList || !storedList.length) return SERVICES_DATA;
   
   const codeMap = new Map(SERVICES_DATA.map(s => [s.id, s]));
   
   return storedList.map(stored => {
     const codeService = codeMap.get(stored.id);
     if (!codeService) return stored;
+
+    const useCodeDocs = !stored.isCustomized || (!stored.requiredDocuments || stored.requiredDocuments.length < codeService.requiredDocuments.length);
+
     return {
       ...codeService,
       ...stored,
+      requiredDocuments: useCodeDocs ? codeService.requiredDocuments : stored.requiredDocuments
     };
   });
 };

@@ -26,6 +26,7 @@ export const BranchesPage: React.FC = () => {
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
+    email: '',
     serviceNeeded: 'Family Residence Visa',
     preferredBranch: 'Abu Shagara Main Branch',
     message: ''
@@ -47,6 +48,7 @@ export const BranchesPage: React.FC = () => {
     await submitNewInquiry({
       clientName: formData.name,
       phone: formData.phone,
+      email: formData.email,
       serviceCategory: formData.serviceNeeded,
       serviceTitle: formData.serviceNeeded,
       message: formData.message || `Direct inquiry from website Branches page`,
@@ -59,6 +61,7 @@ export const BranchesPage: React.FC = () => {
       setFormData({
         name: '',
         phone: '',
+        email: '',
         serviceNeeded: 'Family Residence Visa',
         preferredBranch: 'Abu Shagara Main Branch',
         message: ''
@@ -256,6 +259,17 @@ export const BranchesPage: React.FC = () => {
                   value={formData.phone}
                   onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                   placeholder="+971 50 123 4567"
+                  className="w-full px-3.5 py-2 border border-slate-300 rounded-lg text-sm text-slate-900 focus:outline-none focus:border-blue-600"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">Email Address</label>
+                <input
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  placeholder="sheminmuhammed594@gmail.com"
                   className="w-full px-3.5 py-2 border border-slate-300 rounded-lg text-sm text-slate-900 focus:outline-none focus:border-blue-600"
                 />
               </div>

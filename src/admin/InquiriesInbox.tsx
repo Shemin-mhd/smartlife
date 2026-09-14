@@ -184,7 +184,10 @@ export const InquiriesInbox: React.FC = () => {
                     </td>
                     <td className="px-4 py-3 font-medium text-slate-900">
                       <div>{inquiry.clientName}</div>
-                      <div className="text-[11px] text-slate-500 font-normal">{inquiry.phone}</div>
+                      <div className="text-[11px] text-slate-500 font-normal">
+                        {inquiry.phone}
+                        {inquiry.email && <span className="block text-[10px] text-blue-600 font-mono truncate">{inquiry.email}</span>}
+                      </div>
                     </td>
                     <td className="px-4 py-3 text-slate-700">
                       <div className="font-medium text-slate-900">{inquiry.serviceTitle || inquiry.serviceCategory}</div>
@@ -258,6 +261,10 @@ export const InquiriesInbox: React.FC = () => {
                 <div>
                   <span className="text-[10px] text-slate-400 uppercase font-semibold">Contact Phone</span>
                   <div className="font-medium text-slate-800">{selectedInquiry.phone}</div>
+                </div>
+                <div>
+                  <span className="text-[10px] text-slate-400 uppercase font-semibold">Client Email</span>
+                  <div className="font-medium text-slate-800 font-mono text-[11px] truncate">{selectedInquiry.email || 'Not provided'}</div>
                 </div>
                 <div>
                   <span className="text-[10px] text-slate-400 uppercase font-semibold">Service Request</span>

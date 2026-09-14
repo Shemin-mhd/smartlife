@@ -219,6 +219,30 @@ export const GeneralSettingsManager: React.FC = () => {
 
                 </div>
 
+                {/* Target Notification Email Address */}
+                <div className="space-y-1.5 pt-1">
+                  <label className="block text-slate-800 font-bold flex items-center justify-between">
+                    <span className="flex items-center gap-1.5">
+                      <Mail className="w-3.5 h-3.5 text-blue-600" />
+                      <span>Target Notification Email Address</span>
+                    </span>
+                    <span className="text-[10px] text-emerald-700 font-mono font-bold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                      CONNECTED TO INQUIRIES
+                    </span>
+                  </label>
+                  <input
+                    type="email"
+                    required
+                    value={settings.notificationEmail || 'sheminmuhammed594@gmail.com'}
+                    onChange={(e) => setSettings({ ...settings, notificationEmail: e.target.value })}
+                    className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg focus:bg-white focus:outline-none focus:border-emerald-600 font-mono font-bold text-slate-900"
+                    placeholder="sheminmuhammed594@gmail.com"
+                  />
+                  <p className="text-[11px] text-slate-500">
+                    Direct client inquiry forms on the website send notification alerts & submissions directly to this email address.
+                  </p>
+                </div>
+
                 {/* Default Greeting Message */}
                 <div className="space-y-1.5">
                   <label className="block text-slate-800 font-bold">

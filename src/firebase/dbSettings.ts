@@ -19,6 +19,7 @@ export interface GeneralSettings {
   whatsappNumber: string; // Target WhatsApp number e.g. "971551585570" or "+971 55 158 5570"
   whatsappDisplayNumber: string; // Public display e.g. "+971 55 158 5570"
   whatsappDefaultMessage: string;
+  notificationEmail?: string; // Connected email for direct inquiry notifications
   businessName: string;
   supportEmail: string;
   workingHours: string;
@@ -31,6 +32,7 @@ export const DEFAULT_GENERAL_SETTINGS: GeneralSettings = {
   whatsappNumber: '971551585570',
   whatsappDisplayNumber: '+971 55 158 5570',
   whatsappDefaultMessage: 'Hello Smart Life Typing Services, I need assistance with UAE visa & government documentation.',
+  notificationEmail: 'sheminmuhammed594@gmail.com',
   businessName: 'Smart Life Typing Services',
   supportEmail: 'admin@smartlifetyping.ae',
   workingHours: 'Sat - Thu: 8:00 AM - 10:00 PM',
