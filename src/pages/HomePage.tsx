@@ -22,7 +22,8 @@ import {
   Building2,
   BookOpen,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  ExternalLink
 } from 'lucide-react';
 
 interface HomePageProps {
@@ -95,7 +96,7 @@ export const HomePage: React.FC<HomePageProps> = ({
             </p>
           </div>
 
-          {/* Services Cards Grid - Independent height cards */}
+          {/* Services Cards Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 items-start">
             {popularServices.slice(0, 3).map((service) => {
               const isExpanded = !!expandedServices[service.id];
@@ -109,7 +110,7 @@ export const HomePage: React.FC<HomePageProps> = ({
                   className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-6 shadow-2xs hover:border-blue-300 hover:shadow-xs transition-all flex flex-col justify-between min-w-0 overflow-hidden h-auto"
                 >
                   <div className="space-y-3">
-                    <div className="flex items-center justify-between gap-2 flex-wrap sm:flex-nowrap">
+                    <div className="flex items-center justify-between gap-2 min-h-[24px]">
                       <span className="text-xs font-bold text-blue-700 uppercase tracking-wider">
                         • {service.categoryLabel}
                       </span>
@@ -123,17 +124,17 @@ export const HomePage: React.FC<HomePageProps> = ({
 
                     <h3 
                       onClick={() => onNavigate && onNavigate('service-detail', service.id)}
-                      className="text-base font-bold text-slate-900 leading-snug cursor-pointer hover:text-blue-700 transition-colors"
+                      className="text-base font-bold text-slate-900 leading-snug cursor-pointer hover:text-blue-700 transition-colors line-clamp-2 min-h-[2.75rem] flex items-start"
                     >
                       {service.title}
                     </h3>
 
-                    <p className="text-slate-600 text-xs leading-relaxed">
+                    <p className="text-slate-600 text-xs leading-relaxed line-clamp-2 min-h-[2.25rem]">
                       {service.shortDesc}
                     </p>
 
                     {/* Turnaround Time */}
-                    <div className="flex items-center gap-2 text-xs font-medium text-slate-600 bg-slate-50 p-2.5 rounded-lg border border-slate-100">
+                    <div className="flex items-center gap-2 text-xs font-medium text-slate-600 bg-slate-50 p-2.5 rounded-lg border border-slate-100 min-h-[38px]">
                       <Clock className="w-3.5 h-3.5 text-blue-600 shrink-0" />
                       <span>Processing Time: <strong className="text-slate-800">{service.processingTime}</strong></span>
                     </div>
@@ -170,7 +171,7 @@ export const HomePage: React.FC<HomePageProps> = ({
                   </div>
 
                   {/* Action Buttons */}
-                  <div className="pt-4 mt-4 border-t border-slate-100 space-y-2">
+                  <div className="pt-4 mt-auto border-t border-slate-100 space-y-2 shrink-0">
                     <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2">
                       <button
                         onClick={() => onSelectServiceDocs(service)}
@@ -191,6 +192,20 @@ export const HomePage: React.FC<HomePageProps> = ({
                         <MessageSquare className="w-3.5 h-3.5 fill-current shrink-0" />
                         <span>WhatsApp</span>
                       </a>
+                    </div>
+
+                    <div className="h-5 flex items-center justify-center">
+                      {service.officialPortalUrl ? (
+                        <a
+                          href={service.officialPortalUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="w-full inline-flex items-center justify-center gap-1 text-[11px] font-medium text-slate-500 hover:text-blue-700"
+                        >
+                          <span>Official Portal: {service.officialPortalName}</span>
+                          <ExternalLink className="w-3 h-3" />
+                        </a>
+                      ) : null}
                     </div>
                   </div>
                 </div>

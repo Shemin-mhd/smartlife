@@ -369,10 +369,10 @@ export const Hero: React.FC<HeroProps> = ({
                 </div>
               </div>
 
-              {/* Card 2: Indian Passport Renewal Services (Foreground Bottom-Right Layer) */}
+              {/* Card 2: Certificate Attestation Services (Foreground Bottom-Right Layer) */}
               <div
                 onClick={() => {
-                  const matched = SERVICES_DATA.find(s => s.title.toLowerCase().includes('passport') || s.title.toLowerCase().includes('bls'));
+                  const matched = SERVICES_DATA.find(s => s.title.toLowerCase().includes('attestation') || s.title.toLowerCase().includes('certificate'));
                   if (matched && onSelectServiceDocs) {
                     onSelectServiceDocs(matched);
                   } else {
@@ -384,7 +384,7 @@ export const Hero: React.FC<HeroProps> = ({
                 <div className="space-y-3">
                   <div className="flex items-center justify-between gap-2 flex-wrap sm:flex-nowrap">
                     <span className="text-[10px] font-bold text-blue-700 uppercase tracking-wider bg-blue-50 px-2.5 py-0.5 rounded-full border border-blue-200/60">
-                      • BLS Indian Consulate
+                      • Certificate Attestation
                     </span>
                     <span className="text-[10px] font-extrabold text-amber-700 uppercase tracking-wider flex items-center gap-1 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200 shadow-2xs shrink-0">
                       <Sparkles className="w-3 h-3 text-amber-600 shrink-0" />
@@ -393,16 +393,16 @@ export const Hero: React.FC<HeroProps> = ({
                   </div>
 
                   <h3 className="text-sm sm:text-base font-extrabold text-slate-900 leading-snug group-hover:text-blue-700 transition-colors">
-                    Indian Passport Renewal Services (BLS Approved)
+                    Certificate Attestation Services (MOFA & Embassy)
                   </h3>
 
                   <p className="text-[11px] text-slate-500 leading-relaxed line-clamp-2">
-                    Complete Indian passport renewal, minor passport application, Tatkaal typing, photo formatting, and BLS form preparation.
+                    Degree certificate, diploma, marriage certificate, birth certificate, and commercial document legal attestation via MoFA UAE.
                   </p>
 
                   <div className="flex items-center gap-2 text-xs font-semibold text-slate-800 bg-blue-50/80 p-2 rounded-lg border border-blue-100">
                     <Clock className="w-3.5 h-3.5 text-blue-600 shrink-0" />
-                    <span>Processing Time: <strong className="text-slate-900">3 – 7 Working Days</strong></span>
+                    <span>Processing Time: <strong className="text-slate-900">5 – 10 Working Days</strong></span>
                   </div>
 
                   <div className="space-y-1 pt-0.5">
@@ -412,18 +412,18 @@ export const Hero: React.FC<HeroProps> = ({
                     <ul className="space-y-1 text-xs text-slate-700">
                       <li className="flex items-start gap-1.5 min-w-0">
                         <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
-                        <span className="truncate">Original Indian Passport & Residence Visa Copy</span>
+                        <span className="truncate">Original Certificate / Degree / Diploma</span>
                       </li>
                       <li className="flex items-start gap-1.5 min-w-0">
                         <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
-                        <span className="truncate">Original Emirates ID Card</span>
+                        <span className="truncate">Passport Copy of Document Owner</span>
                       </li>
                       <li className="flex items-start gap-1.5 min-w-0">
                         <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
-                        <span className="truncate">51mm x 51mm White Background Photographs</span>
+                        <span className="truncate">Emirates ID Copy (If Required)</span>
                       </li>
                       <li className="pl-5 text-[11px] font-bold text-blue-700">
-                        +4 more items in checklist
+                        +1 more items in checklist
                       </li>
                     </ul>
                   </div>

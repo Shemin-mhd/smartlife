@@ -170,16 +170,16 @@ export const ServicesSection: React.FC<ServicesSectionProps> = ({
             </button>
           </div>
         ) : (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 items-start">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredServices.map((service) => (
               <div
                 key={service.id}
-                className="bg-white border border-slate-200 rounded-xl p-5 shadow-xs hover:border-blue-400 hover:shadow-md transition-all flex flex-col justify-between group"
+                className="bg-white border border-slate-200 rounded-xl p-5 shadow-xs hover:border-blue-400 hover:shadow-md transition-all flex flex-col justify-between group h-full"
               >
-                <div className="space-y-3">
+                <div className="space-y-3 flex-1 flex flex-col">
                   
                   {/* Category Badge & Popular Tag */}
-                  <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center justify-between gap-2 min-h-[24px]">
                     <span className="text-xs font-bold text-blue-700 uppercase tracking-wider">
                       • {service.categoryLabel}
                     </span>
@@ -192,17 +192,17 @@ export const ServicesSection: React.FC<ServicesSectionProps> = ({
                   </div>
 
                   {/* Title */}
-                  <h3 className="font-bold text-slate-900 text-base group-hover:text-blue-700 transition-colors leading-snug">
+                  <h3 className="font-bold text-slate-900 text-base group-hover:text-blue-700 transition-colors leading-snug line-clamp-2 min-h-[2.75rem] flex items-start">
                     {service.title}
                   </h3>
 
                   {/* Short Description */}
-                  <p className="text-xs text-slate-600 leading-relaxed line-clamp-3">
+                  <p className="text-xs text-slate-600 leading-relaxed line-clamp-2 min-h-[2.25rem]">
                     {service.shortDesc}
                   </p>
 
                   {/* Processing Time Indicator */}
-                  <div className="flex items-center gap-1.5 text-slate-500 text-xs font-medium pt-1">
+                  <div className="flex items-center gap-1.5 text-slate-500 text-xs font-medium pt-1 min-h-[28px]">
                     <Clock className="w-3.5 h-3.5 text-blue-600 shrink-0" />
                     <span>Est. Time: <strong className="text-slate-800">{service.processingTime}</strong></span>
                   </div>
@@ -210,7 +210,7 @@ export const ServicesSection: React.FC<ServicesSectionProps> = ({
                 </div>
 
                 {/* Bottom Actions */}
-                <div className="pt-4 mt-4 border-t border-slate-100 space-y-2">
+                <div className="pt-4 mt-auto border-t border-slate-100 space-y-2 shrink-0">
                   
                   {/* Check Documents Button */}
                   <button
@@ -241,18 +241,19 @@ export const ServicesSection: React.FC<ServicesSectionProps> = ({
                   </a>
 
                   {/* Official Portal Reference */}
-                  {service.officialPortalUrl && (
-                    <a
-                      href={service.officialPortalUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 text-[11px] text-slate-400 hover:text-slate-600 pt-1"
-                    >
-                      <span>Official Portal: {service.officialPortalName}</span>
-                      <ExternalLink className="w-3 h-3" />
-                    </a>
-                  )}
-
+                  <div className="h-5 flex items-center justify-center">
+                    {service.officialPortalUrl ? (
+                      <a
+                        href={service.officialPortalUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 text-[11px] text-slate-400 hover:text-slate-600"
+                      >
+                        <span>Official Portal: {service.officialPortalName}</span>
+                        <ExternalLink className="w-3 h-3" />
+                      </a>
+                    ) : null}
+                  </div>
                 </div>
               </div>
             ))}

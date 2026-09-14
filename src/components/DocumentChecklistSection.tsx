@@ -70,11 +70,13 @@ export const DocumentChecklistSection: React.FC<DocumentChecklistSectionProps> =
                 key={service.id}
                 className="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col justify-between hover:border-blue-400 transition-colors min-w-0 overflow-hidden h-auto"
               >
-                <div>
-                  <span className="text-[10px] font-bold text-blue-700 uppercase tracking-wider">
-                    • {service.categoryLabel}
-                  </span>
-                  <h3 className="font-bold text-slate-900 text-base mt-2 mb-3">
+                <div className="space-y-3">
+                  <div className="min-h-[20px]">
+                    <span className="text-[10px] font-bold text-blue-700 uppercase tracking-wider">
+                      • {service.categoryLabel}
+                    </span>
+                  </div>
+                  <h3 className="font-bold text-slate-900 text-base line-clamp-2 min-h-[2.75rem] flex items-start">
                     {service.title}
                   </h3>
 
@@ -82,7 +84,7 @@ export const DocumentChecklistSection: React.FC<DocumentChecklistSectionProps> =
                     {visibleDocs.map((doc, idx) => (
                       <li key={idx} className="flex items-start gap-2 min-w-0">
                         <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
-                        <span className={isExpanded ? 'leading-relaxed text-slate-800 font-medium break-words min-w-0' : 'line-clamp-2 min-w-0'}>
+                        <span className={isExpanded ? 'leading-relaxed text-slate-800 font-medium break-words min-w-0' : 'truncate min-w-0'}>
                           {doc}
                         </span>
                       </li>
@@ -103,18 +105,18 @@ export const DocumentChecklistSection: React.FC<DocumentChecklistSectionProps> =
                   </ul>
                 </div>
 
-              <div className="pt-4 mt-4 border-t border-slate-100">
-                <button
-                  onClick={() => onSelectService(service)}
-                  className="w-full flex items-center justify-between text-xs font-bold text-blue-700 bg-blue-50 hover:bg-blue-100 px-3 py-2 rounded-lg transition-colors cursor-pointer"
-                >
-                  <span>View Complete Checklist</span>
-                  <ChevronRight className="w-4 h-4" />
-                </button>
+                <div className="pt-4 mt-auto border-t border-slate-100 shrink-0">
+                  <button
+                    onClick={() => onSelectService(service)}
+                    className="w-full flex items-center justify-between text-xs font-bold text-blue-700 bg-blue-50 hover:bg-blue-100 px-3 py-2 rounded-lg transition-colors cursor-pointer"
+                  >
+                    <span>View Complete Checklist</span>
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })}
         </div>
 
       </div>
