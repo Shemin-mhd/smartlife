@@ -57,7 +57,6 @@ export const BranchesManager: React.FC = () => {
   const handleDeleteBranch = async (id: string, name: string) => {
     if (window.confirm(`Are you sure you want to delete branch "${name}"?`)) {
       await deleteBranch(id);
-      await loadBranchesData();
     }
   };
 
@@ -66,7 +65,6 @@ export const BranchesManager: React.FC = () => {
     if (!editingBranch) return;
 
     await saveBranch(editingBranch);
-    await loadBranchesData();
     setEditingBranch(null);
   };
 

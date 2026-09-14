@@ -1,10 +1,23 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { MapPin, Phone, Clock, MessageSquare, ExternalLink, Navigation, Building2, CheckCircle } from 'lucide-react';
 import { BRANCHES_DATA } from '../data/branchesData';
+import { Branch } from '../types';
 import { getWhatsAppLink } from '../config/whatsapp';
 import { trackAndOpenWhatsApp } from '../utils/whatsappTracker';
+import { subscribeBranches } from '../firebase/dbServices';
 
 export const BranchLocator: React.FC = () => {
+  const [branchesList, setBranchesList] = useState<Branch[]>(BRANCHES_DATA);
+
+  useEffect(() => {
+    const unsub = subscribeBranches((liveBranches) => {
+      if (liveBranches && liveBranches.length > 0) {
+        setBranchesList(liveBranches);
+      }
+    });
+    return () => unsub();
+  }, []);
+
   return (
     <section id="branches" className="py-12 lg:py-16 bg-slate-50 border-b border-slate-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -25,7 +38,7 @@ export const BranchLocator: React.FC = () => {
 
         {/* Branches Grid */}
         <div className="grid md:grid-cols-2 gap-8">
-          {BRANCHES_DATA.map((branch) => (
+          {branchesList.map((branch) => (
             <div
               key={branch.id}
               className="bg-white border-2 border-slate-200 rounded-2xl p-6 sm:p-8 shadow-xs hover:border-blue-500 transition-all flex flex-col justify-between"

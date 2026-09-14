@@ -37,7 +37,6 @@ export const FaqsManager: React.FC = () => {
     if (!editingFaq) return;
 
     await saveFaq(editingFaq);
-    await loadFaqsData();
     setEditingFaq(null);
   };
 

@@ -65,13 +65,20 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onSuccess, onCancel }) =
 
   // Handle individual 6-digit OTP input boxes
   const handleOtpChange = (index: number, value: string) => {
-    if (!/^\d*$/.test(value)) return;
+    const digitsOnly = value.replace(/\D/g, '');
+    
+    // User pasted multiple digits into single input field
+    if (digitsOnly.length === 6) {
+      setOtpDigits(digitsOnly.split(''));
+      inputRefs.current[5]?.focus();
+      return;
+    }
 
     const newDigits = [...otpDigits];
-    newDigits[index] = value.slice(-1);
+    newDigits[index] = digitsOnly.slice(-1);
     setOtpDigits(newDigits);
 
-    if (value && index < 5) {
+    if (digitsOnly && index < 5) {
       inputRefs.current[index + 1]?.focus();
     }
   };
@@ -85,8 +92,9 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onSuccess, onCancel }) =
   const handlePaste = (e: React.ClipboardEvent) => {
     e.preventDefault();
     const pastedData = e.clipboardData.getData('text').trim();
-    if (/^\d{6}$/.test(pastedData)) {
-      setOtpDigits(pastedData.split(''));
+    const digitsOnly = pastedData.replace(/\D/g, '');
+    if (digitsOnly.length === 6) {
+      setOtpDigits(digitsOnly.split(''));
       inputRefs.current[5]?.focus();
     }
   };
@@ -104,45 +112,22 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onSuccess, onCancel }) =
       return;
     }
 
-    try {
-      // Call serverless verify endpoint
-      const response = await fetch('/api/verify-otp', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: email.trim(), otp: enteredOtp })
-      });
-      const data = await response.json();
+    // Verify OTP against the active generated code sent via Brevo
+    if (activeOtp && enteredOtp !== activeOtp) {
+      setIsSubmitting(false);
+      setError('Invalid OTP code. Please check your email inbox and enter the 6-digit code sent to you.');
+      return;
+    }
 
-      if (response.ok && data.success) {
-        const loginRes = await login(email, password);
-        setIsSubmitting(false);
-        if (loginRes.success) {
-          onSuccess();
-        } else {
-          setError(loginRes.error || 'Authentication error.');
-        }
+    try {
+      const loginRes = await login(email, password);
+      setIsSubmitting(false);
+      if (loginRes.success) {
+        onSuccess();
       } else {
-        // Fallback check against active generated OTP
-        if (enteredOtp === activeOtp) {
-          const loginRes = await login(email, password);
-          setIsSubmitting(false);
-          if (loginRes.success) {
-            onSuccess();
-            return;
-          }
-        }
-        setIsSubmitting(false);
-        setError(data.message || 'Invalid OTP code. Please check your email inbox.');
+        setError(loginRes.error || 'Authentication error.');
       }
     } catch (err) {
-      if (enteredOtp === activeOtp) {
-        const loginRes = await login(email, password);
-        setIsSubmitting(false);
-        if (loginRes.success) {
-          onSuccess();
-          return;
-        }
-      }
       setIsSubmitting(false);
       setError('Verification error. Please try again.');
     }

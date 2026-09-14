@@ -37,6 +37,7 @@ export const ServicesManager: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [editingService, setEditingService] = useState<ServiceItem | null>(null);
+  const originalBackupRef = React.useRef<ServiceItem | null>(null);
   const [isNew, setIsNew] = useState(false);
   const [modalTab, setModalTab] = useState<'details' | 'seo'>('details');
 
@@ -69,6 +70,39 @@ export const ServicesManager: React.FC = () => {
       unsubCategories();
     };
   }, []);
+
+  const [rawDocumentsText, setRawDocumentsText] = useState('');
+  const [rawKeywordsText, setRawKeywordsText] = useState('');
+
+  // Real-time live keystroke auto-sync as Admin types in Service Studio modal
+  useEffect(() => {
+    if (!editingService || !editingService.title) return;
+
+    const parsedDocs = rawDocumentsText
+      .split('\n')
+      .map(line => line.trim())
+      .filter(Boolean);
+
+    const parsedKeywords = rawKeywordsText
+      .split(',')
+      .map(k => k.trim())
+      .filter(Boolean);
+
+    const isPop = !!editingService.isPopular;
+    const liveDraft: ServiceItem = {
+      ...editingService,
+      requiredDocuments: parsedDocs,
+      keywords: parsedKeywords,
+      isPopular: isPop,
+      badgeTag: isPop ? (editingService.badgeTag || 'POPULAR') : ''
+    };
+
+    const timer = setTimeout(() => {
+      saveService(liveDraft);
+    }, 120);
+
+    return () => clearTimeout(timer);
+  }, [editingService, rawDocumentsText, rawKeywordsText]);
 
   const handleTogglePopular = async (service: ServiceItem) => {
     const nextIsPopular = !service.isPopular;
@@ -137,38 +171,69 @@ export const ServicesManager: React.FC = () => {
   const handleOpenAddModal = () => {
     setIsNew(true);
     setModalTab('details');
-    setEditingService({
+    const initialDocs = ['Sponsor Passport Copy & Emirates ID'];
+    const newSrv: ServiceItem = {
       id: `service_${Date.now()}`,
       title: '',
       category: categoriesList[0]?.id || 'visas',
       categoryLabel: categoriesList[0]?.label || 'Visas & Immigration',
       shortDesc: '',
       fullDesc: '',
-      requiredDocuments: ['Sponsor Passport Copy & Emirates ID'],
+      requiredDocuments: initialDocs,
       processingTime: '24 - 48 Hours',
       isPopular: false,
       keywords: []
-    });
+    };
+    originalBackupRef.current = null;
+    setEditingService(newSrv);
+    setRawDocumentsText(initialDocs.join('\n'));
+    setRawKeywordsText('');
   };
 
   const handleOpenEditModal = (service: ServiceItem) => {
     setIsNew(false);
     setModalTab('details');
+    originalBackupRef.current = { ...service };
     setEditingService({ ...service, keywords: service.keywords || [] });
+    setRawDocumentsText((service.requiredDocuments || []).join('\n'));
+    setRawKeywordsText((service.keywords || []).join(', '));
+  };
+
+  const handleCancelModal = async () => {
+    if (originalBackupRef.current) {
+      await saveService(originalBackupRef.current);
+    }
+    setEditingService(null);
   };
 
   const handleSaveModal = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingService) return;
 
+    const parsedDocs = rawDocumentsText
+      .split('\n')
+      .map(line => line.trim())
+      .filter(Boolean);
+
+    const parsedKeywords = rawKeywordsText
+      .split(',')
+      .map(k => k.trim())
+      .filter(Boolean);
+
     const isPop = !!editingService.isPopular;
     const serviceToSave: ServiceItem = {
       ...editingService,
+      requiredDocuments: parsedDocs,
+      keywords: parsedKeywords,
       isPopular: isPop,
       badgeTag: isPop ? (editingService.badgeTag || 'POPULAR') : ''
     };
 
-    setServices(prev => prev.map(s => s.id === serviceToSave.id ? serviceToSave : s));
+    if (isNew) {
+      setServices(prev => [serviceToSave, ...prev]);
+    } else {
+      setServices(prev => prev.map(s => s.id === serviceToSave.id ? serviceToSave : s));
+    }
     await saveService(serviceToSave);
     setEditingService(null);
   };
@@ -455,7 +520,7 @@ export const ServicesManager: React.FC = () => {
                   <span className="text-[10px] text-slate-400 font-mono">ID: {editingService.id}</span>
                 </div>
               </div>
-              <button onClick={() => setEditingService(null)} className="text-slate-400 hover:text-white text-xs cursor-pointer p-1">✕</button>
+              <button onClick={handleCancelModal} className="text-slate-400 hover:text-white text-xs cursor-pointer p-1">✕</button>
             </div>
 
             {/* Studio Navigation Tabs */}
@@ -602,15 +667,17 @@ export const ServicesManager: React.FC = () => {
                   </div>
 
                   <div>
-                    <label className="block text-slate-700 font-bold mb-1">Required Documents Checklist (One item per line)</label>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="block text-slate-700 font-bold">Required Documents Checklist (One item per line)</label>
+                      <span className="text-[11px] font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-100">
+                        {rawDocumentsText.split('\n').filter(line => line.trim()).length} Items Total
+                      </span>
+                    </div>
                     <textarea
-                      rows={4}
-                      value={editingService.requiredDocuments.join('\n')}
-                      onChange={(e) => setEditingService({
-                        ...editingService,
-                        requiredDocuments: e.target.value.split('\n').filter(Boolean)
-                      })}
-                      className="w-full p-2 bg-slate-50 border border-slate-300 rounded focus:bg-white focus:outline-none font-mono text-[11px]"
+                      rows={Math.max(7, rawDocumentsText.split('\n').length + 1)}
+                      value={rawDocumentsText}
+                      onChange={(e) => setRawDocumentsText(e.target.value)}
+                      className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded focus:bg-white focus:outline-none font-mono text-[11px] leading-relaxed"
                       placeholder="Sponsor Passport Copy&#10;Emirates ID Copy&#10;Tenancy Contract Ejari"
                     />
                   </div>
@@ -694,11 +761,8 @@ export const ServicesManager: React.FC = () => {
                     </label>
                     <input
                       type="text"
-                      value={(editingService.keywords || []).join(', ')}
-                      onChange={(e) => setEditingService({
-                        ...editingService,
-                        keywords: e.target.value.split(',').map(s => s.trim()).filter(Boolean)
-                      })}
+                      value={rawKeywordsText}
+                      onChange={(e) => setRawKeywordsText(e.target.value)}
                       className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded focus:bg-white focus:outline-none font-medium"
                       placeholder="e.g. family visa sharjah, ejari requirements, icp residence permit"
                     />
@@ -762,7 +826,7 @@ export const ServicesManager: React.FC = () => {
               <div className="flex items-center justify-end gap-2 pt-4 border-t border-slate-200">
                 <button
                   type="button"
-                  onClick={() => setEditingService(null)}
+                  onClick={handleCancelModal}
                   className="px-3 py-1.5 border border-slate-300 text-slate-700 rounded text-xs font-medium hover:bg-slate-50 cursor-pointer"
                 >
                   Cancel

@@ -1,12 +1,29 @@
 import nodemailer from 'nodemailer';
 
+import fs from 'fs';
+import path from 'path';
+
+let smtpUser = process.env.VITE_BREVO_SMTP_LOGIN || 'b8b99b001@smtp-brevo.com';
+let smtpPass = process.env.VITE_BREVO_API_KEY || '';
+
+try {
+  const envPath = path.resolve('.env');
+  if (fs.existsSync(envPath)) {
+    const envContent = fs.readFileSync(envPath, 'utf-8');
+    const matchKey = envContent.match(/VITE_BREVO_API_KEY\s*=\s*["']?([^"'\r\n]+)["']?/);
+    if (matchKey && matchKey[1]) smtpPass = matchKey[1].trim();
+    const matchUser = envContent.match(/VITE_BREVO_SMTP_LOGIN\s*=\s*["']?([^"'\r\n]+)["']?/);
+    if (matchUser && matchUser[1]) smtpUser = matchUser[1].trim();
+  }
+} catch (e) {}
+
 const transporter = nodemailer.createTransport({
   host: 'smtp-relay.brevo.com',
   port: 587,
   secure: false,
   auth: {
-    user: process.env.VITE_BREVO_SMTP_LOGIN || 'b8b99b001@smtp-brevo.com',
-    pass: process.env.VITE_BREVO_API_KEY || ''
+    user: smtpUser,
+    pass: smtpPass
   }
 });
 

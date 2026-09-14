@@ -1,17 +1,29 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { HelpCircle, ChevronDown, ChevronUp, MessageSquare, Search } from 'lucide-react';
 import { FAQS_DATA } from '../data/faqsData';
 import { BRANCHES_DATA } from '../data/branchesData';
+import { FaqItem } from '../types';
 import { getWhatsAppLink } from '../config/whatsapp';
 import { trackAndOpenWhatsApp } from '../utils/whatsappTracker';
+import { subscribeFaqs } from '../firebase/dbServices';
 
 export const FaqSection: React.FC = () => {
   const [openFaqId, setOpenFaqId] = useState<number | null>(1); // first FAQ open by default
   const [faqSearch, setFaqSearch] = useState('');
+  const [faqsList, setFaqsList] = useState<FaqItem[]>(FAQS_DATA);
+
+  useEffect(() => {
+    const unsub = subscribeFaqs((liveFaqs) => {
+      if (liveFaqs && liveFaqs.length > 0) {
+        setFaqsList(liveFaqs);
+      }
+    });
+    return () => unsub();
+  }, []);
 
   const mainBranch = BRANCHES_DATA[0];
 
-  const filteredFaqs = FAQS_DATA.filter((faq) => {
+  const filteredFaqs = faqsList.filter((faq) => {
     const q = faqSearch.toLowerCase().trim();
     if (!q) return true;
     return faq.question.toLowerCase().includes(q) || faq.answer.toLowerCase().includes(q);

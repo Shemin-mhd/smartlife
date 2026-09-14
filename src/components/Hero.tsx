@@ -15,6 +15,7 @@ import { SERVICES_DATA } from '../data/servicesData';
 import { ServiceItem } from '../types';
 import { getWhatsAppLink } from '../config/whatsapp';
 import { trackAndOpenWhatsApp } from '../utils/whatsappTracker';
+import { subscribeServices } from '../firebase/dbServices';
 
 interface HeroProps {
   searchQuery: string;
@@ -62,6 +63,16 @@ export const Hero: React.FC<HeroProps> = ({
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [activeCardIndex, setActiveCardIndex] = useState<number>(0);
   const [isPaused, setIsPaused] = useState<boolean>(false);
+  const [servicesList, setServicesList] = useState<ServiceItem[]>(SERVICES_DATA);
+
+  useEffect(() => {
+    const unsub = subscribeServices((liveServices) => {
+      if (liveServices && liveServices.length > 0) {
+        setServicesList(liveServices);
+      }
+    });
+    return () => unsub();
+  }, []);
 
   // Auto-slide every 3.5 seconds
   useEffect(() => {
@@ -94,7 +105,7 @@ export const Hero: React.FC<HeroProps> = ({
   const hasQuery = query.length >= 1;
 
   const matchingResults = hasQuery
-    ? SERVICES_DATA.filter(s =>
+    ? servicesList.filter(s =>
         s.title.toLowerCase().includes(query) ||
         s.categoryLabel.toLowerCase().includes(query) ||
         s.shortDesc.toLowerCase().includes(query) ||
@@ -297,149 +308,161 @@ export const Hero: React.FC<HeroProps> = ({
 
             <div className="relative w-full max-w-[480px] sm:max-w-[540px] h-[430px] sm:h-[470px] flex items-center justify-center">
               
-              {/* Card 1: All Emirates Family Visa Services (Staggered Top-Left Layer) */}
-              <div
-                onClick={() => {
-                  const matched = SERVICES_DATA.find(s => s.title.toLowerCase().includes('family') || s.title.toLowerCase().includes('residence'));
-                  if (matched && onSelectServiceDocs) {
-                    onSelectServiceDocs(matched);
-                  } else {
-                    onExploreServices();
-                  }
-                }}
-                className="absolute left-0 sm:left-2 top-0 sm:top-2 w-[290px] sm:w-[335px] bg-white border border-slate-200/90 rounded-2xl p-4 sm:p-5 shadow-xl hover:shadow-2xl transition-all duration-300 transform-gpu cursor-pointer z-10 hover:z-30 hover:scale-105 animate-float-1 group"
-              >
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between gap-2 flex-wrap sm:flex-nowrap">
-                    <span className="text-[10px] font-bold text-blue-700 uppercase tracking-wider bg-blue-50 px-2.5 py-0.5 rounded-full border border-blue-200/60">
-                      • Visas & Immigration
-                    </span>
-                    <span className="text-[10px] font-extrabold text-amber-700 uppercase tracking-wider flex items-center gap-1 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200 shadow-2xs shrink-0">
-                      <Sparkles className="w-3 h-3 text-amber-600 shrink-0" />
-                      POPULAR
-                    </span>
+              {/* Card 1: Dynamic Family Visa Service Card */}
+              {(() => {
+                const card1 = servicesList.find(s => s.id === 'family-visa' || s.title.toLowerCase().includes('family')) || servicesList[0];
+                if (!card1) return null;
+                const visibleDocs = (card1.requiredDocuments || []).slice(0, 3);
+                const extraDocsCount = Math.max(0, (card1.requiredDocuments || []).length - 3);
+
+                return (
+                  <div
+                    onClick={() => {
+                      if (onSelectServiceDocs) {
+                        onSelectServiceDocs(card1);
+                      } else {
+                        onExploreServices();
+                      }
+                    }}
+                    className="absolute left-0 sm:left-2 top-0 sm:top-2 w-[290px] sm:w-[335px] bg-white border border-slate-200/90 rounded-2xl p-4 sm:p-5 shadow-xl hover:shadow-2xl transition-all duration-300 transform-gpu cursor-pointer z-10 hover:z-30 hover:scale-105 animate-float-1 group"
+                  >
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between gap-2 flex-wrap sm:flex-nowrap">
+                        <span className="text-[10px] font-bold text-blue-700 uppercase tracking-wider bg-blue-50 px-2.5 py-0.5 rounded-full border border-blue-200/60">
+                          • {card1.categoryLabel || 'Visas & Immigration'}
+                        </span>
+                        {card1.isPopular && (
+                          <span className="text-[10px] font-extrabold text-amber-700 uppercase tracking-wider flex items-center gap-1 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200 shadow-2xs shrink-0">
+                            <Sparkles className="w-3 h-3 text-amber-600 shrink-0" />
+                            {card1.badgeTag ? card1.badgeTag.toUpperCase() : 'POPULAR'}
+                          </span>
+                        )}
+                      </div>
+
+                      <h3 className="text-sm sm:text-base font-extrabold text-slate-900 leading-snug group-hover:text-blue-700 transition-colors line-clamp-2">
+                        {card1.title}
+                      </h3>
+
+                      <p className="text-[11px] text-slate-500 leading-relaxed line-clamp-2">
+                        {card1.shortDesc}
+                      </p>
+
+                      <div className="flex items-center gap-2 text-xs font-semibold text-slate-800 bg-blue-50/80 p-2 rounded-lg border border-blue-100">
+                        <Clock className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                        <span>Processing Time: <strong className="text-slate-900">{card1.processingTime}</strong></span>
+                      </div>
+
+                      <div className="space-y-1 pt-0.5">
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                          Key Required Documents ({card1.requiredDocuments?.length || 0}):
+                        </p>
+                        <ul className="space-y-1 text-xs text-slate-700">
+                          {visibleDocs.map((d, i) => (
+                            <li key={i} className="flex items-start gap-1.5 min-w-0">
+                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
+                              <span className="truncate min-w-0">{d}</span>
+                            </li>
+                          ))}
+                          {extraDocsCount > 0 && (
+                            <li className="pl-5 text-[11px] font-bold text-blue-700">
+                              +{extraDocsCount} more items in checklist
+                            </li>
+                          )}
+                        </ul>
+                      </div>
+                    </div>
+
+                    <div className="pt-3 mt-3 border-t border-slate-100 flex items-center justify-between gap-2">
+                      <span className="text-[11px] font-bold bg-slate-900 hover:bg-slate-800 text-white px-3 py-1.5 rounded-lg flex items-center gap-1">
+                        <FileText className="w-3 h-3 text-blue-400" />
+                        <span>View Docs</span>
+                      </span>
+                      <span className="text-[11px] font-bold bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg flex items-center gap-1">
+                        <MessageSquare className="w-3 h-3 fill-current" />
+                        <span>WhatsApp</span>
+                      </span>
+                    </div>
                   </div>
+                );
+              })()}
 
-                  <h3 className="text-sm sm:text-base font-extrabold text-slate-900 leading-snug group-hover:text-blue-700 transition-colors">
-                    All Emirates Family Visa Services (New / Renewal)
-                  </h3>
+              {/* Card 2: Dynamic Certificate Attestation Service Card */}
+              {(() => {
+                const card2 = servicesList.find(s => s.id === 'certificate-attestation' || s.title.toLowerCase().includes('attestation')) || servicesList[1] || servicesList[0];
+                if (!card2) return null;
+                const visibleDocs = (card2.requiredDocuments || []).slice(0, 3);
+                const extraDocsCount = Math.max(0, (card2.requiredDocuments || []).length - 3);
 
-                  <p className="text-[11px] text-slate-500 leading-relaxed line-clamp-2">
-                    Comprehensive family residence visa application, entry permit, medical fitness typing, and Emirates ID processing across all 7 Emirates.
-                  </p>
+                return (
+                  <div
+                    onClick={() => {
+                      if (onSelectServiceDocs) {
+                        onSelectServiceDocs(card2);
+                      } else {
+                        onExploreServices();
+                      }
+                    }}
+                    className="absolute right-0 sm:right-2 bottom-0 sm:bottom-2 w-[295px] sm:w-[340px] bg-white border border-slate-200/90 rounded-2xl p-4 sm:p-5 shadow-2xl hover:shadow-2xl transition-all duration-300 transform-gpu cursor-pointer z-20 hover:z-30 hover:scale-105 animate-float-2 group"
+                  >
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between gap-2 flex-wrap sm:flex-nowrap">
+                        <span className="text-[10px] font-bold text-blue-700 uppercase tracking-wider bg-blue-50 px-2.5 py-0.5 rounded-full border border-blue-200/60">
+                          • {card2.categoryLabel || 'Certificate Attestation'}
+                        </span>
+                        {card2.isPopular && (
+                          <span className="text-[10px] font-extrabold text-amber-700 uppercase tracking-wider flex items-center gap-1 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200 shadow-2xs shrink-0">
+                            <Sparkles className="w-3 h-3 text-amber-600 shrink-0" />
+                            {card2.badgeTag ? card2.badgeTag.toUpperCase() : 'POPULAR'}
+                          </span>
+                        )}
+                      </div>
 
-                  <div className="flex items-center gap-2 text-xs font-semibold text-slate-800 bg-blue-50/80 p-2 rounded-lg border border-blue-100">
-                    <Clock className="w-3.5 h-3.5 text-blue-600 shrink-0" />
-                    <span>Processing Time: <strong className="text-slate-900">2 – 5 Working Days</strong></span>
+                      <h3 className="text-sm sm:text-base font-extrabold text-slate-900 leading-snug group-hover:text-blue-700 transition-colors line-clamp-2">
+                        {card2.title}
+                      </h3>
+
+                      <p className="text-[11px] text-slate-500 leading-relaxed line-clamp-2">
+                        {card2.shortDesc}
+                      </p>
+
+                      <div className="flex items-center gap-2 text-xs font-semibold text-slate-800 bg-blue-50/80 p-2 rounded-lg border border-blue-100">
+                        <Clock className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+                        <span>Processing Time: <strong className="text-slate-900">{card2.processingTime}</strong></span>
+                      </div>
+
+                      <div className="space-y-1 pt-0.5">
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                          Key Required Documents ({card2.requiredDocuments?.length || 0}):
+                        </p>
+                        <ul className="space-y-1 text-xs text-slate-700">
+                          {visibleDocs.map((d, i) => (
+                            <li key={i} className="flex items-start gap-1.5 min-w-0">
+                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
+                              <span className="truncate min-w-0">{d}</span>
+                            </li>
+                          ))}
+                          {extraDocsCount > 0 && (
+                            <li className="pl-5 text-[11px] font-bold text-blue-700">
+                              +{extraDocsCount} more items in checklist
+                            </li>
+                          )}
+                        </ul>
+                      </div>
+                    </div>
+
+                    <div className="pt-3 mt-3 border-t border-slate-100 flex items-center justify-between gap-2">
+                      <span className="text-[11px] font-bold bg-slate-900 hover:bg-slate-800 text-white px-3 py-1.5 rounded-lg flex items-center gap-1">
+                        <FileText className="w-3 h-3 text-blue-400" />
+                        <span>View Docs</span>
+                      </span>
+                      <span className="text-[11px] font-bold bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg flex items-center gap-1">
+                        <MessageSquare className="w-3 h-3 fill-current" />
+                        <span>WhatsApp</span>
+                      </span>
+                    </div>
                   </div>
-
-                  <div className="space-y-1 pt-0.5">
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                      Key Required Documents:
-                    </p>
-                    <ul className="space-y-1 text-xs text-slate-700">
-                      <li className="flex items-start gap-1.5 min-w-0">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
-                        <span className="truncate">Sponsor Passport Copy, Visa & Original EID</span>
-                      </li>
-                      <li className="flex items-start gap-1.5 min-w-0">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
-                        <span className="truncate">Sponsor Salary Certificate (Min AED 4,000)</span>
-                      </li>
-                      <li className="flex items-start gap-1.5 min-w-0">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
-                        <span className="truncate">Registered Tenancy Contract (EJARI / SEWA)</span>
-                      </li>
-                      <li className="pl-5 text-[11px] font-bold text-blue-700">
-                        +4 more items in checklist
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-
-                <div className="pt-3 mt-3 border-t border-slate-100 flex items-center justify-between gap-2">
-                  <span className="text-[11px] font-bold bg-slate-900 hover:bg-slate-800 text-white px-3 py-1.5 rounded-lg flex items-center gap-1">
-                    <FileText className="w-3 h-3 text-blue-400" />
-                    <span>View Docs</span>
-                  </span>
-                  <span className="text-[11px] font-bold bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg flex items-center gap-1">
-                    <MessageSquare className="w-3 h-3 fill-current" />
-                    <span>WhatsApp</span>
-                  </span>
-                </div>
-              </div>
-
-              {/* Card 2: Certificate Attestation Services (Foreground Bottom-Right Layer) */}
-              <div
-                onClick={() => {
-                  const matched = SERVICES_DATA.find(s => s.title.toLowerCase().includes('attestation') || s.title.toLowerCase().includes('certificate'));
-                  if (matched && onSelectServiceDocs) {
-                    onSelectServiceDocs(matched);
-                  } else {
-                    onExploreServices();
-                  }
-                }}
-                className="absolute right-0 sm:right-2 bottom-0 sm:bottom-2 w-[295px] sm:w-[340px] bg-white border border-slate-200/90 rounded-2xl p-4 sm:p-5 shadow-2xl hover:shadow-2xl transition-all duration-300 transform-gpu cursor-pointer z-20 hover:z-30 hover:scale-105 animate-float-2 group"
-              >
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between gap-2 flex-wrap sm:flex-nowrap">
-                    <span className="text-[10px] font-bold text-blue-700 uppercase tracking-wider bg-blue-50 px-2.5 py-0.5 rounded-full border border-blue-200/60">
-                      • Certificate Attestation
-                    </span>
-                    <span className="text-[10px] font-extrabold text-amber-700 uppercase tracking-wider flex items-center gap-1 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200 shadow-2xs shrink-0">
-                      <Sparkles className="w-3 h-3 text-amber-600 shrink-0" />
-                      POPULAR
-                    </span>
-                  </div>
-
-                  <h3 className="text-sm sm:text-base font-extrabold text-slate-900 leading-snug group-hover:text-blue-700 transition-colors">
-                    Certificate Attestation Services (MOFA & Embassy)
-                  </h3>
-
-                  <p className="text-[11px] text-slate-500 leading-relaxed line-clamp-2">
-                    Degree certificate, diploma, marriage certificate, birth certificate, and commercial document legal attestation via MoFA UAE.
-                  </p>
-
-                  <div className="flex items-center gap-2 text-xs font-semibold text-slate-800 bg-blue-50/80 p-2 rounded-lg border border-blue-100">
-                    <Clock className="w-3.5 h-3.5 text-blue-600 shrink-0" />
-                    <span>Processing Time: <strong className="text-slate-900">5 – 10 Working Days</strong></span>
-                  </div>
-
-                  <div className="space-y-1 pt-0.5">
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                      Key Required Documents:
-                    </p>
-                    <ul className="space-y-1 text-xs text-slate-700">
-                      <li className="flex items-start gap-1.5 min-w-0">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
-                        <span className="truncate">Original Certificate / Degree / Diploma</span>
-                      </li>
-                      <li className="flex items-start gap-1.5 min-w-0">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
-                        <span className="truncate">Passport Copy of Document Owner</span>
-                      </li>
-                      <li className="flex items-start gap-1.5 min-w-0">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
-                        <span className="truncate">Emirates ID Copy (If Required)</span>
-                      </li>
-                      <li className="pl-5 text-[11px] font-bold text-blue-700">
-                        +1 more items in checklist
-                      </li>
-                    </ul>
-                  </div>
-                </div>
-
-                <div className="pt-3 mt-3 border-t border-slate-100 flex items-center justify-between gap-2">
-                  <span className="text-[11px] font-bold bg-slate-900 hover:bg-slate-800 text-white px-3 py-1.5 rounded-lg flex items-center gap-1">
-                    <FileText className="w-3 h-3 text-blue-400" />
-                    <span>View Docs</span>
-                  </span>
-                  <span className="text-[11px] font-bold bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg flex items-center gap-1">
-                    <MessageSquare className="w-3 h-3 fill-current" />
-                    <span>WhatsApp</span>
-                  </span>
-                </div>
-              </div>
+                );
+              })()}
 
             </div>
           </div>

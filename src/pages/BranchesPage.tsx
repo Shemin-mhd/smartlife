@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BRANCHES_DATA } from '../data/branchesData';
 import { getWhatsAppLink } from '../config/whatsapp';
 import { trackAndOpenWhatsApp } from '../utils/whatsappTracker';
@@ -16,9 +16,11 @@ import {
   ExternalLink
 } from 'lucide-react';
 
-import { submitNewInquiry } from '../firebase/dbServices';
+import { Branch } from '../types';
+import { submitNewInquiry, subscribeBranches } from '../firebase/dbServices';
 
 export const BranchesPage: React.FC = () => {
+  const [branchesList, setBranchesList] = useState<Branch[]>(BRANCHES_DATA);
   const [selectedBranchId, setSelectedBranchId] = useState<string>(BRANCHES_DATA[0].id);
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [formData, setFormData] = useState({
@@ -29,7 +31,16 @@ export const BranchesPage: React.FC = () => {
     message: ''
   });
 
-  const selectedBranch = BRANCHES_DATA.find(b => b.id === selectedBranchId) || BRANCHES_DATA[0];
+  useEffect(() => {
+    const unsub = subscribeBranches((liveBranches) => {
+      if (liveBranches && liveBranches.length > 0) {
+        setBranchesList(liveBranches);
+      }
+    });
+    return () => unsub();
+  }, []);
+
+  const selectedBranch = branchesList.find(b => b.id === selectedBranchId) || branchesList[0] || BRANCHES_DATA[0];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -75,7 +86,7 @@ export const BranchesPage: React.FC = () => {
 
       {/* Branch Selector Cards */}
       <div className="grid md:grid-cols-2 gap-6">
-        {BRANCHES_DATA.map((branch) => (
+        {branchesList.map((branch) => (
           <div
             key={branch.id}
             onClick={() => setSelectedBranchId(branch.id)}

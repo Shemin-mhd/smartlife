@@ -26,7 +26,7 @@ import {
 import { BlogPost } from '../data/blogData';
 import { SERVICES_DATA } from '../data/servicesData';
 import { ServiceItem } from '../types';
-import { fetchBlogPosts, saveBlogPost, deleteBlogPost } from '../firebase/dbServices';
+import { fetchBlogPosts, saveBlogPost, deleteBlogPost, subscribeBlogPosts } from '../firebase/dbServices';
 
 const COVER_IMAGE_PRESETS = [
   {
@@ -67,8 +67,16 @@ export const BlogManager: React.FC = () => {
   };
 
   useEffect(() => {
-    loadBlogData();
+    setLoading(true);
+    const unsub = subscribeBlogPosts((liveBlogs) => {
+      setBlogs(liveBlogs);
+      setLoading(false);
+    });
+    return () => unsub();
   }, []);
+
+  const [rawKeyTakeawaysText, setRawKeyTakeawaysText] = useState('');
+  const [rawContentText, setRawContentText] = useState('');
 
   const handleDelete = async (id: string) => {
     if (window.confirm('Are you sure you want to delete this blog post?')) {
@@ -77,18 +85,51 @@ export const BlogManager: React.FC = () => {
     }
   };
 
+  const handleOpenEditPost = (post: BlogPost) => {
+    setIsNew(false);
+    setActiveTab('editor');
+    setEditingPost(post);
+    setRawKeyTakeawaysText((post.keyTakeaways || []).join('\n'));
+    setRawContentText((post.content || []).join('\n\n'));
+  };
+
   const handleSaveModal = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingPost) return;
 
-    await saveBlogPost(editingPost);
-    await loadBlogData();
+    const parsedKeyTakeaways = rawKeyTakeawaysText
+      .split('\n')
+      .map(s => s.trim())
+      .filter(Boolean);
+
+    const parsedContent = rawContentText
+      .split('\n\n')
+      .map(s => s.trim())
+      .filter(Boolean);
+
+    const postToSave: BlogPost = {
+      ...editingPost,
+      keyTakeaways: parsedKeyTakeaways,
+      content: parsedContent
+    };
+
+    await saveBlogPost(postToSave);
     setEditingPost(null);
   };
 
   const handleOpenAddModal = () => {
     setIsNew(true);
     setActiveTab('editor');
+    const initialTakeaways = [
+      'Minimum required salary is AED 4,000 or AED 3,000 + accommodation.',
+      'Attested marriage and birth certificates are mandatory.',
+      'EJARI tenancy contract must be in the sponsor name.'
+    ];
+    const initialContent = [
+      'Sponsoring family members in Sharjah requires meeting specific ICP and Sharjah Immigration requirements. Before submitting your application, ensure all required documents are verified.',
+      'Step 1: Obtain a valid Sharjah Municipality tenancy contract (EJARI) along with recent SEWA electricity bills.',
+      'Step 2: Complete medical fitness screening and Emirates ID typing simultaneously at Smart Life Typing Services.'
+    ];
     setEditingPost({
       id: 'post-' + Date.now(),
       title: '',
@@ -101,17 +142,11 @@ export const BlogManager: React.FC = () => {
       coverImage: COVER_IMAGE_PRESETS[0].url,
       relatedServiceId: 'srv-1',
       seoKeywords: ['family visa renewal sharjah', 'icp typing services'],
-      content: [
-        'Sponsoring family members in Sharjah requires meeting specific ICP and Sharjah Immigration requirements. Before submitting your application, ensure all required documents are verified.',
-        'Step 1: Obtain a valid Sharjah Municipality tenancy contract (EJARI) along with recent SEWA electricity bills.',
-        'Step 2: Complete medical fitness screening and Emirates ID typing simultaneously at Smart Life Typing Services.'
-      ],
-      keyTakeaways: [
-        'Minimum required salary is AED 4,000 or AED 3,000 + accommodation.',
-        'Attested marriage and birth certificates are mandatory.',
-        'EJARI tenancy contract must be in the sponsor name.'
-      ]
+      content: initialContent,
+      keyTakeaways: initialTakeaways
     });
+    setRawKeyTakeawaysText(initialTakeaways.join('\n'));
+    setRawContentText(initialContent.join('\n\n'));
   };
 
   const generateSlug = (title: string) => {
@@ -325,11 +360,7 @@ export const BlogManager: React.FC = () => {
 
                       <td className="px-4 py-3 text-right whitespace-nowrap space-x-1">
                         <button
-                          onClick={() => {
-                            setIsNew(false);
-                            setActiveTab('editor');
-                            setEditingPost(post);
-                          }}
+                          onClick={() => handleOpenEditPost(post)}
                           className="px-2.5 py-1 bg-slate-100 text-slate-700 border border-slate-200 rounded text-[11px] font-medium hover:bg-slate-200 transition cursor-pointer"
                         >
                           Edit Article
@@ -605,11 +636,8 @@ export const BlogManager: React.FC = () => {
                   <label className="block text-slate-800 font-bold mb-1">Key Takeaways & Executive Summary (One point per line)</label>
                   <textarea
                     rows={3}
-                    value={editingPost.keyTakeaways.join('\n')}
-                    onChange={(e) => setEditingPost({
-                      ...editingPost,
-                      keyTakeaways: e.target.value.split('\n').filter(Boolean)
-                    })}
+                    value={rawKeyTakeawaysText}
+                    onChange={(e) => setRawKeyTakeawaysText(e.target.value)}
                     className="w-full p-2 bg-slate-50 border border-slate-300 rounded-lg focus:bg-white focus:outline-none font-medium"
                     placeholder="Minimum salary AED 4,000 required&#10;Attested marriage certificate mandatory"
                   />
@@ -620,11 +648,8 @@ export const BlogManager: React.FC = () => {
                   <label className="block text-slate-800 font-bold mb-1">Article Content Paragraphs (Double break for new paragraph)</label>
                   <textarea
                     rows={7}
-                    value={editingPost.content.join('\n\n')}
-                    onChange={(e) => setEditingPost({
-                      ...editingPost,
-                      content: e.target.value.split('\n\n').filter(Boolean)
-                    })}
+                    value={rawContentText}
+                    onChange={(e) => setRawContentText(e.target.value)}
                     className="w-full p-2 bg-slate-50 border border-slate-300 rounded-lg focus:bg-white focus:outline-none text-xs leading-relaxed"
                     placeholder="Paragraph 1: Overview of ICP guidelines in Sharjah...&#10;&#10;Paragraph 2: Step 1 EJARI verification..."
                   />

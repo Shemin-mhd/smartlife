@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FileCheck, Search, CheckCircle2, ChevronRight, FileText } from 'lucide-react';
 import { SERVICES_DATA } from '../data/servicesData';
 import { ServiceItem } from '../types';
+import { subscribeServices } from '../firebase/dbServices';
 
 interface DocumentChecklistSectionProps {
   onSelectService: (service: ServiceItem) => void;
@@ -10,6 +11,16 @@ interface DocumentChecklistSectionProps {
 export const DocumentChecklistSection: React.FC<DocumentChecklistSectionProps> = ({ onSelectService }) => {
   const [docFilter, setDocFilter] = useState('');
   const [expandedServices, setExpandedServices] = useState<Record<string, boolean>>({});
+  const [servicesList, setServicesList] = useState<ServiceItem[]>(SERVICES_DATA);
+
+  useEffect(() => {
+    const unsub = subscribeServices((liveServices) => {
+      if (liveServices && liveServices.length > 0) {
+        setServicesList(liveServices);
+      }
+    });
+    return () => unsub();
+  }, []);
 
   const toggleExpandService = (serviceId: string, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -19,7 +30,7 @@ export const DocumentChecklistSection: React.FC<DocumentChecklistSectionProps> =
     }));
   };
 
-  const featuredServices = SERVICES_DATA.filter((s) => {
+  const featuredServices = servicesList.filter((s) => {
     if (!docFilter) return s.isPopular;
     return (
       s.title.toLowerCase().includes(docFilter.toLowerCase()) ||
@@ -58,7 +69,7 @@ export const DocumentChecklistSection: React.FC<DocumentChecklistSectionProps> =
         </div>
 
         {/* Requirements Preview Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 items-start">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 items-stretch">
           {featuredServices.slice(0, 6).map((service) => {
             const isExpanded = !!expandedServices[service.id];
             const visibleDocs = isExpanded
@@ -68,9 +79,9 @@ export const DocumentChecklistSection: React.FC<DocumentChecklistSectionProps> =
             return (
               <div
                 key={service.id}
-                className="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col justify-between hover:border-blue-400 transition-colors min-w-0 overflow-hidden h-auto"
+                className="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-xs flex flex-col justify-between hover:border-blue-400 transition-colors min-w-0 overflow-hidden h-full"
               >
-                <div className="space-y-3">
+                <div className="space-y-3 flex-1 flex flex-col">
                   <div className="min-h-[20px]">
                     <span className="text-[10px] font-bold text-blue-700 uppercase tracking-wider">
                       • {service.categoryLabel}
@@ -80,7 +91,7 @@ export const DocumentChecklistSection: React.FC<DocumentChecklistSectionProps> =
                     {service.title}
                   </h3>
 
-                  <ul className="space-y-2 text-xs text-slate-700">
+                  <ul className="space-y-2 text-xs text-slate-700 flex-1">
                     {visibleDocs.map((doc, idx) => (
                       <li key={idx} className="flex items-start gap-2 min-w-0">
                         <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />

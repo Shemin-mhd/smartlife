@@ -19,6 +19,7 @@ import { getSeoConfigForPage, updateDomMetadata } from './utils/seoManager';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { hashSHA256 } from './utils/cryptoHelper';
 import { initGlobalWhatsAppTracker } from './utils/whatsappTracker';
+import { subscribeServices } from './firebase/dbServices';
 
 // Dynamic Code-Splitting: Admin Panel JS bundle is NEVER downloaded by public visitors.
 // It only loads on-demand from the server when secret authorization succeeds.
@@ -65,7 +66,20 @@ function MainContent() {
   const [activeArticleSlug, setActiveArticleSlug] = useState<string>('sharjah-family-visa-renewal-guide');
   const [selectedServiceId, setSelectedServiceId] = useState<string>('family-visa');
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [selectedServiceDocs, setSelectedServiceDocs] = useState<ServiceItem | null>(null);
+  const [selectedServiceDocsId, setSelectedServiceDocsId] = useState<string | null>(null);
+  const [liveServicesList, setLiveServicesList] = useState<ServiceItem[]>([]);
+
+  // Real-time subscribe services to keep all global modals & page views updated
+  useEffect(() => {
+    const unsub = subscribeServices((live) => {
+      if (live && live.length > 0) setLiveServicesList(live);
+    });
+    return () => unsub();
+  }, []);
+
+  const activeServiceDocs = selectedServiceDocsId
+    ? liveServicesList.find(s => s.id === selectedServiceDocsId) || null
+    : null;
 
   // Derive active SEO config for current page / article / service
   const currentSeoConfig = getSeoConfigForPage(currentPage, currentPage === 'service-detail' ? selectedServiceId : activeArticleSlug);
@@ -176,7 +190,7 @@ function MainContent() {
             searchQuery={searchQuery}
             setSearchQuery={setSearchQuery}
             onNavigate={handleNavigate}
-            onSelectServiceDocs={(service) => setSelectedServiceDocs(service)}
+            onSelectServiceDocs={(service) => setSelectedServiceDocsId(service.id)}
           />
         )}
 
@@ -184,7 +198,7 @@ function MainContent() {
           <ServicesPage
             searchQuery={searchQuery}
             setSearchQuery={setSearchQuery}
-            onSelectServiceDocs={(service) => setSelectedServiceDocs(service)}
+            onSelectServiceDocs={(service) => setSelectedServiceDocsId(service.id)}
             onNavigate={handleNavigate}
           />
         )}
@@ -224,8 +238,8 @@ function MainContent() {
 
       {/* Document Checklist Modal */}
       <DocumentChecklistModal
-        service={selectedServiceDocs}
-        onClose={() => setSelectedServiceDocs(null)}
+        service={activeServiceDocs}
+        onClose={() => setSelectedServiceDocsId(null)}
       />
     </div>
   );

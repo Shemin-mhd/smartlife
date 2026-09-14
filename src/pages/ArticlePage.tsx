@@ -2,9 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { BLOG_POSTS, BlogPost } from '../data/blogData';
 import { SERVICES_DATA } from '../data/servicesData';
 import { BRANCHES_DATA } from '../data/branchesData';
+import { Branch, ServiceItem } from '../types';
 import { getWhatsAppLink } from '../config/whatsapp';
 import { trackAndOpenWhatsApp } from '../utils/whatsappTracker';
 import { generateArticleSchema, generateBreadcrumbSchema, SITE_DOMAIN } from '../data/seoData';
+import { subscribeBlogPosts, subscribeServices, subscribeBranches } from '../firebase/dbServices';
 import { 
   BookOpen, 
   Clock, 
@@ -31,13 +33,34 @@ interface ArticlePageProps {
 
 export const ArticlePage: React.FC<ArticlePageProps> = ({ articleSlug, onNavigate }) => {
   const [copied, setCopied] = useState(false);
-  const mainBranch = BRANCHES_DATA[0];
+  const [blogsList, setBlogsList] = useState<BlogPost[]>(BLOG_POSTS);
+  const [servicesList, setServicesList] = useState<ServiceItem[]>(SERVICES_DATA);
+  const [branchesList, setBranchesList] = useState<Branch[]>(BRANCHES_DATA);
 
-  const article = BLOG_POSTS.find(p => p.slug === articleSlug) || BLOG_POSTS[0];
-  const relatedArticles = BLOG_POSTS.filter(p => p.slug !== article.slug).slice(0, 2);
+  useEffect(() => {
+    const unsubBlogs = subscribeBlogPosts((liveBlogs) => {
+      if (liveBlogs && liveBlogs.length > 0) setBlogsList(liveBlogs);
+    });
+    const unsubServices = subscribeServices((liveServices) => {
+      if (liveServices && liveServices.length > 0) setServicesList(liveServices);
+    });
+    const unsubBranches = subscribeBranches((liveBranches) => {
+      if (liveBranches && liveBranches.length > 0) setBranchesList(liveBranches);
+    });
+
+    return () => {
+      unsubBlogs();
+      unsubServices();
+      unsubBranches();
+    };
+  }, []);
+
+  const mainBranch = branchesList[0] || BRANCHES_DATA[0];
+  const article = blogsList.find(p => p.slug === articleSlug) || blogsList[0] || BLOG_POSTS[0];
+  const relatedArticles = blogsList.filter(p => p.slug !== article.slug).slice(0, 2);
 
   const linkedService = article.relatedServiceId 
-    ? SERVICES_DATA.find(s => s.id === article.relatedServiceId)
+    ? servicesList.find(s => s.id === article.relatedServiceId)
     : null;
 
   // SEO, GEO, and AEO Dynamic Meta Tags & Schema Injection

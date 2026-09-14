@@ -6,9 +6,9 @@ import { SERVICES_DATA } from '../data/servicesData';
 import { BRANCHES_DATA } from '../data/branchesData';
 import { getWhatsAppLink } from '../config/whatsapp';
 import { COMPANY_STORY, COMPANY_VALUES } from '../data/companyData';
-import { BLOG_POSTS } from '../data/blogData';
-import { ServiceItem } from '../types';
-import { subscribeServices } from '../firebase/dbServices';
+import { BLOG_POSTS, BlogPost } from '../data/blogData';
+import { ServiceItem, Branch } from '../types';
+import { subscribeServices, subscribeBranches, subscribeBlogPosts } from '../firebase/dbServices';
 import { 
   ArrowRight, 
   CheckCircle2, 
@@ -40,9 +40,11 @@ export const HomePage: React.FC<HomePageProps> = ({
   onSelectServiceDocs,
 }) => {
   const [servicesList, setServicesList] = useState<ServiceItem[]>(SERVICES_DATA);
+  const [branchesList, setBranchesList] = useState<Branch[]>(BRANCHES_DATA);
+  const [blogsList, setBlogsList] = useState<BlogPost[]>(BLOG_POSTS);
   const [expandedServices, setExpandedServices] = useState<Record<string, boolean>>({});
   const [showAllPopular, setShowAllPopular] = useState(false);
-  const mainBranch = BRANCHES_DATA[0];
+  const mainBranch = branchesList[0] || BRANCHES_DATA[0];
 
   const toggleExpandService = (serviceId: string, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -53,12 +55,27 @@ export const HomePage: React.FC<HomePageProps> = ({
   };
 
   useEffect(() => {
-    const unsubscribe = subscribeServices((liveServices) => {
+    const unsubServices = subscribeServices((liveServices) => {
       if (liveServices && liveServices.length > 0) {
         setServicesList(liveServices);
       }
     });
-    return () => unsubscribe();
+    const unsubBranches = subscribeBranches((liveBranches) => {
+      if (liveBranches && liveBranches.length > 0) {
+        setBranchesList(liveBranches);
+      }
+    });
+    const unsubBlogs = subscribeBlogPosts((liveBlogs) => {
+      if (liveBlogs && liveBlogs.length > 0) {
+        setBlogsList(liveBlogs);
+      }
+    });
+
+    return () => {
+      unsubServices();
+      unsubBranches();
+      unsubBlogs();
+    };
   }, []);
 
   // Filter services marked as popular
@@ -97,7 +114,7 @@ export const HomePage: React.FC<HomePageProps> = ({
           </div>
 
           {/* Services Cards Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 items-start">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 items-stretch">
             {popularServices.slice(0, 3).map((service) => {
               const isExpanded = !!expandedServices[service.id];
               const visibleDocs = isExpanded
@@ -107,9 +124,9 @@ export const HomePage: React.FC<HomePageProps> = ({
               return (
                 <div
                   key={service.id}
-                  className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-6 shadow-2xs hover:border-blue-300 hover:shadow-xs transition-all flex flex-col justify-between min-w-0 overflow-hidden h-auto"
+                  className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-6 shadow-2xs hover:border-blue-300 hover:shadow-xs transition-all flex flex-col justify-between min-w-0 overflow-hidden h-full"
                 >
-                  <div className="space-y-3">
+                  <div className="space-y-3 flex-1 flex flex-col">
                     <div className="flex items-center justify-between gap-2 min-h-[24px]">
                       <span className="text-xs font-bold text-blue-700 uppercase tracking-wider">
                         • {service.categoryLabel}
@@ -140,11 +157,11 @@ export const HomePage: React.FC<HomePageProps> = ({
                     </div>
 
                     {/* Required Documents Highlight Preview */}
-                    <div className="space-y-1 pt-1">
+                    <div className="space-y-1 pt-1 flex-1 flex flex-col justify-start min-h-[130px]">
                       <p className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
                         Key Required Documents ({service.requiredDocuments.length}):
                       </p>
-                      <ul className="space-y-1.5 text-xs text-slate-700">
+                      <ul className="space-y-1.5 text-xs text-slate-700 flex-1">
                         {visibleDocs.map((doc, i) => (
                           <li key={i} className="flex items-start gap-1.5 min-w-0">
                             <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0 mt-0.5" />
@@ -312,7 +329,7 @@ export const HomePage: React.FC<HomePageProps> = ({
           </div>
 
           <div className="grid md:grid-cols-2 gap-6">
-            {BRANCHES_DATA.map((branch) => (
+            {branchesList.map((branch) => (
               <div key={branch.id} className="bg-white border border-slate-200 rounded-xl p-6 shadow-2xs hover:border-slate-300 transition-all space-y-4">
                 <div className="flex items-start justify-between">
                   <div>
@@ -383,7 +400,7 @@ export const HomePage: React.FC<HomePageProps> = ({
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {BLOG_POSTS.slice(0, 3).map((post) => (
+          {blogsList.slice(0, 3).map((post) => (
             <div
               key={post.id}
               onClick={() => onNavigate('blog-article', post.slug)}

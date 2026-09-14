@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FAQS_DATA } from '../data/faqsData';
 import { BRANCHES_DATA } from '../data/branchesData';
+import { Branch, FaqItem } from '../types';
 import { getWhatsAppLink } from '../config/whatsapp';
+import { subscribeFaqs, subscribeBranches } from '../firebase/dbServices';
 import { 
   HelpCircle, 
   ChevronDown, 
@@ -12,15 +14,34 @@ import {
 } from 'lucide-react';
 
 export const FaqPage: React.FC = () => {
-  const [activeFaqId, setActiveFaqId] = useState<number | null>(FAQS_DATA[0].id);
+  const [faqsList, setFaqsList] = useState<FaqItem[]>(FAQS_DATA);
+  const [branchesList, setBranchesList] = useState<Branch[]>(BRANCHES_DATA);
+  const [activeFaqId, setActiveFaqId] = useState<number | null>(FAQS_DATA[0]?.id || null);
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [searchQuery, setSearchQuery] = useState<string>('');
 
-  const mainBranch = BRANCHES_DATA[0];
+  useEffect(() => {
+    const unsubFaqs = subscribeFaqs((liveFaqs) => {
+      if (liveFaqs && liveFaqs.length > 0) {
+        setFaqsList(liveFaqs);
+      }
+    });
+    const unsubBranches = subscribeBranches((liveBranches) => {
+      if (liveBranches && liveBranches.length > 0) {
+        setBranchesList(liveBranches);
+      }
+    });
+    return () => {
+      unsubFaqs();
+      unsubBranches();
+    };
+  }, []);
+
+  const mainBranch = branchesList[0] || BRANCHES_DATA[0];
 
   const faqCategories = ['All', 'Visas & Residence', 'Medical & Emirates ID', 'Indian Consulate (BLS)', 'Attestation & Legal', 'General Services'];
 
-  const filteredFaqs = FAQS_DATA.filter((faq) => {
+  const filteredFaqs = faqsList.filter((faq) => {
     const matchesCategory = selectedCategory === 'All' || faq.category === selectedCategory;
     const q = searchQuery.toLowerCase().trim();
     if (!q) return matchesCategory;

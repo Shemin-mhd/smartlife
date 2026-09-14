@@ -62,6 +62,19 @@ const INITIAL_MOCK_INQUIRIES: InquiryItem[] = [
   }
 ];
 
+// Helper to broadcast live events across browser tabs via BroadcastChannel
+const broadcastLiveEvent = (type: string, payload?: any) => {
+  try {
+    if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
+      const bc = new BroadcastChannel('smartlife_live_events');
+      bc.postMessage({ type, payload });
+      bc.close();
+    }
+  } catch (e) {
+    console.warn('BroadcastChannel error:', e);
+  }
+};
+
 // Helper to get local stored inquiries if offline/demo
 const getStoredLocalInquiries = (): InquiryItem[] => {
   try {
@@ -106,38 +119,18 @@ const saveStoredLocal = <T>(key: string, data: T) => {
 
 // Helper to merge stored/live Firestore data with code-defined SERVICES_DATA defaults
 const mergeWithCodeDefaults = (storedList: ServiceItem[]): ServiceItem[] => {
-  if (!storedList || !storedList.length) return SERVICES_DATA;
+  if (!storedList || !storedList.length) return [];
   
   const codeMap = new Map(SERVICES_DATA.map(s => [s.id, s]));
   
-  const merged = storedList.map(stored => {
+  return storedList.map(stored => {
     const codeService = codeMap.get(stored.id);
-    if (!codeService) return stored; // User-created custom service in admin panel
-    if (stored.isCustomized) return stored; // Explicitly customized via Admin Dashboard
-    
-    // Default: prioritize code file (servicesData.ts) for content & document checklists
+    if (!codeService) return stored;
     return {
+      ...codeService,
       ...stored,
-      title: codeService.title,
-      shortDesc: codeService.shortDesc,
-      fullDesc: codeService.fullDesc,
-      requiredDocuments: codeService.requiredDocuments,
-      processingTime: codeService.processingTime,
-      officialPortalUrl: codeService.officialPortalUrl,
-      officialPortalName: codeService.officialPortalName,
-      keywords: codeService.keywords,
-      categoryLabel: codeService.categoryLabel,
     };
   });
-
-  // Include any code-defined services that aren't present in storedList
-  SERVICES_DATA.forEach(codeService => {
-    if (!storedList.some(s => s.id === codeService.id)) {
-      merged.push(codeService);
-    }
-  });
-
-  return merged;
 };
 
 export const fetchServices = async (): Promise<ServiceItem[]> => {
@@ -161,56 +154,76 @@ export const fetchServices = async (): Promise<ServiceItem[]> => {
     const rawLocal = localStorage.getItem('smartlife_services');
     if (!rawLocal) {
       list = SERVICES_DATA;
+      saveStoredLocal('smartlife_services', SERVICES_DATA);
     } else {
       list = getStoredLocal('smartlife_services', SERVICES_DATA);
     }
   }
 
   const merged = mergeWithCodeDefaults(list);
-  // Sort by sortOrder if available
   return merged.sort((a, b) => (a.sortOrder ?? 999) - (b.sortOrder ?? 999));
 };
 
 export const subscribeServices = (onData: (services: ServiceItem[]) => void): (() => void) => {
+  const handleUpdate = (liveList?: ServiceItem[]) => {
+    let listToMerge = liveList;
+    if (!listToMerge) {
+      const rawLocal = localStorage.getItem('smartlife_services');
+      listToMerge = rawLocal ? getStoredLocal('smartlife_services', SERVICES_DATA) : SERVICES_DATA;
+    }
+    const merged = mergeWithCodeDefaults(listToMerge);
+    const sorted = merged.sort((a, b) => (a.sortOrder ?? 999) - (b.sortOrder ?? 999));
+    onData(sorted);
+  };
+
+  let unsubscribeFirestore: (() => void) | null = null;
+
   if (isFirebaseConfigured() && db) {
     try {
       const q = collection(db, 'services');
-      const unsubscribe = onSnapshot(q, (snapshot) => {
+      unsubscribeFirestore = onSnapshot(q, (snapshot) => {
         if (snapshot.empty) {
-          // Auto-seed empty Firestore database with initial services
           saveAllServices(SERVICES_DATA);
           onData(SERVICES_DATA);
           return;
         }
         const liveList = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as ServiceItem));
-        const merged = mergeWithCodeDefaults(liveList);
-        const sorted = merged.sort((a, b) => (a.sortOrder ?? 999) - (b.sortOrder ?? 999));
-        onData(sorted);
+        handleUpdate(liveList);
       }, (err) => {
-        console.warn('Firestore services onSnapshot error:', err);
-        const local = getStoredLocal('smartlife_services', SERVICES_DATA);
-        const merged = mergeWithCodeDefaults(local);
-        onData(merged.sort((a, b) => (a.sortOrder ?? 999) - (b.sortOrder ?? 999)));
+        console.warn('Firestore services onSnapshot error, using local fallback:', err);
+        handleUpdate();
       });
-      return unsubscribe;
     } catch (e) {
       console.warn('Error setting up services listener:', e);
     }
   }
 
-  const handleUpdate = () => {
-    const local = getStoredLocal('smartlife_services', SERVICES_DATA);
-    const merged = mergeWithCodeDefaults(local);
-    onData(merged.sort((a, b) => (a.sortOrder ?? 999) - (b.sortOrder ?? 999)));
-  };
-
+  const handleLocalEvent = () => handleUpdate();
   handleUpdate();
-  window.addEventListener('smartlife_services_updated', handleUpdate);
-  window.addEventListener('storage', handleUpdate);
+  window.addEventListener('smartlife_services_updated', handleLocalEvent);
+  window.addEventListener('storage', handleLocalEvent);
+
+  let channel: BroadcastChannel | null = null;
+  try {
+    if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
+      channel = new BroadcastChannel('smartlife_live_events');
+      channel.onmessage = (e) => {
+        if (e.data?.type === 'SERVICES_UPDATED') {
+          if (e.data.payload && Array.isArray(e.data.payload)) {
+            handleUpdate(e.data.payload);
+          } else {
+            handleUpdate();
+          }
+        }
+      };
+    }
+  } catch {}
 
   return () => {
-    window.removeEventListener('smartlife_services_updated', handleUpdate);
-    window.removeEventListener('storage', handleUpdate);
+    if (unsubscribeFirestore) unsubscribeFirestore();
+    window.removeEventListener('smartlife_services_updated', handleLocalEvent);
+    window.removeEventListener('storage', handleLocalEvent);
+    channel?.close();
   };
 };
 
@@ -240,6 +253,7 @@ export const saveService = async (service: ServiceItem): Promise<boolean> => {
   }
   saveStoredLocal('smartlife_services', updated);
   window.dispatchEvent(new Event('smartlife_services_updated'));
+  broadcastLiveEvent('SERVICES_UPDATED', updated);
   return true;
 };
 
@@ -262,6 +276,7 @@ export const saveAllServices = async (servicesList: ServiceItem[]): Promise<bool
 
   saveStoredLocal('smartlife_services', indexedList);
   window.dispatchEvent(new Event('smartlife_services_updated'));
+  broadcastLiveEvent('SERVICES_UPDATED', indexedList);
   return true;
 };
 
@@ -277,6 +292,7 @@ export const deleteService = async (serviceId: string): Promise<boolean> => {
   const updated = current.filter(s => s.id !== serviceId);
   saveStoredLocal('smartlife_services', updated);
   window.dispatchEvent(new Event('smartlife_services_updated'));
+  broadcastLiveEvent('SERVICES_UPDATED', updated);
   return true;
 };
 
@@ -291,25 +307,29 @@ export const fetchBlogPosts = async (): Promise<BlogPost[]> => {
     });
   };
 
+  let list: BlogPost[] = [];
   if (isFirebaseConfigured() && db) {
     try {
       const querySnapshot = await getDocs(collection(db, 'blogs'));
       if (!querySnapshot.empty) {
-        const cloudPosts = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as BlogPost));
-        return syncBlogImages(cloudPosts);
+        list = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as BlogPost));
       } else {
         // Auto-seed empty Firestore blogs
         for (const post of BLOG_POSTS) {
           await setDoc(doc(db, 'blogs', post.id), post);
         }
-        return BLOG_POSTS;
+        list = BLOG_POSTS;
       }
     } catch (e) {
       console.warn('Firestore fetchBlogPosts fallback to local:', e);
     }
   }
-  saveStoredLocal('smartlife_blogs', BLOG_POSTS);
-  return BLOG_POSTS;
+
+  if (!list.length) {
+    list = getStoredLocal('smartlife_blogs', BLOG_POSTS);
+  }
+
+  return syncBlogImages(list);
 };
 
 export const subscribeBlogPosts = (onData: (posts: BlogPost[]) => void): (() => void) => {
@@ -320,36 +340,61 @@ export const subscribeBlogPosts = (onData: (posts: BlogPost[]) => void): (() => 
     });
   };
 
+  const handleUpdate = (liveList?: BlogPost[]) => {
+    const posts = liveList || getStoredLocal('smartlife_blogs', BLOG_POSTS);
+    onData(syncBlogImages(posts));
+  };
+
+  let unsubscribeFirestore: (() => void) | null = null;
+
   if (isFirebaseConfigured() && db) {
     try {
       const q = collection(db, 'blogs');
-      const unsubscribe = onSnapshot(q, (snapshot) => {
+      unsubscribeFirestore = onSnapshot(q, (snapshot) => {
         if (snapshot.empty) {
           BLOG_POSTS.forEach(p => setDoc(doc(db, 'blogs', p.id), p));
-          onData(BLOG_POSTS);
+          onData(syncBlogImages(BLOG_POSTS));
           return;
         }
         const cloudPosts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as BlogPost));
-        onData(syncBlogImages(cloudPosts));
+        handleUpdate(cloudPosts);
       }, () => {
-        saveStoredLocal('smartlife_blogs', BLOG_POSTS);
-        onData(BLOG_POSTS);
+        handleUpdate();
       });
-      return unsubscribe;
     } catch (e) {
       console.warn('Error subscribing to blogs:', e);
     }
   }
-  saveStoredLocal('smartlife_blogs', BLOG_POSTS);
-  onData(BLOG_POSTS);
-  return () => { };
+
+  const handleLocalEvent = () => handleUpdate();
+  handleUpdate();
+  window.addEventListener('smartlife_blogs_updated', handleLocalEvent);
+  window.addEventListener('storage', handleLocalEvent);
+
+  let channel: BroadcastChannel | null = null;
+  try {
+    if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
+      channel = new BroadcastChannel('smartlife_live_events');
+      channel.onmessage = (e) => {
+        if (e.data?.type === 'BLOGS_UPDATED') {
+          handleUpdate(e.data.payload);
+        }
+      };
+    }
+  } catch {}
+
+  return () => {
+    if (unsubscribeFirestore) unsubscribeFirestore();
+    window.removeEventListener('smartlife_blogs_updated', handleLocalEvent);
+    window.removeEventListener('storage', handleLocalEvent);
+    channel?.close();
+  };
 };
 
 export const saveBlogPost = async (post: BlogPost): Promise<boolean> => {
   if (isFirebaseConfigured() && db) {
     try {
       await setDoc(doc(db, 'blogs', post.id), post);
-      return true;
     } catch (e) {
       console.error('Error saving blog post to Firestore:', e);
     }
@@ -364,6 +409,8 @@ export const saveBlogPost = async (post: BlogPost): Promise<boolean> => {
     updated = [post, ...current];
   }
   saveStoredLocal('smartlife_blogs', updated);
+  window.dispatchEvent(new Event('smartlife_blogs_updated'));
+  broadcastLiveEvent('BLOGS_UPDATED', updated);
   return true;
 };
 
@@ -371,7 +418,6 @@ export const deleteBlogPost = async (postId: string): Promise<boolean> => {
   if (isFirebaseConfigured() && db) {
     try {
       await deleteDoc(doc(db, 'blogs', postId));
-      return true;
     } catch (e) {
       console.error('Error deleting blog post from Firestore:', e);
     }
@@ -379,6 +425,8 @@ export const deleteBlogPost = async (postId: string): Promise<boolean> => {
   const current = getStoredLocal('smartlife_blogs', BLOG_POSTS);
   const updated = current.filter(b => b.id !== postId);
   saveStoredLocal('smartlife_blogs', updated);
+  window.dispatchEvent(new Event('smartlife_blogs_updated'));
+  broadcastLiveEvent('BLOGS_UPDATED', updated);
   return true;
 };
 
@@ -408,7 +456,6 @@ export const saveBranch = async (branch: Branch): Promise<boolean> => {
   if (isFirebaseConfigured() && db) {
     try {
       await setDoc(doc(db, 'branches', branch.id), branch);
-      return true;
     } catch (e) {
       console.error('Error saving branch to Firestore:', e);
     }
@@ -423,6 +470,8 @@ export const saveBranch = async (branch: Branch): Promise<boolean> => {
     updated = [...current, branch];
   }
   saveStoredLocal('smartlife_branches', updated);
+  window.dispatchEvent(new Event('smartlife_branches_updated'));
+  broadcastLiveEvent('BRANCHES_UPDATED', updated);
   return true;
 };
 
@@ -430,7 +479,6 @@ export const deleteBranch = async (id: string): Promise<boolean> => {
   if (isFirebaseConfigured() && db) {
     try {
       await deleteDoc(doc(db, 'branches', id));
-      return true;
     } catch (e) {
       console.error('Error deleting branch from Firestore:', e);
     }
@@ -438,30 +486,60 @@ export const deleteBranch = async (id: string): Promise<boolean> => {
   const current = getStoredLocal('smartlife_branches', BRANCHES_DATA);
   const updated = current.filter(b => b.id !== id);
   saveStoredLocal('smartlife_branches', updated);
+  window.dispatchEvent(new Event('smartlife_branches_updated'));
+  broadcastLiveEvent('BRANCHES_UPDATED', updated);
   return true;
 };
 
 export const subscribeBranches = (onData: (branches: Branch[]) => void): (() => void) => {
+  const handleUpdate = (liveList?: Branch[]) => {
+    const branches = liveList || getStoredLocal('smartlife_branches', BRANCHES_DATA);
+    onData(branches);
+  };
+
+  let unsubscribeFirestore: (() => void) | null = null;
+
   if (isFirebaseConfigured() && db) {
     try {
       const q = collection(db, 'branches');
-      const unsubscribe = onSnapshot(q, (snapshot) => {
+      unsubscribeFirestore = onSnapshot(q, (snapshot) => {
         if (snapshot.empty) {
           BRANCHES_DATA.forEach(b => setDoc(doc(db, 'branches', b.id), b));
           onData(BRANCHES_DATA);
           return;
         }
-        onData(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Branch)));
+        handleUpdate(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Branch)));
       }, () => {
-        onData(getStoredLocal('smartlife_branches', BRANCHES_DATA));
+        handleUpdate();
       });
-      return unsubscribe;
     } catch (e) {
       console.warn('Error subscribing to branches:', e);
     }
   }
-  onData(getStoredLocal('smartlife_branches', BRANCHES_DATA));
-  return () => { };
+
+  const handleLocalEvent = () => handleUpdate();
+  handleUpdate();
+  window.addEventListener('smartlife_branches_updated', handleLocalEvent);
+  window.addEventListener('storage', handleLocalEvent);
+
+  let channel: BroadcastChannel | null = null;
+  try {
+    if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
+      channel = new BroadcastChannel('smartlife_live_events');
+      channel.onmessage = (e) => {
+        if (e.data?.type === 'BRANCHES_UPDATED') {
+          handleUpdate(e.data.payload);
+        }
+      };
+    }
+  } catch {}
+
+  return () => {
+    if (unsubscribeFirestore) unsubscribeFirestore();
+    window.removeEventListener('smartlife_branches_updated', handleLocalEvent);
+    window.removeEventListener('storage', handleLocalEvent);
+    channel?.close();
+  };
 };
 
 // ==========================================
@@ -487,33 +565,60 @@ export const fetchFaqs = async (): Promise<FaqItem[]> => {
 };
 
 export const subscribeFaqs = (onData: (faqs: FaqItem[]) => void): (() => void) => {
+  const handleUpdate = (liveList?: FaqItem[]) => {
+    const faqs = liveList || getStoredLocal('smartlife_faqs', FAQS_DATA);
+    onData(faqs);
+  };
+
+  let unsubscribeFirestore: (() => void) | null = null;
+
   if (isFirebaseConfigured() && db) {
     try {
       const q = collection(db, 'faqs');
-      const unsubscribe = onSnapshot(q, (snapshot) => {
+      unsubscribeFirestore = onSnapshot(q, (snapshot) => {
         if (snapshot.empty) {
           FAQS_DATA.forEach(f => setDoc(doc(db, 'faqs', String(f.id)), f));
           onData(FAQS_DATA);
           return;
         }
-        onData(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as unknown as FaqItem)));
+        handleUpdate(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as unknown as FaqItem)));
       }, () => {
-        onData(getStoredLocal('smartlife_faqs', FAQS_DATA));
+        handleUpdate();
       });
-      return unsubscribe;
     } catch (e) {
       console.warn('Error subscribing to FAQs:', e);
     }
   }
-  onData(getStoredLocal('smartlife_faqs', FAQS_DATA));
-  return () => { };
+
+  const handleLocalEvent = () => handleUpdate();
+  handleUpdate();
+  window.addEventListener('smartlife_faqs_updated', handleLocalEvent);
+  window.addEventListener('storage', handleLocalEvent);
+
+  let channel: BroadcastChannel | null = null;
+  try {
+    if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
+      channel = new BroadcastChannel('smartlife_live_events');
+      channel.onmessage = (e) => {
+        if (e.data?.type === 'FAQS_UPDATED') {
+          handleUpdate(e.data.payload);
+        }
+      };
+    }
+  } catch {}
+
+  return () => {
+    if (unsubscribeFirestore) unsubscribeFirestore();
+    window.removeEventListener('smartlife_faqs_updated', handleLocalEvent);
+    window.removeEventListener('storage', handleLocalEvent);
+    channel?.close();
+  };
 };
 
 export const saveFaq = async (faq: FaqItem): Promise<boolean> => {
   if (isFirebaseConfigured() && db) {
     try {
       await setDoc(doc(db, 'faqs', String(faq.id)), faq);
-      return true;
     } catch (e) {
       console.error('Error saving FAQ to Firestore:', e);
     }
@@ -528,6 +633,8 @@ export const saveFaq = async (faq: FaqItem): Promise<boolean> => {
     updated = [...current, faq];
   }
   saveStoredLocal('smartlife_faqs', updated);
+  window.dispatchEvent(new Event('smartlife_faqs_updated'));
+  broadcastLiveEvent('FAQS_UPDATED', updated);
   return true;
 };
 
@@ -535,7 +642,6 @@ export const deleteFaq = async (faqId: number): Promise<boolean> => {
   if (isFirebaseConfigured() && db) {
     try {
       await deleteDoc(doc(db, 'faqs', String(faqId)));
-      return true;
     } catch (e) {
       console.error('Error deleting FAQ from Firestore:', e);
     }
@@ -543,6 +649,8 @@ export const deleteFaq = async (faqId: number): Promise<boolean> => {
   const current = getStoredLocal('smartlife_faqs', FAQS_DATA);
   const updated = current.filter(f => f.id !== faqId);
   saveStoredLocal('smartlife_faqs', updated);
+  window.dispatchEvent(new Event('smartlife_faqs_updated'));
+  broadcastLiveEvent('FAQS_UPDATED', updated);
   return true;
 };
 

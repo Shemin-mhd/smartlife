@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { BLOG_POSTS } from '../data/blogData';
+import React, { useState, useEffect } from 'react';
+import { BLOG_POSTS, BlogPost } from '../data/blogData';
+import { subscribeBlogPosts } from '../firebase/dbServices';
 import { 
   BookOpen, 
   Search, 
@@ -16,10 +17,20 @@ interface BlogPageProps {
 export const BlogPage: React.FC<BlogPageProps> = ({ onNavigate }) => {
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [blogsList, setBlogsList] = useState<BlogPost[]>(BLOG_POSTS);
+
+  useEffect(() => {
+    const unsub = subscribeBlogPosts((liveBlogs) => {
+      if (liveBlogs && liveBlogs.length > 0) {
+        setBlogsList(liveBlogs);
+      }
+    });
+    return () => unsub();
+  }, []);
 
   const categories = ['All', 'Visa Updates', 'Attestation', 'Passport & BLS', 'MoHRE Labour'];
 
-  const filteredPosts = BLOG_POSTS.filter((post) => {
+  const filteredPosts = blogsList.filter((post) => {
     const matchesCategory = selectedCategory === 'All' || post.category === selectedCategory;
     const q = searchQuery.toLowerCase().trim();
     if (!q) return matchesCategory;
@@ -27,7 +38,7 @@ export const BlogPage: React.FC<BlogPageProps> = ({ onNavigate }) => {
     return matchesCategory && (
       post.title.toLowerCase().includes(q) ||
       post.summary.toLowerCase().includes(q) ||
-      post.keyTakeaways.some(k => k.toLowerCase().includes(q))
+      (post.keyTakeaways && post.keyTakeaways.some(k => k.toLowerCase().includes(q)))
     );
   });
 
