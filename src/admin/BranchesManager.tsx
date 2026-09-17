@@ -40,7 +40,7 @@ export const BranchesManager: React.FC = () => {
       whatsapp: '971551585570',
       googleMapUrl: 'https://maps.google.com',
       workingHours: '9:00 AM – 11:00 PM',
-      workingDays: 'Saturday to Thursday',
+      workingDays: 'All Days (No Holiday)',
       fridayHours: '9:00 AM – 12:00 PM & 4:00 PM – 11:00 PM',
       rating: 4.9,
       reviewCount: 50
@@ -292,7 +292,18 @@ export const BranchesManager: React.FC = () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div>
+                  <label className="block text-slate-700 font-bold mb-1">Working Days</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="e.g. All Days (No Holiday)"
+                    value={editingBranch.workingDays || ''}
+                    onChange={(e) => setEditingBranch({ ...editingBranch, workingDays: e.target.value })}
+                    className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg text-slate-900 focus:outline-none focus:border-blue-600 font-medium text-xs"
+                  />
+                </div>
                 <div>
                   <label className="block text-slate-700 font-bold mb-1">Working Hours</label>
                   <input
@@ -301,7 +312,7 @@ export const BranchesManager: React.FC = () => {
                     placeholder="9:00 AM – 11:00 PM"
                     value={editingBranch.workingHours}
                     onChange={(e) => setEditingBranch({ ...editingBranch, workingHours: e.target.value })}
-                    className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg text-slate-900 focus:outline-none focus:border-blue-600 font-medium"
+                    className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg text-slate-900 focus:outline-none focus:border-blue-600 font-medium text-xs"
                   />
                 </div>
                 <div>
@@ -311,7 +322,7 @@ export const BranchesManager: React.FC = () => {
                     placeholder="4:00 PM – 11:00 PM"
                     value={editingBranch.fridayHours || ''}
                     onChange={(e) => setEditingBranch({ ...editingBranch, fridayHours: e.target.value })}
-                    className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg text-slate-900 focus:outline-none focus:border-blue-600 font-medium"
+                    className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg text-slate-900 focus:outline-none focus:border-blue-600 font-medium text-xs"
                   />
                 </div>
               </div>

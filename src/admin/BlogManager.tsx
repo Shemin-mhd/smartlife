@@ -38,7 +38,7 @@ const COVER_IMAGE_PRESETS = [
     url: 'https://images.unsplash.com/photo-1450133064473-71024230f91b?q=80&w=1200&auto=format&fit=crop'
   },
   {
-    label: 'Passport & BLS Services',
+    label: 'Passport & Alhind Services',
     url: 'https://images.unsplash.com/photo-1544717305-2782549b5136?q=80&w=1200&auto=format&fit=crop'
   },
   {

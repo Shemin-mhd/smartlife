@@ -34,8 +34,8 @@ export const GOOGLE_REVIEWS_DATA: GoogleReview[] = [
     rating: 5,
     date: '1 month ago',
     branchName: 'Abu Shagara Main Branch',
-    serviceCategory: 'Indian Passport Renewal & BLS',
-    comment: 'One-stop solution for Indian consulate services in Sharjah. They typed my Indian passport renewal form, took passport photos in their studio, and scheduled the BLS appointment seamlessly. Saves so much time!',
+    serviceCategory: 'Indian Passport Renewal & Alhind',
+    comment: 'One-stop solution for Indian consulate services in Sharjah. They typed my Indian passport renewal form, took passport photos in their studio, and scheduled the Alhind appointment seamlessly. Saves so much time!',
     isVerifiedGoogle: true,
     likesCount: 9,
     googleUrl: ABU_SHAGARA_LINK
@@ -334,8 +334,8 @@ export const GOOGLE_REVIEWS_DATA: GoogleReview[] = [
     rating: 5,
     date: '3 months ago',
     branchName: 'Abu Shagara Main Branch',
-    serviceCategory: 'BLS Appointment & Tatkal Renewal',
-    comment: 'Very organized team in Abu Shagara Mirza building. They filled up my BLS application for Indian passport and printed all copies required.',
+    serviceCategory: 'Alhind Appointment & Tatkal Renewal',
+    comment: 'Very organized team in Abu Shagara Mirza building. They filled up my Alhind application for Indian passport and printed all copies required.',
     isVerifiedGoogle: true,
     likesCount: 9,
     googleUrl: ABU_SHAGARA_LINK

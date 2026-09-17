@@ -55,7 +55,7 @@ export function getSeoConfigForPage(pageKey: string, articleSlug?: string): Page
     case 'services':
       return {
         title: 'Government Typing Services & Visa Fee Checklist | Smart Life Sharjah',
-        description: 'Complete list of official government typing services in Sharjah: Family Visa Stamping, Tourist Visa, MoHRE Labour Contracts, Golden Visa Applications, MoFA Attestation, & BLS Indian Passport Renewal.',
+        description: 'Complete list of official government typing services in Sharjah: Family Visa Stamping, Tourist Visa, MoHRE Labour Contracts, Golden Visa Applications, MoFA Attestation, & Alhind Indian Passport Renewal.',
         canonicalUrl: `${baseUrl}/#services`,
         ogTitle: 'Government Typing Services & Visa Clearances | Smart Life Sharjah',
         ogDescription: '20+ government documentation services with transparent typing fees, required document lists, and online WhatsApp support.',
@@ -129,10 +129,10 @@ export function getSeoConfigForPage(pageKey: string, articleSlug?: string): Page
     case 'branches':
       return {
         title: 'Sharjah Branch Locations & Contact Details | Smart Life Typing',
-        description: 'Visit our customer service counters in Abu Shagara (Mirza Building) and Al Majaz 1 (Safeer Building), Sharjah. Phone: +971 55 158 5570. Hours: Sat - Thu 8am - 10pm.',
+        description: 'Visit our customer service counters in Abu Shagara (Mirza Building) and Al Majaz 1 (Safeer Building), Sharjah. Abu Shagara: All Days (No Holiday) | Al Majaz: All Days Except Sunday.',
         canonicalUrl: `${baseUrl}/#branches`,
         ogTitle: 'Sharjah Branch Locations & Contact | Smart Life Typing',
-        ogDescription: 'Abu Shagara Main Branch & Al Majaz 1 Branch 1. Direct phone, Google Maps directions, and working hours.',
+        ogDescription: 'Abu Shagara Main Branch & Al Majaz 1 Branch 2. Direct phone, Google Maps directions, and working hours.',
         ogImage: PAGE_SHARE_IMAGES.branches,
         ogType: 'place',
         twitterCard: 'summary_large_image',

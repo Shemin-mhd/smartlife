@@ -100,7 +100,7 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({ onNavigate
             <span className="text-xl font-bold text-slate-900">{servicesCount}</span>
             <span className="text-[10px] text-slate-500">Categorized</span>
           </div>
-          <p className="text-[10px] text-slate-400 mt-1">Visas, Attestation, BLS, MoHRE</p>
+          <p className="text-[10px] text-slate-400 mt-1">Visas, Attestation, Alhind, MoHRE</p>
         </div>
 
         {/* Metric 3 */}

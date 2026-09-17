@@ -101,31 +101,31 @@ export const VisaStatusHelper: React.FC = () => {
             </div>
           </div>
 
-          {/* Indian Passport / BLS Status */}
+          {/* Indian Passport / Alhind Status */}
           <div className="bg-slate-50 border border-slate-200 rounded-xl p-6 flex flex-col justify-between hover:border-blue-400 transition-colors">
             <div className="space-y-3">
               <span className="text-xs font-bold text-amber-700 uppercase tracking-wider">
-                • BLS INDIA PORTAL
+                • ALHIND INDIA PORTAL
               </span>
               <h3 className="text-lg font-bold text-slate-900">
                 Indian Passport & PCC Status
               </h3>
               <p className="text-xs text-slate-600 leading-relaxed">
-                Track your Indian passport renewal application, newborn passport, or PCC status submitted through BLS UAE.
+                Track your Indian passport renewal application, newborn passport, or PCC status submitted through Alhind UAE.
               </p>
             </div>
             <div className="pt-4 mt-4 border-t border-slate-200 space-y-2">
               <a
-                href="https://www.blsindia-uae.com/track-application.php"
+                href="https://alhindgroup.com"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-full flex items-center justify-center gap-2 bg-orange-600 hover:bg-orange-700 text-white font-semibold text-xs py-2.5 px-4 rounded-lg transition-colors"
               >
-                <span>Track BLS Application</span>
+                <span>Track Alhind Application</span>
                 <ExternalLink className="w-3.5 h-3.5" />
               </a>
               <button
-                onClick={() => handleGuideInquiry('BLS Indian Passport Services')}
+                onClick={() => handleGuideInquiry('Alhind Indian Passport Services')}
                 className="w-full text-xs font-semibold text-slate-700 hover:text-orange-700 py-1"
               >
                 Ask Smart Life to Check for You →

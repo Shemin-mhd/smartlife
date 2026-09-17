@@ -59,7 +59,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
             </div>
 
             <p className="text-xs text-slate-400 leading-relaxed max-w-xl">
-              Smart Life Typing Services is a government-approved typing & documentation center based in Sharjah, UAE. We specialize in fast, accurate processing for Family Residence Visas, Emirates ID, MoHRE Labour Contracts, Golden Visas, Certificate Attestation, Indian Passport Renewal (BLS), Trade Licenses, and Traffic Services across all 7 Emirates.
+              Smart Life Typing Services is a government-approved typing & documentation center based in Sharjah, UAE. We specialize in fast, accurate processing for Family Residence Visas, Emirates ID, MoHRE Labour Contracts, Golden Visas, Certificate Attestation, Indian Passport Renewal (Alhind), Trade Licenses, and Traffic Services across all 7 Emirates.
             </p>
 
             <div className="flex flex-wrap items-center gap-x-6 gap-y-2 pt-1 text-xs">
@@ -265,7 +265,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
               </li>
               <li>
                 <button onClick={() => handleLinkClick('service-detail', 'indian-passport-renewal')} className="hover:text-white transition-colors cursor-pointer text-left">
-                  Indian Passport (BLS) Renewal
+                  Indian Passport (Alhind) Renewal
                 </button>
               </li>
             </ul>
@@ -302,11 +302,11 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
               </li>
               <li>
                 <button
-                  onClick={() => handleLinkClick('blog-article', 'indian-passport-renewal-uae-bls-guide')}
+                  onClick={() => handleLinkClick('blog-article', 'indian-passport-renewal-uae-consular-guide')}
                   className="hover:text-white transition-colors cursor-pointer text-left line-clamp-1"
-                  title="Read BLS Indian Passport Guide"
+                  title="Read Alhind Indian Passport Guide"
                 >
-                  BLS Indian Passport Guide
+                  Alhind Indian Passport Guide
                 </button>
               </li>
               <li>
@@ -383,7 +383,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
                   className="group text-left space-y-0.5 cursor-pointer block hover:text-emerald-300 transition-colors"
                 >
                   <span className="text-xs font-bold text-emerald-400 group-hover:underline flex items-center gap-1">
-                    Al Majaz 1 (Branch 1)
+                    Al Majaz 1 (Branch 2)
                     <ArrowRight className="w-3 h-3 text-slate-500 group-hover:text-emerald-400 transition-colors" />
                   </span>
                   <p className="text-slate-400 text-[11px] leading-snug">
@@ -396,7 +396,7 @@ export const Footer: React.FC<FooterProps> = ({ onNavigate }) => {
             <div className="text-[11px] text-slate-400 pt-2 space-y-1.5 border-t border-slate-800/80">
               <div className="flex items-center gap-1.5 text-slate-300">
                 <Clock className="w-3.5 h-3.5 text-blue-400 shrink-0" />
-                <span>Working Hours: Sat – Thu 8am – 10pm</span>
+                <span>Abu Shagara: All Days (No Holiday) | Al Majaz: All Days Except Sun</span>
               </div>
               <div className="flex items-center gap-1.5 text-slate-300">
                 <Phone className="w-3.5 h-3.5 text-emerald-400 shrink-0" />

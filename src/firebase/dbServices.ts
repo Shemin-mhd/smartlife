@@ -167,6 +167,8 @@ const mergeWithCodeDefaults = (storedList: ServiceItem[], deletedIds?: Set<strin
       isPopular: isIndianPassport ? true : (stored.isPopular ?? codeService.isPopular),
       title: stored.title || codeService.title,
       categoryLabel: updatedCategoryLabel,
+      officialPortalName: stored.officialPortalName?.includes('BLS') ? codeService.officialPortalName : (stored.officialPortalName || codeService.officialPortalName),
+      officialPortalUrl: stored.officialPortalUrl?.includes('bls') ? codeService.officialPortalUrl : (stored.officialPortalUrl || codeService.officialPortalUrl),
       requiredDocuments: (stored.requiredDocuments && stored.requiredDocuments.length > 0)
         ? stored.requiredDocuments
         : codeService.requiredDocuments
@@ -636,12 +638,27 @@ export const deleteBlogPost = async (postId: string): Promise<boolean> => {
 // ==========================================
 // 3. BRANCHES API
 // ==========================================
+const mergeBranchesWithCodeDefaults = (branches: Branch[]): Branch[] => {
+  return branches.map(b => {
+    const codeDefault = BRANCHES_DATA.find(cd => cd.id === b.id);
+    if (!codeDefault) return b;
+    const updated = { ...b };
+    if (b.id === 'branch-1' && (b.name === 'Smart Life Typing Services (Al Majaz Branch)' || !b.name.includes('Studio'))) {
+      updated.name = codeDefault.name;
+    }
+    if (b.workingDays === 'Saturday to Thursday') {
+      updated.workingDays = codeDefault.workingDays;
+    }
+    return updated;
+  });
+};
+
 export const fetchBranches = async (): Promise<Branch[]> => {
   if (isFirebaseConfigured() && db) {
     try {
       const querySnapshot = await getDocs(collection(db, 'branches'));
       if (!querySnapshot.empty) {
-        return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Branch));
+        return mergeBranchesWithCodeDefaults(querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Branch)));
       } else {
         for (const branch of BRANCHES_DATA) {
           await setDoc(doc(db, 'branches', branch.id), branch);
@@ -652,7 +669,7 @@ export const fetchBranches = async (): Promise<Branch[]> => {
       console.warn('Firestore fetchBranches fallback to local:', e);
     }
   }
-  return getStoredLocal('smartlife_branches', BRANCHES_DATA);
+  return mergeBranchesWithCodeDefaults(getStoredLocal('smartlife_branches', BRANCHES_DATA));
 };
 
 export const saveBranch = async (branch: Branch): Promise<boolean> => {
@@ -714,8 +731,8 @@ export const deleteBranch = async (id: string): Promise<boolean> => {
 
 export const subscribeBranches = (onData: (branches: Branch[]) => void): (() => void) => {
   const handleUpdate = (liveList?: Branch[]) => {
-    const branches = liveList || getStoredLocal('smartlife_branches', BRANCHES_DATA);
-    onData(branches);
+    const rawBranches = liveList || getStoredLocal('smartlife_branches', BRANCHES_DATA);
+    onData(mergeBranchesWithCodeDefaults(rawBranches));
   };
 
   let unsubscribeFirestore: (() => void) | null = null;

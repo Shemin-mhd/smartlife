@@ -39,10 +39,12 @@ export const FaqPage: React.FC = () => {
 
   const mainBranch = branchesList[0] || BRANCHES_DATA[0];
 
-  const faqCategories = ['All', 'Visas & Residence', 'Medical & Emirates ID', 'Indian Consulate (BLS)', 'Attestation & Legal', 'General Services'];
+  const faqCategories = ['All', 'Visas & Residence', 'Medical & Emirates ID', 'Indian Consulate (Alhind)', 'Attestation & Legal', 'General Services'];
 
   const filteredFaqs = faqsList.filter((faq) => {
-    const matchesCategory = selectedCategory === 'All' || faq.category === selectedCategory;
+    const matchesCategory = selectedCategory === 'All' ||
+      faq.category === selectedCategory ||
+      (selectedCategory.includes('Indian') && (faq.category.includes('Indian') || faq.category.includes('Consulate')));
     const q = searchQuery.toLowerCase().trim();
     if (!q) return matchesCategory;
 

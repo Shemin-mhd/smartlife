@@ -31,7 +31,7 @@ export const ReviewsPage: React.FC<ReviewsPageProps> = ({ onNavigate }) => {
     'All',
     'Family Visas',
     'Medical & Emirates ID',
-    'Indian Passport & BLS',
+    'Indian Passport & Alhind',
     'Attestation & MoFA',
     'SEWA & Tenancy',
     'Photo Studio',
@@ -100,7 +100,7 @@ export const ReviewsPage: React.FC<ReviewsPageProps> = ({ onNavigate }) => {
       const revCatLower = rev.serviceCategory.toLowerCase();
       if (catLower.includes('family') && !revCatLower.includes('family')) return false;
       if (catLower.includes('medical') && (!revCatLower.includes('medical') && !revCatLower.includes('emirates id'))) return false;
-      if (catLower.includes('passport') && (!revCatLower.includes('passport') && !revCatLower.includes('bls') && !revCatLower.includes('pcc'))) return false;
+      if (catLower.includes('passport') && (!revCatLower.includes('passport') && !revCatLower.includes('alhind') && !revCatLower.includes('bls') && !revCatLower.includes('pcc'))) return false;
       if (catLower.includes('attestation') && (!revCatLower.includes('attestation') && !revCatLower.includes('mofa'))) return false;
       if (catLower.includes('sewa') && (!revCatLower.includes('sewa') && !revCatLower.includes('tenancy') && !revCatLower.includes('ejari'))) return false;
       if (catLower.includes('photo') && !revCatLower.includes('photo')) return false;
@@ -239,7 +239,7 @@ export const ReviewsPage: React.FC<ReviewsPageProps> = ({ onNavigate }) => {
             <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               type="text"
-              placeholder="Search reviews (e.g. Family Visa, BLS, SEWA)..."
+              placeholder="Search reviews (e.g. Family Visa, Alhind, SEWA)..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full bg-white border border-slate-200 rounded-xl pl-10 pr-4 py-2 text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-[#4285F4] focus:border-transparent shadow-2xs"

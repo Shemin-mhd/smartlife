@@ -185,7 +185,7 @@ export const Hero: React.FC<HeroProps> = ({
                     setSearchQuery(e.target.value);
                     setIsOpen(true);
                   }}
-                  placeholder="Search service, documents, or guides e.g., Family Visa, BLS, SEWA..."
+                  placeholder="Search service, documents, or guides e.g., Family Visa, Alhind, SEWA..."
                   className="w-full pl-11 pr-32 py-3.5 bg-white border border-slate-300 rounded-xl text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100 text-sm font-medium shadow-2xs transition-all"
                 />
 

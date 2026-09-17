@@ -43,7 +43,7 @@ export const COMPANY_TIMELINE: TimelineMilestone[] = [
   {
     year: "2018",
     title: "Indian Consulate & Attestation Wing",
-    description: "Expanded service scope to include comprehensive Indian Passport renewal, BLS application typing, certificate attestation, and legal document translations."
+    description: "Expanded service scope to include comprehensive Indian Passport renewal, Alhind application typing, certificate attestation, and legal document translations."
   },
   {
     year: "2021",
@@ -121,6 +121,6 @@ export const COMPANY_GALLERY: GalleryItem[] = [
     title: "Consular Application Assistance",
     category: "Consular Services",
     imageUrl: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=800&q=80",
-    description: "Professional guidance for Indian passport renewal, BLS forms, and power of attorney drafting."
+    description: "Professional guidance for Indian passport renewal, Alhind forms, and power of attorney drafting."
   }
 ];

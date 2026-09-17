@@ -75,9 +75,9 @@ export const LOCAL_BUSINESS_SCHEMA = {
     {
       "@type": "LocalBusiness",
       "@id": `${SITE_DOMAIN}/#branch-1`,
-      "name": "Smart Life Typing Services - Al Majaz Branch",
+      "name": "Smart Life Typing & Studio - Al Majaz Branch",
       "url": SITE_DOMAIN,
-      "telephone": "+971-55-158-5570",
+      "telephone": "+971-50-229-0133",
       "sameAs": [
         "https://share.google/rIhEXUZKW3lbeGl2o"
       ],
@@ -104,15 +104,9 @@ export const LOCAL_BUSINESS_SCHEMA = {
       "openingHoursSpecification": [
         {
           "@type": "OpeningHoursSpecification",
-          "dayOfWeek": ["Saturday", "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday"],
-          "opens": "09:00",
-          "closes": "23:00"
-        },
-        {
-          "@type": "OpeningHoursSpecification",
-          "dayOfWeek": ["Friday"],
-          "opens": "16:00",
-          "closes": "23:00"
+          "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+          "opens": "08:00",
+          "closes": "20:00"
         }
       ],
       "areaServed": "Sharjah"

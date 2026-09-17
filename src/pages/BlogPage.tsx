@@ -72,7 +72,7 @@ export const BlogPage: React.FC<BlogPageProps> = ({ onNavigate }) => {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search guide topics e.g., Family Visa, Attestation, BLS Passport..."
+                placeholder="Search guide topics e.g., Family Visa, Attestation, Alhind Passport..."
                 className="w-full pl-10 pr-10 py-2.5 bg-white border border-slate-300 rounded-xl text-slate-900 placeholder:text-slate-400 text-sm font-medium focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-600 shadow-2xs"
               />
               {searchQuery && (

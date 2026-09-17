@@ -19,12 +19,12 @@ export const BRANCHES_DATA: Branch[] = [
     rating: 4.9,
     reviewCount: 148,
     workingHours: '9:00 AM – 11:00 PM',
-    workingDays: 'Saturday to Thursday',
+    workingDays: 'All Days (No Holiday)',
     fridayHours: '9:00 AM – 12:00 PM & 4:00 PM – 11:00 PM'
   },
   {
     id: 'branch-1',
-    name: 'Smart Life Typing Services (Al Majaz Branch)',
+    name: 'Smart Life Typing & Studio (Al Majaz Branch)',
     isMain: false,
     address: 'Safeer Building, Shop No. 2, Al Majaz 1',
     area: 'Al Majaz 1',
@@ -40,7 +40,7 @@ export const BRANCHES_DATA: Branch[] = [
     rating: 4.9,
     reviewCount: 92,
     workingHours: '8:00 AM – 8:00 PM',
-    workingDays: 'Saturday to Thursday',
+    workingDays: 'All Days Except Sunday',
     fridayHours: '4:00 PM – 11:00 PM'
   }
 ];

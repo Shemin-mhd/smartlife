@@ -82,8 +82,8 @@ export const SERVICES_DATA: ServiceItem[] = [
     isPopular: true,
     badgeTag: 'POPULAR',
     keywords: ['Indian passport renewal Sharjah', 'Indian consular services Sharjah', 'Indian consulate passport renewal', 'Tatkaal Indian passport Dubai'],
-    officialPortalUrl: 'https://blsindia-uae.com',
-    officialPortalName: 'Indian Consular & BLS Portal'
+    officialPortalUrl: 'https://alhindgroup.com',
+    officialPortalName: 'Indian Consular & Alhind Portal'
   },
   {
     id: 'certificate-attestation',
@@ -202,11 +202,11 @@ export const DOCUMENT_CHECKLISTS: DocumentChecklist[] = [
   },
   {
     serviceId: 'indian-passport-renewal',
-    title: 'Indian Passport Renewal (BLS) Checklist',
+    title: 'Indian Passport Renewal (Alhind) Checklist',
     documents: [
       { name: 'Original Indian Passport', isMandatory: true, description: 'Current passport along with first and last page copies.' },
       { name: 'Valid UAE Residence Visa Copy', isMandatory: true, description: 'Current valid residency page or digital visa copy.' },
-      { name: 'Original Emirates ID Card', isMandatory: true, description: 'Mandatory for identity verification at BLS counter.' },
+      { name: 'Original Emirates ID Card', isMandatory: true, description: 'Mandatory for identity verification at Alhind counter.' },
       { name: '51mm x 51mm White Background Photo', isMandatory: true, description: 'Specific studio format required for Indian passport.' },
       { name: 'Address Proof (if changing address)', isMandatory: false, description: 'Aadhaar, utility bill, or Indian election card copy.' },
       { name: 'Spouse Passport Copy', isMandatory: false, description: 'Required for adding spouse name endorsement.' }

@@ -123,6 +123,10 @@ export const BranchesPage: React.FC = () => {
                 <span className="font-semibold text-slate-800">{branch.landmark}</span>
               </div>
               <div className="flex items-center justify-between">
+                <span className="text-slate-500 font-medium">Schedule:</span>
+                <span className="font-semibold text-slate-800">{branch.workingDays}</span>
+              </div>
+              <div className="flex items-center justify-between">
                 <span className="text-slate-500 font-medium">Working Hours:</span>
                 <span className="font-semibold text-slate-800">{branch.workingHours}</span>
               </div>
@@ -281,7 +285,7 @@ export const BranchesPage: React.FC = () => {
                 >
                   <option>Family Residence Visa</option>
                   <option>Emirates ID & Medical Typing</option>
-                  <option>Indian Passport Renewal / BLS</option>
+                  <option>Indian Passport Renewal / Alhind</option>
                   <option>Certificate Attestation (MoFA)</option>
                   <option>MoHRE Labour Contract</option>
                   <option>Company Setup / Business PRO</option>

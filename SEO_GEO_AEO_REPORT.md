@@ -65,7 +65,7 @@ Both physical branches are represented with exact, consistent NAP data throughou
   - *Google Share URL:* `https://share.google/3VGnVqIDpDhxLwC8L`
   - *Google Rating:* 4.9 ⭐ (148+ Verified Google Reviews)
   - *Geo-Coordinates:* Latitude `25.3463`, Longitude `55.3864`
-- **Al Majaz Branch (Smart Life Typing Services):**  
+- **Al Majaz Branch (Smart Life Typing & Studio):**  
   - *Address:* Safeer Building, Shop No. 2, Al Majaz 1, Sharjah, UAE (P.O. Box 61168)
   - *Phone / WhatsApp:* `+971-55-158-5570` (`055 158 5570`)  
   - *Google Share URL:* `https://share.google/TN5Jqwcs1QqngYm2n`
@@ -84,7 +84,7 @@ The copy and guides heavily feature official UAE and Sharjah local authority ent
 - **MoHRE (Ministry of Human Resources and Emiratisation)**
 - **MoFA (Ministry of Foreign Affairs UAE)**
 - **Sharjah EJARI / SEWA (Electricity & Water Authority)**
-- **BLS International (Consulate General of India)**
+- **Alhind (Consulate General of India)**
 - **Tasheel & Amer Centers**
 
 ### 2.4 One-Tap Local Action Triggers

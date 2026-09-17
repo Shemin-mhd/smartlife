@@ -52,7 +52,7 @@ export const BranchLocator: React.FC = () => {
                       branch.isMain ? 'text-blue-700' : 'text-emerald-700'
                     }`}
                   >
-                    {branch.isMain ? '★ MAIN BRANCH' : 'BRANCH 1'}
+                    {branch.isMain ? '★ MAIN BRANCH' : 'BRANCH 2'}
                   </span>
                   <span className="text-xs text-slate-500 font-semibold flex items-center gap-1">
                     <Building2 className="w-4 h-4 text-slate-400" />

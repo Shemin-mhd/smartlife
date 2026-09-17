@@ -17,6 +17,8 @@ import {
   Briefcase
 } from 'lucide-react';
 import { BRANCHES_DATA } from '../data/branchesData';
+import { Branch } from '../types';
+import { subscribeBranches } from '../firebase/dbServices';
 
 interface HeaderProps {
   currentPage: string;
@@ -28,16 +30,27 @@ export const Header: React.FC<HeaderProps> = ({ currentPage, onNavigate }) => {
   const [activeBranchIndex, setActiveBranchIndex] = useState(0);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const dropdownTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const mainBranch = BRANCHES_DATA[0];
+  const [branchesList, setBranchesList] = useState<Branch[]>(BRANCHES_DATA);
+  const mainBranch = branchesList[0] || BRANCHES_DATA[0];
+
+  useEffect(() => {
+    const unsub = subscribeBranches((liveBranches) => {
+      if (liveBranches && liveBranches.length > 0) {
+        setBranchesList(liveBranches);
+      }
+    });
+    return () => unsub();
+  }, []);
 
   // Auto-shift top branch info vertically every 4 seconds
   useEffect(() => {
+    if (branchesList.length === 0) return;
     const timer = setInterval(() => {
-      setActiveBranchIndex((prev) => (prev + 1) % BRANCHES_DATA.length);
+      setActiveBranchIndex((prev) => (prev + 1) % branchesList.length);
     }, 4000);
 
     return () => clearInterval(timer);
-  }, []);
+  }, [branchesList.length]);
 
   const handleNavClick = (pageId: string) => {
     onNavigate(pageId);
@@ -100,7 +113,7 @@ export const Header: React.FC<HeaderProps> = ({ currentPage, onNavigate }) => {
               className="transition-transform duration-500 ease-in-out"
               style={{ transform: `translateY(-${activeBranchIndex * 24}px)` }}
             >
-              {BRANCHES_DATA.map((branch) => (
+              {branchesList.map((branch) => (
                 <div
                   key={branch.id}
                   className="h-6 flex items-center gap-3 sm:gap-6 text-[11px] font-medium whitespace-nowrap"
@@ -132,7 +145,7 @@ export const Header: React.FC<HeaderProps> = ({ currentPage, onNavigate }) => {
           <div className="hidden sm:flex items-center gap-1 bg-slate-800/80 px-2 py-0.5 rounded text-[10px] text-slate-400 shrink-0 border border-slate-700/60">
             <span className="text-blue-400 font-bold">{activeBranchIndex + 1}</span>
             <span>/</span>
-            <span>{BRANCHES_DATA.length} Branches</span>
+            <span>{branchesList.length} Branches</span>
             <div className="flex flex-col ml-1 text-slate-500">
               <ChevronUp className="w-2.5 h-2.5 -mb-1" />
               <ChevronDown className="w-2.5 h-2.5" />

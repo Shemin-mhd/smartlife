@@ -166,7 +166,7 @@ export const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({ onNavigate
               Your information is processed strictly for legitimate legal and administrative services, including:
             </p>
             <ul className="list-disc pl-5 space-y-2 text-slate-600">
-              <li>Typing electronic forms into official UAE government portals (ICP Federal Authority, GDRFA Dubai, MoHRE Labour Portal, MOFA Attestation, BLS Indian Consulate, SEDD Sharjah).</li>
+              <li>Typing electronic forms into official UAE government portals (ICP Federal Authority, GDRFA Dubai, MoHRE Labour Portal, MOFA Attestation, Alhind Indian Consulate, SEDD Sharjah).</li>
               <li>Booking medical fitness screening test appointments and Emirates ID biometric appointments.</li>
               <li>Sending status updates via SMS, Phone, or WhatsApp regarding application approvals and document readiness.</li>
               <li>Complying with mandatory UAE federal recordkeeping and legal obligations.</li>

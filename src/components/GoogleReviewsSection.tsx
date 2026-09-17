@@ -20,12 +20,12 @@ export const GoogleReviewsSection: React.FC<GoogleReviewsSectionProps> = ({ onNa
   const [isPaused, setIsPaused] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
-  const filterCategories = ['All', 'Family Visas', 'Indian Passport & BLS', 'Attestation', 'Medical & ID'];
+  const filterCategories = ['All', 'Family Visas', 'Indian Passport & Alhind', 'Attestation', 'Medical & ID'];
 
   const filteredReviews = GOOGLE_REVIEWS_DATA.filter((rev) => {
     if (selectedFilter === 'All') return true;
     if (selectedFilter === 'Family Visas') return rev.serviceCategory.includes('Visa');
-    if (selectedFilter === 'Indian Passport & BLS') return rev.serviceCategory.includes('Indian') || rev.serviceCategory.includes('Passport');
+    if (selectedFilter === 'Indian Passport & Alhind') return rev.serviceCategory.includes('Indian') || rev.serviceCategory.includes('Passport') || rev.serviceCategory.includes('Alhind');
     if (selectedFilter === 'Attestation') return rev.serviceCategory.includes('Attestation');
     if (selectedFilter === 'Medical & ID') return rev.serviceCategory.includes('Medical') || rev.serviceCategory.includes('ID');
     return true;

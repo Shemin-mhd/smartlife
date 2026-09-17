@@ -74,10 +74,10 @@ export const BLOG_POSTS: BlogPost[] = [
     category: "Indian Consular Services",
     date: "May 2026",
     readTime: "4 min read",
-    summary: "Complete instructions for Indian expats renewing passports and applying for consular services via BLS centers under CGI Dubai in Sharjah and UAE.",
+    summary: "Complete instructions for Indian expats renewing passports and applying for consular services via Alhind centers under CGI Dubai in Sharjah and UAE.",
     coverImage: "/images/blog_indian_passport_bls.jpg",
     relatedServiceId: "indian-passport-renewal",
-    seoKeywords: ["indian passport renewal uae", "indian consular services sharjah", "bls application typing sharjah", "passport photo specs uae"],
+    seoKeywords: ["indian passport renewal uae", "indian consular services sharjah", "alhind application typing sharjah", "passport photo specs uae"],
     keyTakeaways: [
       "Apply at least 6 months prior to passport expiration.",
       "Valid UAE Residence Visa and original Emirates ID card are mandatory.",
@@ -86,7 +86,7 @@ export const BLOG_POSTS: BlogPost[] = [
     ],
     author: "Smart Life Consular Services Desk",
     content: [
-      "Indian nationals residing in Sharjah and Northern Emirates must submit passport renewal and consular applications through authorized BLS International centers under the Consulate General of India (CGI), Dubai.",
+      "Indian nationals residing in Sharjah and Northern Emirates must submit passport renewal and consular applications through authorized Alhind centers under the Consulate General of India (CGI), Dubai.",
       "Mandatory documents include: Original current passport, copy of valid UAE residence visa, original Emirates ID card, 51mm x 51mm white background photographs, and filled online application form.",
       "Our typists at Smart Life Typing generate error-free application forms, format photo requirements to CGI specifications, and prepare complete file submissions to avoid counter rejections."
     ]
