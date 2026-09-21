@@ -125,6 +125,102 @@ export const CompanyPage: React.FC = () => {
         </div>
       </section>
 
+      {/* Leadership Team Section */}
+      <section className="space-y-10">
+        <div className="text-center max-w-2xl mx-auto space-y-2">
+          <span className="text-xs font-semibold text-slate-500 uppercase tracking-widest block">
+            Our Leadership
+          </span>
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900">
+            The Founders &amp; Directors of Smart Life
+          </h2>
+          <p className="text-slate-500 text-sm">
+            Built on experience, trust, and a shared vision for reliable documentation services in the UAE
+          </p>
+        </div>
+
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
+
+          {/* Card 1 — Chairman */}
+          <div className="group flex flex-col bg-white hover:bg-slate-50 transition-colors border-r border-slate-100 last:border-r-0">
+            <div className="aspect-[4/5] overflow-hidden bg-slate-100">
+              <img
+                src="/images/team_abdurahiman.png"
+                alt="Abdurahiman Pookkat — Chairman"
+                className="w-full h-full object-cover object-top grayscale group-hover:grayscale-0 scale-100 group-hover:scale-[1.03] transition-all duration-500"
+                loading="lazy"
+              />
+            </div>
+            <div className="p-5 flex flex-col gap-1.5 border-t border-slate-100">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Chairman</p>
+              <h3 className="text-base font-extrabold text-slate-900 leading-tight">Abdurahiman Pookkat</h3>
+              <p className="text-xs text-slate-500 leading-relaxed mt-1">
+                Originally from Kerala, Abdurahiman moved to the UAE in the late 2000s, built a successful typing &amp; visa venture, and now serves as Chairman &amp; Visionary — providing strategic direction and inspiring the team.
+              </p>
+            </div>
+          </div>
+
+          {/* Card 2 — Founder & MD */}
+          <div className="group flex flex-col bg-white hover:bg-slate-50 transition-colors border-r border-slate-100 last:border-r-0">
+            <div className="aspect-[4/5] overflow-hidden bg-slate-100">
+              <img
+                src="/images/team_rishad.png"
+                alt="Muhammed Rishad — Founder & Managing Director"
+                className="w-full h-full object-cover object-top grayscale group-hover:grayscale-0 scale-100 group-hover:scale-[1.03] transition-all duration-500"
+                loading="lazy"
+              />
+            </div>
+            <div className="p-5 flex flex-col gap-1.5 border-t border-slate-100">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Founder &amp; Managing Director</p>
+              <h3 className="text-base font-extrabold text-slate-900 leading-tight">Muhammed Rishad</h3>
+              <p className="text-xs text-slate-500 leading-relaxed mt-1">
+                Rishad came to the UAE in the early 2020s, trained under Chairman Abdurahiman, and founded Smart Life Typing Services — growing it into a trusted name in UAE visa and documentation solutions.
+              </p>
+            </div>
+          </div>
+
+          {/* Card 3 — Co-Founder Nizar */}
+          <div className="group flex flex-col bg-white hover:bg-slate-50 transition-colors border-r border-slate-100 last:border-r-0">
+            <div className="aspect-[4/5] overflow-hidden bg-slate-100">
+              <img
+                src="/images/team_nizar.png"
+                alt="Mohamed Nizar — Co-Founder & Director"
+                className="w-full h-full object-cover object-top grayscale group-hover:grayscale-0 scale-100 group-hover:scale-[1.03] transition-all duration-500"
+                loading="lazy"
+              />
+            </div>
+            <div className="p-5 flex flex-col gap-1.5 border-t border-slate-100">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Co-Founder &amp; Director</p>
+              <h3 className="text-base font-extrabold text-slate-900 leading-tight">Mohamed Nizar</h3>
+              <p className="text-xs text-slate-500 leading-relaxed mt-1">
+                In the UAE since the early 2010s, Nizar built his career in typing services alongside the Chairman. He joined Smart Life as Co-Founder &amp; Director, bringing deep industry knowledge and strong leadership.
+              </p>
+            </div>
+          </div>
+
+          {/* Card 4 — Co-Founder Rashid */}
+          <div className="group flex flex-col bg-white hover:bg-slate-50 transition-colors">
+            <div className="aspect-[4/5] overflow-hidden bg-slate-100">
+              <img
+                src="/images/team_rashid.png"
+                alt="Rashid Padiyil Punnakkal — Co-Founder & Director"
+                className="w-full h-full object-cover object-top grayscale group-hover:grayscale-0 scale-100 group-hover:scale-[1.03] transition-all duration-500"
+                loading="lazy"
+              />
+            </div>
+            <div className="p-5 flex flex-col gap-1.5 border-t border-slate-100">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Co-Founder &amp; Director</p>
+              <h3 className="text-base font-extrabold text-slate-900 leading-tight">Rashid Padiyil Punnakkal</h3>
+              <p className="text-xs text-slate-500 leading-relaxed mt-1">
+                With a successful career in the UAE optical industry since the early 2010s, Rashid joined Smart Life as Co-Founder &amp; Director, contributing cross-industry experience and strategic vision.
+              </p>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+
       {/* Core Values Section */}
       <section className="space-y-6">
         <div className="text-center max-w-2xl mx-auto space-y-1.5">
