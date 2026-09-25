@@ -99,16 +99,16 @@ export const GoogleReviewsSection: React.FC<GoogleReviewsSectionProps> = ({ onNa
           </div>
 
           {/* Rating Summary + Google Action Button */}
-          <div className="flex flex-wrap items-center gap-4 shrink-0">
-            <div className="flex items-center gap-3 bg-slate-50 border border-slate-200 px-4 py-2.5 rounded-xl">
-              <span className="text-2xl font-black text-slate-900">{GOOGLE_PROFILE_STATS.overallRating}</span>
+          <div className="flex flex-wrap items-stretch sm:items-center gap-2.5 sm:gap-4 shrink-0">
+            <div className="flex items-center gap-3 bg-slate-50 border border-slate-200 px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-xl">
+              <span className="text-xl sm:text-2xl font-black text-slate-900">{GOOGLE_PROFILE_STATS.overallRating}</span>
               <div className="space-y-0.5">
                 <div className="flex items-center text-[#FBBC05]">
                   {[...Array(5)].map((_, i) => (
-                    <Star key={i} className="w-4 h-4 fill-current" />
+                    <Star key={i} className="w-3.5 sm:w-4 h-3.5 sm:h-4 fill-current" />
                   ))}
                 </div>
-                <p className="text-[11px] text-slate-600 font-medium">
+                <p className="text-[10px] sm:text-[11px] text-slate-600 font-medium">
                   {GOOGLE_PROFILE_STATS.totalReviews}+ Verified Reviews
                 </p>
               </div>
@@ -117,7 +117,7 @@ export const GoogleReviewsSection: React.FC<GoogleReviewsSectionProps> = ({ onNa
             {onNavigate && (
               <button
                 onClick={() => onNavigate('reviews')}
-                className="bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs px-4 py-3 rounded-xl transition-colors shadow-2xs flex items-center gap-2 cursor-pointer"
+                className="bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs px-3.5 py-2.5 sm:px-4 sm:py-3 rounded-xl transition-colors shadow-2xs flex items-center justify-center gap-1.5 cursor-pointer"
               >
                 <span>View All 240+ Reviews</span>
               </button>
@@ -125,7 +125,7 @@ export const GoogleReviewsSection: React.FC<GoogleReviewsSectionProps> = ({ onNa
 
             <button
               onClick={() => openGoogleProfile(GOOGLE_PROFILE_STATS.googleProfileLinks.abuShagara)}
-              className="bg-[#4285F4] hover:bg-blue-600 text-white font-bold text-xs px-4 py-3 rounded-xl transition-colors shadow-2xs flex items-center gap-2 cursor-pointer"
+              className="bg-[#4285F4] hover:bg-blue-600 text-white font-bold text-xs px-3.5 py-2.5 sm:px-4 sm:py-3 rounded-xl transition-colors shadow-2xs flex items-center justify-center gap-1.5 cursor-pointer"
             >
               <span>Write a Review on Google</span>
               <ExternalLink className="w-3.5 h-3.5" />
@@ -268,7 +268,7 @@ export const GoogleReviewsSection: React.FC<GoogleReviewsSectionProps> = ({ onNa
         </div>
 
         {/* Clean, Professional Light Bottom Banner */}
-        <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 sm:p-5 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="bg-slate-50 border border-slate-200 rounded-xl p-3.5 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-full bg-white border border-slate-200 flex items-center justify-center shrink-0 shadow-2xs">
               <svg viewBox="0 0 24 24" className="w-5 h-5">
@@ -284,10 +284,10 @@ export const GoogleReviewsSection: React.FC<GoogleReviewsSectionProps> = ({ onNa
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2 shrink-0">
+          <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 w-full sm:w-auto shrink-0">
             <button
               onClick={() => openGoogleProfile(GOOGLE_PROFILE_STATS.googleProfileLinks.abuShagara)}
-              className="bg-white hover:bg-slate-100 text-slate-900 font-bold text-xs px-3 py-2 rounded-lg transition-colors flex items-center gap-1.5 border border-slate-200 shadow-2xs cursor-pointer"
+              className="flex-1 sm:flex-none justify-center bg-white hover:bg-slate-100 text-slate-900 font-bold text-xs px-3 py-2 rounded-lg transition-colors flex items-center gap-1.5 border border-slate-200 shadow-2xs cursor-pointer"
             >
               <MapPin className="w-3.5 h-3.5 text-[#EA4335]" />
               <span>Abu Shagara Profile</span>
@@ -296,7 +296,7 @@ export const GoogleReviewsSection: React.FC<GoogleReviewsSectionProps> = ({ onNa
 
             <button
               onClick={() => openGoogleProfile(GOOGLE_PROFILE_STATS.googleProfileLinks.alMajaz)}
-              className="bg-white hover:bg-slate-100 text-slate-900 font-bold text-xs px-3 py-2 rounded-lg transition-colors flex items-center gap-1.5 border border-slate-200 shadow-2xs cursor-pointer"
+              className="flex-1 sm:flex-none justify-center bg-white hover:bg-slate-100 text-slate-900 font-bold text-xs px-3 py-2 rounded-lg transition-colors flex items-center gap-1.5 border border-slate-200 shadow-2xs cursor-pointer"
             >
               <MapPin className="w-3.5 h-3.5 text-[#34A853]" />
               <span>Al Majaz Profile</span>
