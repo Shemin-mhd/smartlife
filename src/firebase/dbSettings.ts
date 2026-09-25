@@ -1,8 +1,8 @@
-import { 
-  doc, 
-  getDoc, 
-  setDoc, 
-  onSnapshot 
+import {
+  doc,
+  getDoc,
+  setDoc,
+  onSnapshot
 } from 'firebase/firestore';
 import { db, isFirebaseConfigured } from './config';
 
@@ -32,7 +32,7 @@ export const DEFAULT_GENERAL_SETTINGS: GeneralSettings = {
   whatsappNumber: '971551585570',
   whatsappDisplayNumber: '+971 55 158 5570',
   whatsappDefaultMessage: 'Hello Smart Life Typing Services, I need assistance with UAE visa & government documentation.',
-  notificationEmail: 'sheminmuhammed594@gmail.com',
+  notificationEmail: 'smartlifetypingservices@gmail.com',
   businessName: 'Smart Life Typing Services',
   supportEmail: 'admin@smartlifetyping.ae',
   workingHours: 'Sat - Thu: 8:00 AM - 10:00 PM',
@@ -110,8 +110,8 @@ export const saveGeneralSettings = async (settings: GeneralSettings): Promise<vo
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ type: 'settings', data: updatedSettings })
-    }).catch(() => {});
-  } catch {}
+    }).catch(() => { });
+  } catch { }
 };
 
 export const subscribeGeneralSettings = (onData: (settings: GeneralSettings) => void): (() => void) => {
@@ -124,7 +124,7 @@ export const subscribeGeneralSettings = (onData: (settings: GeneralSettings) => 
       saveStoredLocalSettings(cloudSettings);
       onData(cloudSettings);
     }
-  }).catch(() => {});
+  }).catch(() => { });
 
   let unsubFirestore: (() => void) | null = null;
 

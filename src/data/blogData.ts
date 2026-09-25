@@ -75,7 +75,7 @@ export const BLOG_POSTS: BlogPost[] = [
     date: "May 2026",
     readTime: "4 min read",
     summary: "Complete instructions for Indian expats renewing passports and applying for consular services via Alhind centers under CGI Dubai in Sharjah and UAE.",
-    coverImage: "/images/blog_indian_passport_bls.jpg",
+    coverImage: "/images/blog_indian_passport_renewal.jpg",
     relatedServiceId: "indian-passport-renewal",
     seoKeywords: ["indian passport renewal uae", "indian consular services sharjah", "alhind application typing sharjah", "passport photo specs uae"],
     keyTakeaways: [

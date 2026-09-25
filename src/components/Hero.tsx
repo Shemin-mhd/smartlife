@@ -9,7 +9,9 @@ import {
   ArrowUpRight,
   CheckCircle2,
   Clock,
-  Sparkles
+  Sparkles,
+  BookCheck,
+  ArrowRight
 } from 'lucide-react';
 import { SERVICES_DATA } from '../data/servicesData';
 import { ServiceItem } from '../types';
@@ -152,6 +154,22 @@ export const Hero: React.FC<HeroProps> = ({
     }
   };
 
+  const handleBookPassport = () => {
+    const passportService = servicesList.find(
+      s => s.id === 'indian-passport-renewal' || 
+           s.category === 'indian_consulate' || 
+           s.title.toLowerCase().includes('passport')
+    ) || SERVICES_DATA.find(s => s.id === 'indian-passport-renewal');
+
+    if (passportService && onSelectServiceDocs) {
+      onSelectServiceDocs(passportService);
+    } else if (onNavigate) {
+      onNavigate('service-detail', 'indian-passport-renewal');
+    } else {
+      onExploreServices();
+    }
+  };
+
   return (
     <section className="bg-gradient-to-b from-slate-50 via-blue-50/20 to-white py-8 sm:py-10 lg:py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
       <div className="max-w-7xl mx-auto">
@@ -241,32 +259,62 @@ export const Hero: React.FC<HeroProps> = ({
               )}
             </div>
 
-            {/* Direct Action Buttons */}
-            <div className="flex flex-wrap items-center gap-3 pt-1">
-              <a
-                href={getWhatsAppLink({ message: 'Hi Smart Life Typing Services, I need help with UAE visa & government documentation.' })}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  trackAndOpenWhatsApp({
-                    buttonLocation: 'Hero Primary CTA',
-                    contextDetails: 'Hero - Instant WhatsApp Inquiry'
-                  });
-                }}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-bold px-4 py-2.5 rounded-xl transition-all shadow-md shadow-emerald-600/20 hover:shadow-lg"
-              >
-                <MessageSquare className="w-4 h-4 fill-current" />
-                <span>Instant WhatsApp Inquiry</span>
-              </a>
-
+            {/* Direct Action Buttons Section */}
+            <div className="space-y-3 pt-1 max-w-xl">
+              {/* Top Featured Button: Book Your Passport */}
               <button
-                onClick={onExploreServices}
-                className="inline-flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white text-xs sm:text-sm font-bold px-4 py-2.5 rounded-xl transition-all cursor-pointer shadow-sm"
+                type="button"
+                onClick={handleBookPassport}
+                className="w-full flex items-center justify-between bg-blue-700 hover:bg-blue-800 text-white px-4 sm:px-5 py-3 rounded-xl transition-all shadow-md shadow-blue-700/20 hover:shadow-lg hover:-translate-y-0.5 cursor-pointer group"
               >
-                <FileText className="w-4 h-4 text-blue-400" />
-                <span>Browse Services Catalog</span>
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-8 h-8 rounded-lg bg-blue-800/80 flex items-center justify-center shrink-0 border border-blue-600/60">
+                    <BookCheck className="w-4 h-4 text-amber-300" />
+                  </div>
+                  <div className="text-left min-w-0">
+                    <div className="text-xs sm:text-sm font-bold leading-tight truncate">
+                      Book Your Passport Appointment
+                    </div>
+                    <div className="text-[11px] text-blue-200 font-medium truncate">
+                      Indian Passport Renewal, Form Preparation & Document Checklist
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-1.5 text-xs font-bold bg-white text-blue-800 px-3 py-1.5 rounded-lg shadow-2xs group-hover:bg-blue-50 transition-colors shrink-0 ml-2">
+                  <span>Book Now</span>
+                  <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+                </div>
               </button>
+
+              {/* Two Bottom Action Buttons */}
+              <div className="flex flex-wrap sm:flex-nowrap items-center gap-3">
+                <a
+                  href={getWhatsAppLink({ message: 'Hi Smart Life Typing Services, I need help with UAE visa & government documentation.' })}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    trackAndOpenWhatsApp({
+                      buttonLocation: 'Hero Primary CTA',
+                      contextDetails: 'Hero - Instant WhatsApp Inquiry'
+                    });
+                  }}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full sm:w-1/2 inline-flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-bold px-4 py-2.5 rounded-xl transition-all shadow-md shadow-emerald-600/20 hover:shadow-lg hover:-translate-y-0.5"
+                >
+                  <MessageSquare className="w-4 h-4 fill-current shrink-0" />
+                  <span>Instant WhatsApp Inquiry</span>
+                </a>
+
+                <button
+                  type="button"
+                  onClick={onExploreServices}
+                  className="w-full sm:w-1/2 inline-flex items-center justify-center gap-2 bg-slate-900 hover:bg-slate-800 text-white text-xs sm:text-sm font-bold px-4 py-2.5 rounded-xl transition-all cursor-pointer shadow-sm hover:-translate-y-0.5"
+                >
+                  <FileText className="w-4 h-4 text-blue-400 shrink-0" />
+                  <span>Browse Services Catalog</span>
+                </button>
+              </div>
             </div>
 
             {/* Key Trust Highlights Grid */}

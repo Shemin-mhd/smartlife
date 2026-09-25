@@ -94,15 +94,15 @@ export const BranchesPage: React.FC = () => {
             key={branch.id}
             onClick={() => setSelectedBranchId(branch.id)}
             className={`cursor-pointer bg-white border-2 rounded-2xl p-6 transition-all ${selectedBranchId === branch.id
-                ? 'border-blue-600 shadow-xs ring-2 ring-blue-100'
-                : 'border-slate-200 hover:border-slate-300'
+              ? 'border-blue-600 shadow-xs ring-2 ring-blue-100'
+              : 'border-slate-200 hover:border-slate-300'
               }`}
           >
             <div className="flex items-start justify-between mb-3">
               <div>
                 <span className={`text-xs font-bold uppercase tracking-wider ${branch.isMain
-                    ? 'text-blue-700'
-                    : 'text-emerald-700'
+                  ? 'text-blue-700'
+                  : 'text-emerald-700'
                   }`}>
                   • {branch.isMain ? 'MAIN BRANCH' : 'BRANCH 2'}
                 </span>
