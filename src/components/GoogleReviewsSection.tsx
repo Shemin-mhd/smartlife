@@ -174,7 +174,7 @@ export const GoogleReviewsSection: React.FC<GoogleReviewsSectionProps> = ({ onNa
           ref={scrollContainerRef}
           onMouseEnter={() => setIsPaused(true)}
           onMouseLeave={() => setIsPaused(false)}
-          className="flex items-stretch gap-5 overflow-x-auto pb-4 scrollbar-thin snap-x snap-mandatory pt-2"
+          className="flex items-stretch gap-4 sm:gap-5 overflow-x-auto pb-4 scrollbar-thin snap-x snap-mandatory pt-2 -mx-4 px-4 sm:mx-0 sm:px-0"
         >
           {filteredReviews.map((rev) => {
             const isLiked = likedReviews[rev.id];
@@ -185,7 +185,7 @@ export const GoogleReviewsSection: React.FC<GoogleReviewsSectionProps> = ({ onNa
               <div
                 key={rev.id}
                 onClick={() => openGoogleProfile(targetUrl)}
-                className="w-[300px] sm:w-[340px] shrink-0 bg-white border border-slate-200 rounded-xl p-5 shadow-2xs hover:shadow-md hover:border-[#4285F4] transition-all flex flex-col justify-between space-y-4 snap-start relative cursor-pointer group overflow-hidden"
+                className="w-[275px] sm:w-[340px] shrink-0 bg-white border border-slate-200 rounded-xl p-4 sm:p-5 shadow-2xs hover:shadow-md hover:border-[#4285F4] transition-all flex flex-col justify-between space-y-4 snap-start relative cursor-pointer group overflow-hidden"
               >
                 {/* Google Signature 4-Color Gradient Bar at top of card */}
                 <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#4285F4] via-[#EA4335] via-[#FBBC05] to-[#34A853]" />
@@ -193,7 +193,7 @@ export const GoogleReviewsSection: React.FC<GoogleReviewsSectionProps> = ({ onNa
                 <div className="space-y-3 pt-1">
                   {/* Top user header with Google multi-color gradient ring on avatar */}
                   <div className="flex items-start justify-between gap-2">
-                    <div className="flex items-center gap-2.5">
+                    <div className="flex items-center gap-2.5 min-w-0">
                       {/* Google Colors Avatar Ring */}
                       <div className="p-[2px] rounded-full bg-gradient-to-r from-[#4285F4] via-[#EA4335] via-[#FBBC05] to-[#34A853] shrink-0">
                         <div className="w-8 h-8 rounded-full bg-slate-900 text-white font-bold flex items-center justify-center text-xs">
@@ -201,9 +201,9 @@ export const GoogleReviewsSection: React.FC<GoogleReviewsSectionProps> = ({ onNa
                         </div>
                       </div>
 
-                      <div>
-                        <h3 className="font-bold text-slate-900 text-sm leading-tight group-hover:text-[#4285F4] transition-colors flex items-center gap-1">
-                          <span>{rev.authorName}</span>
+                      <div className="min-w-0">
+                        <h3 className="font-bold text-slate-900 text-sm leading-tight group-hover:text-[#4285F4] transition-colors flex items-center gap-1 truncate">
+                          <span className="truncate">{rev.authorName}</span>
                         </h3>
                         <div className="flex items-center gap-1 text-[11px] text-slate-500">
                           <CheckCircle2 className="w-3 h-3 text-[#34A853] shrink-0" />
@@ -213,7 +213,7 @@ export const GoogleReviewsSection: React.FC<GoogleReviewsSectionProps> = ({ onNa
                     </div>
 
                     {/* Google External Link indicator */}
-                    <div className="p-1 rounded bg-slate-50 text-slate-400 group-hover:text-[#4285F4] group-hover:bg-blue-50 transition-colors">
+                    <div className="p-1 rounded bg-slate-50 text-slate-400 group-hover:text-[#4285F4] group-hover:bg-blue-50 transition-colors shrink-0">
                       <ExternalLink className="w-3.5 h-3.5" />
                     </div>
                   </div>
@@ -240,13 +240,13 @@ export const GoogleReviewsSection: React.FC<GoogleReviewsSectionProps> = ({ onNa
                 </div>
 
                 {/* Card Footer: Branch Location & Direct Action */}
-                <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-                  <span className="flex items-center gap-1 text-[11px] text-slate-600 font-medium">
+                <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500 gap-2">
+                  <span className="flex items-center gap-1 text-[11px] text-slate-600 font-medium min-w-0">
                     <MapPin className="w-3 h-3 text-[#EA4335] shrink-0" />
-                    <span className="truncate max-w-[140px]">{rev.branchName}</span>
+                    <span className="truncate">{rev.branchName}</span>
                   </span>
 
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 shrink-0">
                     <button
                       onClick={(e) => toggleLike(e, rev.id)}
                       className={`flex items-center gap-1 text-[11px] font-semibold px-2 py-1 rounded transition-colors ${isLiked ? 'text-[#4285F4] bg-blue-50' : 'hover:bg-slate-100 text-slate-500'
@@ -284,10 +284,10 @@ export const GoogleReviewsSection: React.FC<GoogleReviewsSectionProps> = ({ onNa
             </div>
           </div>
 
-          <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 w-full sm:w-auto shrink-0">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto shrink-0">
             <button
               onClick={() => openGoogleProfile(GOOGLE_PROFILE_STATS.googleProfileLinks.abuShagara)}
-              className="flex-1 sm:flex-none justify-center bg-white hover:bg-slate-100 text-slate-900 font-bold text-xs px-3 py-2 rounded-lg transition-colors flex items-center gap-1.5 border border-slate-200 shadow-2xs cursor-pointer"
+              className="flex-1 sm:flex-none justify-center bg-white hover:bg-slate-100 text-slate-900 font-bold text-xs px-3 py-2.5 sm:py-2 rounded-lg transition-colors flex items-center gap-1.5 border border-slate-200 shadow-2xs cursor-pointer"
             >
               <MapPin className="w-3.5 h-3.5 text-[#EA4335]" />
               <span>Abu Shagara Profile</span>
@@ -296,7 +296,7 @@ export const GoogleReviewsSection: React.FC<GoogleReviewsSectionProps> = ({ onNa
 
             <button
               onClick={() => openGoogleProfile(GOOGLE_PROFILE_STATS.googleProfileLinks.alMajaz)}
-              className="flex-1 sm:flex-none justify-center bg-white hover:bg-slate-100 text-slate-900 font-bold text-xs px-3 py-2 rounded-lg transition-colors flex items-center gap-1.5 border border-slate-200 shadow-2xs cursor-pointer"
+              className="flex-1 sm:flex-none justify-center bg-white hover:bg-slate-100 text-slate-900 font-bold text-xs px-3 py-2.5 sm:py-2 rounded-lg transition-colors flex items-center gap-1.5 border border-slate-200 shadow-2xs cursor-pointer"
             >
               <MapPin className="w-3.5 h-3.5 text-[#34A853]" />
               <span>Al Majaz Profile</span>

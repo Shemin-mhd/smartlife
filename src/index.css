@@ -1,5 +1,14 @@
 @import "tailwindcss";
 
+@layer base {
+  html,
+  body {
+    max-width: 100%;
+    overflow-x: hidden;
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
 @keyframes marquee-infinite {
   0% {
     transform: translateX(0%);
@@ -18,3 +27,4 @@
 .animate-marquee-slow:hover {
   animation-play-state: paused;
 }
+

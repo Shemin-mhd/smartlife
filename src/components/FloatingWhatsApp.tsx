@@ -5,12 +5,11 @@ import { getWhatsAppLink } from '../config/whatsapp';
 import { trackAndOpenWhatsApp } from '../utils/whatsappTracker';
 
 /* EXACT official WhatsApp icon — flat green speech bubble + white phone */
-const WhatsAppIcon = ({ size = 62 }: { size?: number }) => (
+const WhatsAppIcon = ({ className = 'w-12 h-12 sm:w-14 sm:h-14' }: { className?: string }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     viewBox="0 0 24 24"
-    width={size}
-    height={size}
+    className={className}
     aria-label="WhatsApp"
   >
     {/* Single flat green speech-bubble with bottom-left tail — official WhatsApp shape */}
@@ -35,22 +34,22 @@ export const FloatingWhatsApp: React.FC = () => {
       <style>{`
         @keyframes wa-float {
           0%, 100% { transform: translateY(0px); }
-          50%       { transform: translateY(-10px); }
+          50%       { transform: translateY(-8px); }
         }
         .wa-float {
           animation: wa-float 2.4s ease-in-out infinite;
         }
         .wa-float:hover {
           animation: none;
-          transform: scale(1.1);
+          transform: scale(1.08);
         }
       `}</style>
 
-      <div className="fixed bottom-6 right-5 z-40 flex flex-col items-end">
+      <div className="fixed bottom-4 right-3.5 sm:bottom-6 sm:right-5 z-40 flex flex-col items-end">
 
         {/* Branch Selector Popup */}
         {open && (
-          <div className="mb-3 bg-white border border-slate-200 rounded-2xl p-4 shadow-xl w-72 space-y-3 animate-in fade-in slide-in-from-bottom-2 duration-150">
+          <div className="mb-3 bg-white border border-slate-200 rounded-2xl p-3.5 sm:p-4 shadow-xl w-[calc(100vw-2rem)] max-w-[290px] sm:w-72 space-y-3 animate-in fade-in slide-in-from-bottom-2 duration-150">
             <div className="flex items-center justify-between border-b border-slate-100 pb-2">
               <div>
                 <h4 className="font-bold text-slate-900 text-xs">WhatsApp Quick Support</h4>
@@ -58,7 +57,8 @@ export const FloatingWhatsApp: React.FC = () => {
               </div>
               <button
                 onClick={() => setOpen(false)}
-                className="text-slate-400 hover:text-slate-600 p-1"
+                className="text-slate-400 hover:text-slate-600 p-1 rounded-md hover:bg-slate-100"
+                aria-label="Close WhatsApp Popup"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -79,16 +79,16 @@ export const FloatingWhatsApp: React.FC = () => {
                   }}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-3 p-2.5 rounded-xl bg-slate-50 hover:bg-emerald-50 hover:border-emerald-200 border border-slate-200 transition-colors group text-left"
+                  className="flex items-center gap-2.5 p-2 sm:p-2.5 rounded-xl bg-slate-50 hover:bg-emerald-50 hover:border-emerald-200 border border-slate-200 transition-colors group text-left"
                 >
                   <div className="shrink-0">
-                    <WhatsAppIcon size={34} />
+                    <WhatsAppIcon className="w-8 h-8 sm:w-9 sm:h-9" />
                   </div>
-                  <div>
-                    <strong className="block text-xs font-bold text-slate-900 group-hover:text-emerald-800">
+                  <div className="min-w-0">
+                    <strong className="block text-xs font-bold text-slate-900 group-hover:text-emerald-800 truncate">
                       {branch.area} Branch
                     </strong>
-                    <span className="text-[11px] text-slate-500 block">
+                    <span className="text-[11px] text-slate-500 block truncate">
                       {branch.landmark}
                     </span>
                   </div>
@@ -101,10 +101,10 @@ export const FloatingWhatsApp: React.FC = () => {
         {/* Floating Round Trigger Button */}
         <button
           onClick={() => setOpen(!open)}
-          className="wa-float drop-shadow-2xl cursor-pointer"
+          className="wa-float drop-shadow-xl cursor-pointer p-0.5 rounded-full focus:outline-none focus:ring-2 focus:ring-emerald-400"
           aria-label="Open WhatsApp Support"
         >
-          <WhatsAppIcon size={62} />
+          <WhatsAppIcon className="w-13 h-13 sm:w-15 sm:h-15 drop-shadow-md" />
         </button>
 
       </div>

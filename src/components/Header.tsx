@@ -102,13 +102,13 @@ export const Header: React.FC<HeaderProps> = ({ currentPage, onNavigate }) => {
       {/* Top Utility Contact Bar - Vertically Shifting Branch Information */}
       <div
         onClick={() => handleNavClick('branches')}
-        className="bg-slate-900 text-slate-300 text-xs py-2 px-4 sm:px-6 lg:px-8 cursor-pointer hover:bg-slate-950 transition-colors border-b border-slate-800/80 group"
+        className="bg-slate-900 text-slate-300 text-xs py-2 px-3.5 sm:px-6 lg:px-8 cursor-pointer hover:bg-slate-950 transition-colors border-b border-slate-800/80 group w-full overflow-hidden"
         title="Click to view all Sharjah branch locations, maps, and working hours"
       >
-        <div className="max-w-7xl mx-auto flex items-center justify-between gap-3 overflow-hidden h-6 relative">
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-2 sm:gap-3 overflow-hidden h-6 relative w-full">
 
           {/* Vertical Sliding Branch Container */}
-          <div className="flex-1 overflow-hidden h-6 relative">
+          <div className="flex-1 overflow-hidden h-6 relative min-w-0">
             <div
               className="transition-transform duration-500 ease-in-out"
               style={{ transform: `translateY(-${activeBranchIndex * 24}px)` }}
@@ -116,24 +116,24 @@ export const Header: React.FC<HeaderProps> = ({ currentPage, onNavigate }) => {
               {branchesList.map((branch) => (
                 <div
                   key={branch.id}
-                  className="h-6 flex items-center gap-3 sm:gap-6 text-[11px] font-medium whitespace-nowrap"
+                  className="h-6 flex items-center gap-2 sm:gap-6 text-[11px] font-medium whitespace-nowrap min-w-0"
                 >
-                  <div className="flex items-center gap-1.5 text-slate-100 font-semibold group-hover:text-blue-300 transition-colors shrink-0">
+                  <div className="flex items-center gap-1.5 text-slate-100 font-semibold group-hover:text-blue-300 transition-colors shrink min-w-0 truncate">
                     <MapPin className="w-3.5 h-3.5 text-blue-400 shrink-0 animate-pulse" />
-                    <span>{branch.name} ({branch.area})</span>
+                    <span className="truncate">{branch.name} ({branch.area})</span>
                   </div>
 
-                  <div className="hidden md:flex items-center gap-1 text-slate-400">
+                  <div className="hidden md:flex items-center gap-1 text-slate-400 shrink-0">
                     <Clock className="w-3 h-3 text-slate-500 shrink-0" />
                     <span>{branch.workingDays}: {branch.workingHours}</span>
                   </div>
 
-                  <div className="hidden lg:flex items-center gap-1 text-slate-300 font-semibold hover:text-white">
+                  <div className="hidden lg:flex items-center gap-1 text-slate-300 font-semibold hover:text-white shrink-0">
                     <Phone className="w-3 h-3 text-emerald-400 shrink-0" />
                     <span>{branch.phoneDisplay}</span>
                   </div>
 
-                  <span className="hidden sm:inline text-blue-400 font-bold group-hover:underline text-[10px] uppercase tracking-wider ml-auto">
+                  <span className="hidden sm:inline text-blue-400 font-bold group-hover:underline text-[10px] uppercase tracking-wider ml-auto shrink-0">
                     Contact Branch &rarr;
                   </span>
                 </div>
@@ -156,26 +156,26 @@ export const Header: React.FC<HeaderProps> = ({ currentPage, onNavigate }) => {
       </div>
 
       {/* Main Header Navigation */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5 flex items-center justify-between gap-4">
+      <div className="max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8 py-2.5 flex items-center justify-between gap-2 sm:gap-4">
         {/* Brand Logo */}
         <button
           onClick={() => handleNavClick('home')}
-          className="flex items-center gap-2.5 group text-left cursor-pointer focus:outline-none shrink-0"
+          className="flex items-center gap-2 sm:gap-2.5 group text-left cursor-pointer focus:outline-none min-w-0 shrink"
         >
-          <div className="w-9 h-9 rounded-lg bg-black flex items-center justify-center p-1 shadow-xs group-hover:bg-slate-800 transition-colors shrink-0">
+          <div className="w-8.5 h-8.5 sm:w-9 sm:h-9 rounded-lg bg-black flex items-center justify-center p-1 shadow-xs group-hover:bg-slate-800 transition-colors shrink-0">
             <img
               src="/images/clients/logo-png-trans-white.png"
               alt="Smart Life Logo"
               className="w-full h-full object-contain"
             />
           </div>
-          <div>
+          <div className="min-w-0">
             <div className="flex items-center gap-1">
-              <span className="font-extrabold text-slate-900 text-base sm:text-lg tracking-tight leading-none">
+              <span className="font-extrabold text-slate-900 text-sm sm:text-lg tracking-tight leading-none truncate">
                 SMART LIFE
               </span>
             </div>
-            <p className="text-[10px] text-slate-500 font-semibold tracking-wider uppercase mt-0.5">
+            <p className="text-[9px] sm:text-[10px] text-slate-500 font-semibold tracking-wider uppercase mt-0.5 truncate">
               Typing & Government Services
             </p>
           </div>
